@@ -2,6 +2,7 @@ package com.mongonerds.tcpserver
 
 import akka.actor.{Actor, ActorRef, Props}
 import akka.io.Tcp.{Received, _}
+import akka.util.ByteString
 
 import scala.util.matching.Regex
 
@@ -21,7 +22,7 @@ abstract class Handler(val connection: ActorRef) extends Actor {
         case abort() => connection ! Abort
         case confirmedClose() => connection ! ConfirmedClose
         case close() => connection ! Close
-        case str => received(str)
+        case _ => received(data)
       }
     case PeerClosed =>
       peerClosed()
@@ -40,7 +41,7 @@ abstract class Handler(val connection: ActorRef) extends Actor {
       stop()
   }
 
-  def received(str: String): Unit
+  def received(str: ByteString): Unit
 
   def peerClosed() {
     println("PeerClosed")
