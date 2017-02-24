@@ -1,0 +1,18 @@
+package com.mongonerds.wire.opcodes
+
+import java.nio.ByteOrder.LITTLE_ENDIAN
+
+import akka.util.ByteString
+import com.mongonerds.wire.{Message, MsgHeader}
+import org.bson.{BSON, BSONObject}
+
+object OpReply {
+  def apply(msgHeader: MsgHeader, content: Array[Byte]): OpReply = ???
+}
+
+class OpReply(val msgHeader: MsgHeader) extends Message {
+  override def serialize: ByteString = ???
+}
+
+
+

@@ -3,7 +3,7 @@ package com.mongonerds.wire
 import java.nio.ByteOrder.LITTLE_ENDIAN
 
 import akka.util.ByteString
-import com.mongonerds.wire.opcodes.OpQueryMessage
+import com.mongonerds.wire.opcodes.OpQuery
 
 trait Message {
   val msgHeader: MsgHeader
@@ -19,7 +19,7 @@ object Message {
       case OpCodes.opMsg => ???
       case OpCodes.opUpdate => ???
       case OpCodes.opInsert => ???
-      case OpCodes.opQuery => OpQueryMessage(header, content)
+      case OpCodes.opQuery => OpQuery(header, content)
       case OpCodes.opGetMore => ???
       case OpCodes.opDelete => ???
       case OpCodes.opKillCursor => ???
