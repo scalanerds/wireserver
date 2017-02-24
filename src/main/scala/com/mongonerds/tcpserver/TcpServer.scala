@@ -16,7 +16,7 @@ class TcpServer(handlerProps: HandlerProps) extends Actor {
 
   IO(Tcp) ! Tcp.Bind(self, new InetSocketAddress("localhost", 3000))
 
-  override def receive = {
+  override def receive: PartialFunction[Any, Unit] = {
     case Tcp.CommandFailed(_: Tcp.Bind) => context stop self
 
     case Tcp.Connected(_, _) =>

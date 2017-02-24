@@ -12,7 +12,7 @@ object WireHandlerProps extends HandlerProps {
 
 class WireHandler(connection: ActorRef) extends Handler(connection) {
 
-  def received(data: ByteString) = {
+  def received(data: ByteString): Unit = {
     println("< " + data)
 
     this.parse(data)
@@ -21,6 +21,7 @@ class WireHandler(connection: ActorRef) extends Handler(connection) {
   }
 
   def parse(data: ByteString): Unit = {
-    println(Message(data).opCode)
+//    println(Message.deserialize(data).opCode)
+    println("parse logic")
   }
 }

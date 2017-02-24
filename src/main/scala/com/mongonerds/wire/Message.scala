@@ -3,22 +3,41 @@ package com.mongonerds.wire
 import java.nio.ByteOrder.LITTLE_ENDIAN
 
 import akka.util.ByteString
+import com.mongonerds.wire.opcodes.OpQueryMessage
 
-class Message(val messageLength: Int,
-              val requestId: Int,
-              val responseTo: Int,
-              val opCode: Int) {
+trait Message {
+  val msgHeader: MsgHeader
 
+  def serialize: ByteString
 }
 
 object Message {
+  def apply(data: ByteString): Message = {
+    val (header, content) = deserialize(data)
+    header.opCode match {
+      case OpCodes.opReply => ???
+      case OpCodes.opMsg => ???
+      case OpCodes.opUpdate => ???
+      case OpCodes.opInsert => ???
+      case OpCodes.opQuery => OpQueryMessage(header, content)
+      case OpCodes.opGetMore => ???
+      case OpCodes.opDelete => ???
+      case OpCodes.opKillCursor => ???
+      case OpCodes.opCommand => ???
+      case OpCodes.opCommandReply => ???
+    }
+  }
 
-  def apply(data: ByteString) = {
+  def deserialize(data: ByteString): (MsgHeader, Array[Byte]) = {
     val it = data.iterator
-    val messageLength = it.getInt(LITTLE_ENDIAN)
+    it.drop(4)
     val requestId = it.getInt(LITTLE_ENDIAN)
     val responseTo = it.getInt(LITTLE_ENDIAN)
     val opCode = it.getInt(LITTLE_ENDIAN)
-    new Message(messageLength, requestId, responseTo, opCode)
+    val header = new MsgHeader(requestId, responseTo, opCode)
+    (header, it.toArray)
   }
+
+  def byteArrayToString(): String = ???
+
 }
