@@ -12,6 +12,7 @@ object OpQuery {
     val flags = BigInt(arr._1.reverse).toInt
     arr = arr._2.span(_ != 0)
     val fullCollectionName = new String(arr._1, "UTF-8")
+
     arr = arr._2.drop(1).splitAt(4)
     val numberToSkip = BigInt(arr._1.reverse).toInt
     arr = arr._2.splitAt(4)
@@ -33,9 +34,15 @@ class OpQuery(val msgHeader: MsgHeader,
               val returnFieldsSelector: BSONObject = null) extends Message {
 
   override def serialize: ByteString = {
-    val byteStringBuilder = ByteString.newBuilder
-    byteStringBuilder.putInts(msgHeader.toArr)(LITTLE_ENDIAN)
-    byteStringBuilder.result()
+    var content = msgHeader.serialize ++
+      Message.toByteArray(flags) ++
+      ByteString.fromString(fullCollectionName) ++
+      Array[Byte](0) ++
+      Message.intsAsByteArray(numberToSkip, numberToSkip, numberToReturn) ++
+      BSON.encode(query)
+    if (returnFieldsSelector != null)
+      content ++= BSON.encode(returnFieldsSelector)
+    ByteString(Message.toByteArray(content.length + 4) ++ content)
   }
 }
 

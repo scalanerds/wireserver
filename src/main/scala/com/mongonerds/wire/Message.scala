@@ -1,5 +1,6 @@
 package com.mongonerds.wire
 
+import java.nio.ByteBuffer
 import java.nio.ByteOrder.LITTLE_ENDIAN
 
 import akka.util.ByteString
@@ -38,6 +39,13 @@ object Message {
     (header, it.toArray)
   }
 
-  def byteArrayToString(): String = ???
+  def toByteArray(value: Int, size: Int = 4, endian: Boolean = true): Array[Byte] = {
+    val arr = ByteBuffer.allocate(size).putInt(value).array
+    if (endian) arr.reverse else arr
+  }
+
+  def intsAsByteArray(values: Int*): Array[Byte] = {
+    values.map(toByteArray(_)).reduce(_ ++ _)
+  }
 
 }
