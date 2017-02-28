@@ -1,6 +1,6 @@
 import akka.util.ByteString
-import com.mongonerds.wire.{Message, OpCodes}
-import com.mongonerds.wire.opcodes.OpQuery
+import com.scalanerds.wire.{Message, OpCodes}
+import com.scalanerds.wire.opcodes.OpQuery
 import org.bson.BSONObject
 import org.scalatest.{FlatSpec, Matchers}
 

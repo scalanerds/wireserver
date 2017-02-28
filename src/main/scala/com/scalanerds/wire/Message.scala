@@ -1,10 +1,10 @@
-package com.mongonerds.wire
+package com.scalanerds.wire
 
 import java.nio.ByteBuffer
 import java.nio.ByteOrder.LITTLE_ENDIAN
 
 import akka.util.ByteString
-import com.mongonerds.wire.opcodes._
+import com.scalanerds.wire.opcodes._
 
 trait Message {
   val msgHeader: MsgHeader

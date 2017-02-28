@@ -1,8 +1,8 @@
-package com.mongonerds.wire.opcodes
+package com.scalanerds.wire.opcodes
 
 import akka.util.ByteString
-import com.mongonerds.utils.Utils._
-import com.mongonerds.wire.{Message, MsgHeader}
+import com.scalanerds.utils.Utils._
+import com.scalanerds.wire.{Message, MsgHeader}
 import org.bson.BSONObject
 
 object OpQuery {

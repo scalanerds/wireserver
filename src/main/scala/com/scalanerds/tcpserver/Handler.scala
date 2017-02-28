@@ -1,4 +1,4 @@
-package com.mongonerds.tcpserver
+package com.scalanerds.tcpserver
 
 import akka.actor.{Actor, ActorRef, Props}
 import akka.io.Tcp.{Received, _}

@@ -1,4 +1,4 @@
-package com.mongonerds.utils
+package com.scalanerds.utils
 
 import java.nio.ByteBuffer
 

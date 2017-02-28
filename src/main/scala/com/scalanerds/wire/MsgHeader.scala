@@ -1,6 +1,6 @@
-package com.mongonerds.wire
+package com.scalanerds.wire
 
-import com.mongonerds.utils.Utils.IntToByte
+import com.scalanerds.utils.Utils.IntToByte
 
 class MsgHeader(val requestId: Int,
                 val responseTo: Int,

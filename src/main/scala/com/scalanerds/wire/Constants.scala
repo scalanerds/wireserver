@@ -1,4 +1,4 @@
-package com.mongonerds.wire
+package com.scalanerds.wire
 
 object OpCodes {
   val opReply         = 1

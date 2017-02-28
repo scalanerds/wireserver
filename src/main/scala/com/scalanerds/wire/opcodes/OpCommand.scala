@@ -1,9 +1,9 @@
-package com.mongonerds.wire.opcodes
+package com.scalanerds.wire.opcodes
 
 import java.nio.ByteOrder.LITTLE_ENDIAN
 
 import akka.util.ByteString
-import com.mongonerds.wire.{Message, MsgHeader}
+import com.scalanerds.wire.{Message, MsgHeader}
 import org.bson.{BSON, BSONObject}
 
 object OpCommand {

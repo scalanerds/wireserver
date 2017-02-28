@@ -1,8 +1,8 @@
-package com.mongonerds
+package com.scalanerds
 
 import akka.actor.ActorSystem
-import com.mongonerds.handlers.WireHandlerProps
-import com.mongonerds.tcpserver.TcpServer
+import com.scalanerds.handlers.WireHandlerProps
+import com.scalanerds.tcpserver.TcpServer
 
 object Main {
   def main(args: Array[String]): Unit = {

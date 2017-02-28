@@ -1,4 +1,4 @@
-package com.mongonerds.tcpserver
+package com.scalanerds.tcpserver
 
 import java.net.InetSocketAddress
 
