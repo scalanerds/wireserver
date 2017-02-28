@@ -4,7 +4,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder.LITTLE_ENDIAN
 
 import akka.util.ByteString
-import com.mongonerds.wire.opcodes.OpQuery
+import com.mongonerds.wire.opcodes.{OpQuery, OpReply}
 
 trait Message {
   val msgHeader: MsgHeader
@@ -16,7 +16,7 @@ object Message {
   def apply(data: ByteString): Message = {
     val (header, content) = deserialize(data)
     header.opCode match {
-      case OpCodes.opReply => ???
+      case OpCodes.opReply => OpReply(header, content)
       case OpCodes.opMsg => ???
       case OpCodes.opUpdate => ???
       case OpCodes.opInsert => ???
@@ -38,14 +38,4 @@ object Message {
     val header = new MsgHeader(requestId, responseTo, opCode)
     (header, it.toArray)
   }
-
-  def toByteArray(value: Int, size: Int = 4, endian: Boolean = true): Array[Byte] = {
-    val arr = ByteBuffer.allocate(size).putInt(value).array
-    if (endian) arr.reverse else arr
-  }
-
-  def intsAsByteArray(values: Int*): Array[Byte] = {
-    values.map(toByteArray(_)).reduce(_ ++ _)
-  }
-
 }
