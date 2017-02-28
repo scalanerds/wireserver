@@ -1,16 +1,30 @@
 package com.mongonerds.wire.opcodes
 
-import java.nio.ByteOrder.LITTLE_ENDIAN
-
 import akka.util.ByteString
+import com.mongonerds.utils.Utils._
 import com.mongonerds.wire.{Message, MsgHeader}
-import org.bson.{BSON, BSONObject}
+import org.bson.BSONObject
 
 object OpDelete {
-  def apply(msgHeader: MsgHeader, content: Array[Byte]): OpDelete = ???
+  def apply(msgHeader: MsgHeader, content: Array[Byte]): OpDelete = {
+    val it = content.iterator
+    val reserved = it.getInt
+    val fullCollectionName = it.getString
+    val flags = it.getInt
+    val selector = it.getBson
+    new OpDelete(msgHeader, fullCollectionName, flags, selector, reserved)
+  }
 }
 
-class OpDelete(val msgHeader: MsgHeader, fullCollectionName : String,
-               flags: Int, document: BSONObject, reserved: Int = 0) extends Message {
-  override def serialize: ByteString = ???
+class OpDelete(val msgHeader: MsgHeader, fullCollectionName: String,
+               flags: Int, selector: BSONObject, reserved: Int = 0) extends Message {
+  override def serialize: ByteString = {
+    val content = msgHeader.serialize ++
+      reserved.toByteArray ++
+      fullCollectionName.toByteArray ++
+      flags.toByteArray ++
+      selector.toByteArray
+
+    ByteString((content.length + 4).toByteArray ++ content)
+  }
 }
