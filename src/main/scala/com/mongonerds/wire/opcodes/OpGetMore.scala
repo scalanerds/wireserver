@@ -17,7 +17,7 @@ object OpGetMore {
 }
 
 class OpGetMore(val msgHeader: MsgHeader, fullCollectionName: String,
-                numberToReturn: Int, cursorID: Long, reserved: Int) extends Message {
+                numberToReturn: Int, cursorID: Long, reserved: Int = 0) extends Message {
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++
       reserved.toByteArray ++

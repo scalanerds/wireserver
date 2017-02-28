@@ -10,6 +10,7 @@ object OpDelete {
   def apply(msgHeader: MsgHeader, content: Array[Byte]): OpDelete = ???
 }
 
-class OpDelete(val msgHeader: MsgHeader) extends Message {
+class OpDelete(val msgHeader: MsgHeader, fullCollectionName : String,
+               flags: Int, document: BSONObject, reserved: Int = 0) extends Message {
   override def serialize: ByteString = ???
 }

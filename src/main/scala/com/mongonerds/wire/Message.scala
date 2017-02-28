@@ -4,7 +4,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder.LITTLE_ENDIAN
 
 import akka.util.ByteString
-import com.mongonerds.wire.opcodes.{OpInsert, OpQuery, OpReply, OpUpdate}
+import com.mongonerds.wire.opcodes._
 
 trait Message {
   val msgHeader: MsgHeader
@@ -22,7 +22,7 @@ object Message {
       case OpCodes.opInsert => OpInsert(header, content)
       case OpCodes.opQuery => OpQuery(header, content)
       case OpCodes.opGetMore => ???
-      case OpCodes.opDelete => ???
+      case OpCodes.opDelete => OpDelete(header, content)
       case OpCodes.opKillCursor => ???
       case OpCodes.opCommand => ???
       case OpCodes.opCommandReply => ???
