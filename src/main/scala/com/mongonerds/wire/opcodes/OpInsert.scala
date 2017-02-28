@@ -15,13 +15,16 @@ object OpInsert {
   }
 }
 
-class OpInsert(val msgHeader: MsgHeader, flags: Int, fullCollectionName : String,
+class OpInsert(val msgHeader: MsgHeader,
+               val flags: Int,
+               val fullCollectionName: String,
                val documents: Array[BSONObject]) extends Message {
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++
       flags.toByteArray ++
       fullCollectionName.toByteArray ++
       documents.toByteArray
+
     ByteString((content.length + 4).toByteArray ++ content)
   }
 }

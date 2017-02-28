@@ -16,8 +16,11 @@ object OpDelete {
   }
 }
 
-class OpDelete(val msgHeader: MsgHeader, fullCollectionName: String,
-               flags: Int, selector: BSONObject, reserved: Int = 0) extends Message {
+class OpDelete(val msgHeader: MsgHeader,
+               val fullCollectionName: String,
+               val flags: Int,
+               val selector: BSONObject,
+               val reserved: Int = 0) extends Message {
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++
       reserved.toByteArray ++

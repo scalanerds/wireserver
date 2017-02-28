@@ -18,9 +18,12 @@ object OpUpdate {
   }
 }
 
-class OpUpdate(val msgHeader: MsgHeader, val fullCollectionName: String,
-               val flags: Int, selector: BSONObject,
-               val update: BSONObject, reserved: Int = 0) extends Message {
+class OpUpdate(val msgHeader: MsgHeader,
+               val fullCollectionName: String,
+               val flags: Int,
+               val selector: BSONObject,
+               val update: BSONObject,
+               val reserved: Int = 0) extends Message {
 
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++
