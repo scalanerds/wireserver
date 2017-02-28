@@ -12,9 +12,9 @@ trait HandlerProps {
 
 abstract class Handler(val connection: ActorRef) extends Actor {
 
-  val abort : Regex = "(?i)abort".r
-  val confirmedClose : Regex = "(?i)confirmedclose".r
-  val close : Regex = "(?i)close".r
+  val abort: Regex = "(?i)abort".r
+  val confirmedClose: Regex = "(?i)confirmedclose".r
+  val close: Regex = "(?i)close".r
 
   def receive: Receive = {
     case Received(data) =>
