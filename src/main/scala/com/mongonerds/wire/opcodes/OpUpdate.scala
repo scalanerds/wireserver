@@ -25,7 +25,7 @@ class OpUpdate(val msgHeader: MsgHeader, val fullCollectionName: String,
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++
       reserved.toByteArray ++
-      fullCollectionName.toCString ++
+      fullCollectionName.toByteArray ++
       flags.toByteArray ++
       selector.toByteArray ++
       update.toByteArray

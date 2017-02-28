@@ -30,7 +30,7 @@ class OpQuery(val msgHeader: MsgHeader,
   override def serialize: ByteString = {
     var content = msgHeader.serialize ++
       flags.toByteArray ++
-      fullCollectionName.toCString ++
+      fullCollectionName.toByteArray ++
       Array(numberToSkip, numberToSkip, numberToReturn).toByteArray ++
       query.toByteArray
     if (returnFieldsSelector.nonEmpty)

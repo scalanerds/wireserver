@@ -76,7 +76,7 @@ object Utils {
 
 
   implicit class StringToArray(s: String) {
-    def toCString: Array[Byte] = {
+    def toByteArray: Array[Byte] = {
       ByteString.fromString(s).toArray ++ Array[Byte](0)
     }
   }
