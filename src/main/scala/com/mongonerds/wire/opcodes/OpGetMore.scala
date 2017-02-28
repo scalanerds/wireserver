@@ -27,6 +27,7 @@ class OpGetMore(val msgHeader: MsgHeader,
       fullCollectionName.toByteArray ++
       numberToReturn.toByteArray ++
       cursorID.toByteArray
+
     ByteString((content.length + 4).toByteArray ++ content)
   }
 }

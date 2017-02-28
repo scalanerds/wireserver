@@ -21,7 +21,7 @@ object Message {
       case OpCodes.opUpdate => OpUpdate(header, content)
       case OpCodes.opInsert => OpInsert(header, content)
       case OpCodes.opQuery => OpQuery(header, content)
-      case OpCodes.opGetMore => ???
+      case OpCodes.opGetMore => OpGetMore(header, content)
       case OpCodes.opDelete => OpDelete(header, content)
       case OpCodes.opKillCursor => ???
       case OpCodes.opCommand => ???

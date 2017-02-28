@@ -32,11 +32,11 @@ class OpReply(val msgHeader: MsgHeader,
               val documents: Array[BSONObject]) extends Message {
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++
-    responseFlags.toByteArray  ++
-    cursorId.toByteArray ++
-    startingFrom.toByteArray ++
-    numberReturned.toByteArray ++
-    documents.toByteArray
+      responseFlags.toByteArray  ++
+      cursorId.toByteArray ++
+      startingFrom.toByteArray ++
+      numberReturned.toByteArray ++
+      documents.toByteArray
 
     ByteString((content.length + 4).toByteArray ++ content)
   }
