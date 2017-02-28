@@ -5,10 +5,13 @@ import java.nio.ByteBuffer
 import akka.util.ByteString
 import org.bson.{BSON, BSONObject}
 
+import scala.language.implicitConversions
+
 
 object Utils {
-  implicit def consumable[T](i: Iterator[T]) = new {
-    def cTake(n: Int) = {
+
+  implicit class consumable[T](i: Iterator[T]) {
+    def cTake(n: Int): Iterator[T] = {
       (for (_ <- 1 to n) yield i.next()).iterator
     }
 
@@ -18,22 +21,22 @@ object Utils {
   }
 
   implicit class IntToByteArray(value: Int) {
-    def toByteArray(endian: Boolean = true): Array[Byte] = {
-      val arr = ByteBuffer.allocate(4).putInt(value).array
-      if (endian) arr.reverse else arr
+    def toByteArray: Array[Byte] = {
+      // LITTLE_ENDIAN
+      ByteBuffer.allocate(4).putInt(value).array.reverse
     }
   }
 
   implicit class LongToByteArray(value: Long) {
-    def toByteArray(endian: Boolean = true): Array[Byte] = {
-      val arr = ByteBuffer.allocate(8).putLong(value).array
-      if (endian) arr.reverse else arr
+    def toByteArray: Array[Byte] = {
+      // LITTLE_ENDIAN
+      ByteBuffer.allocate(8).putLong(value).array.reverse
     }
   }
 
   implicit class IntToByte(arr: Array[Int]) {
     def toByteArray: Array[Byte] = {
-      arr.map(_.toByteArray()).reduce(_ ++ _)
+      arr.map(_.toByteArray).reduce(_ ++ _)
     }
   }
 
@@ -55,15 +58,7 @@ object Utils {
     }
 
     def toBSONArray: Array[BSONObject] = {
-      def transform(it: Iterator[Byte], acc: List[BSONObject]): List[BSONObject] = {
-        if (it.isEmpty) acc
-        else {
-          val len = it.take(4).toArray.toInt
-          val bson = it.cTake(len).toArray.toBson
-          transform(it, bson :: acc)
-        }
-      }
-      transform(arr.iterator, Nil).toArray.reverse
+      arr.iterator.getBsonArray
     }
   }
 
@@ -83,6 +78,36 @@ object Utils {
   implicit class StringToArray(s: String) {
     def toCString: Array[Byte] = {
       ByteString.fromString(s).toArray ++ Array[Byte](0)
+    }
+  }
+
+  implicit class ByteIterator(i: Iterator[Byte]) {
+    def getString: String = {
+      i.takeWhile(_ != 0).toArray.toUTFString
+    }
+
+    def getInt: Int = {
+      i.cTake(4).toArray.toInt
+    }
+
+    def getLong: Long = {
+      i.cTake(8).toArray.toLong
+    }
+
+    def getBson: BSONObject = {
+      i.cTake(i.take(4).toArray.toInt).toArray.toBson
+    }
+
+    def getBsonArray: Array[BSONObject] = {
+      def transform(it: Iterator[Byte], acc: List[BSONObject]): List[BSONObject] = {
+        if (it.isEmpty) acc
+        else {
+          val bson = it.getBson
+          transform(it, bson :: acc)
+        }
+      }
+
+      transform(i, Nil).toArray.reverse
     }
   }
 
