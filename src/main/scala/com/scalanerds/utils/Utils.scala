@@ -90,17 +90,6 @@ object Utils {
       i.cTake(4).toArray.toInt
     }
 
-//    def getIntArray: Array[Int] = {
-//      def aux(it: Iterator[Byte], acc: List[Int]) : List[Int] = {
-//        if(it.isEmpty) acc
-//        else {
-//          aux(it, it.getInt :: acc)
-//        }
-//      }
-//      aux(i, Nil).toArray.reverse
-//    }
-
-
     def getLong: Long = {
       i.cTake(8).toArray.toLong
     }
@@ -122,12 +111,12 @@ object Utils {
     }
 
     def getLongArray(n:Int) : Array[Long] = {
-      val acc = for(_ ← 1 to n) yield i.getLong
+      val acc = for(_ <- 1 to n) yield i.getLong
       acc.toArray
     }
 
     def getIntArray(n:Int) : Array[Int] = {
-      val acc = for(_ ← 1 to n) yield i.getInt
+      val acc = for(_ <- 1 to n) yield i.getInt
       acc.toArray
     }
   }
