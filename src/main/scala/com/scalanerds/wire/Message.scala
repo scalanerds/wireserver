@@ -1,6 +1,5 @@
 package com.scalanerds.wire
 
-import java.nio.ByteBuffer
 import java.nio.ByteOrder.LITTLE_ENDIAN
 
 import akka.util.ByteString
@@ -23,7 +22,7 @@ object Message {
       case OpCodes.opQuery => OpQuery(header, content)
       case OpCodes.opGetMore => OpGetMore(header, content)
       case OpCodes.opDelete => OpDelete(header, content)
-      case OpCodes.opKillCursor => ???
+      case OpCodes.opKillCursor => OpKillCursor(header, content)
       case OpCodes.opCommand => ???
       case OpCodes.opCommandReply => ???
     }
