@@ -24,7 +24,7 @@ object Message {
       case OpCodes.opDelete => OpDelete(header, content)
       case OpCodes.opKillCursor => OpKillCursor(header, content)
       case OpCodes.opCommand => OpCommand(header, content)
-      case OpCodes.opCommandReply => ???
+      case OpCodes.opCommandReply => OpCommandReply(header, content)
     }
   }
 
