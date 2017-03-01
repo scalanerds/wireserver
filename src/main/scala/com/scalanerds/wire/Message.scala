@@ -16,14 +16,14 @@ object Message {
     val (header, content) = deserialize(data)
     header.opCode match {
       case OpCodes.opReply => OpReply(header, content)
-      case OpCodes.opMsg => ???
+      case OpCodes.opMsg => OpMsg(header, content)
       case OpCodes.opUpdate => OpUpdate(header, content)
       case OpCodes.opInsert => OpInsert(header, content)
       case OpCodes.opQuery => OpQuery(header, content)
       case OpCodes.opGetMore => OpGetMore(header, content)
       case OpCodes.opDelete => OpDelete(header, content)
       case OpCodes.opKillCursor => OpKillCursor(header, content)
-      case OpCodes.opCommand => ???
+      case OpCodes.opCommand => OpCommand(header, content)
       case OpCodes.opCommandReply => ???
     }
   }
