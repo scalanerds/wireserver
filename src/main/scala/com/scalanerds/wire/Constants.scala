@@ -1,5 +1,10 @@
 package com.scalanerds.wire
 
+package object conversions {
+  implicit def byte2bool(b: Byte): Boolean = b.toInt != 0
+  implicit def bool2byte(b: Boolean): Byte = (if (b) 1 else 0).toByte
+}
+
 object OpCodes {
   val opReply         = 1
   val opMsg           = 1000

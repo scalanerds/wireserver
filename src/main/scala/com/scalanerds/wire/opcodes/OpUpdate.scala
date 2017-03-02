@@ -1,8 +1,9 @@
 package com.scalanerds.wire.opcodes
 
 import akka.util.ByteString
-import com.scalanerds.utils.Utils._
+import com.scalanerds.wire.conversions._
 import com.scalanerds.wire.{Message, MsgHeader}
+import com.scalanerds.utils.Utils._
 import org.bson.BSONObject
 
 object OpUpdate {
@@ -10,7 +11,7 @@ object OpUpdate {
     val it = content.iterator
     val reserved = it.getInt
     val fullCollectionName = it.getString
-    val flags = it.getInt
+    val flags = OpUpdateFlags(it.getInt)
     val bson = it.getBsonArray
     val selector = bson(0)
     val update = bson(1)
@@ -20,7 +21,7 @@ object OpUpdate {
 
 class OpUpdate(val msgHeader: MsgHeader,
                val fullCollectionName: String,
-               val flags: Int,
+               val flags: OpUpdateFlags,
                val selector: BSONObject,
                val update: BSONObject,
                val reserved: Int = 0) extends Message {
@@ -29,10 +30,27 @@ class OpUpdate(val msgHeader: MsgHeader,
     val content = msgHeader.serialize ++
       reserved.toByteArray ++
       fullCollectionName.toByteArray ++
-      flags.toByteArray ++
+      flags.serialize ++
       selector.toByteArray ++
       update.toByteArray
 
     ByteString((content.length + 4).toByteArray ++ content)
+  }
+}
+
+object OpUpdateFlags {
+  def apply(raw: Int): OpUpdateFlags = {
+    val bytes = raw.toByteArray
+    new OpUpdateFlags(
+      upsert = bytes(0),
+      multiUpdate = bytes(1)
+    )
+  }
+}
+
+class OpUpdateFlags(val upsert: Boolean = false,
+                    val multiUpdate: Boolean = false) {
+  def serialize: ByteString = {
+    Array(upsert, multiUpdate).asInstanceOf[ByteString]
   }
 }
