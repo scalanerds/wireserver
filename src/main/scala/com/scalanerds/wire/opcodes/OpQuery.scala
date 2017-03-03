@@ -4,11 +4,12 @@ import akka.util.ByteString
 import com.scalanerds.utils.Utils._
 import com.scalanerds.wire.{Message, MsgHeader}
 import org.bson.BSONObject
+import com.scalanerds.wire.conversions._
 
 object OpQuery {
   def apply(msgHeader: MsgHeader, content: Array[Byte]): OpQuery = {
     val it = content.iterator
-    val flags = it.getInt
+    val flags = OpQueryFlags(it.getInt)
     val fullCollectionName = it.getString
     val numberToSkip = it.getInt
     val numberToReturn = it.getInt
@@ -20,7 +21,7 @@ object OpQuery {
 }
 
 class OpQuery(val msgHeader: MsgHeader,
-              val flags: Int,
+              val flags: OpQueryFlags,
               val fullCollectionName: String,
               val numberToSkip: Int,
               val numberToReturn: Int,
@@ -29,7 +30,7 @@ class OpQuery(val msgHeader: MsgHeader,
 
   override def serialize: ByteString = {
     var content = msgHeader.serialize ++
-      flags.toByteArray ++
+      flags.serialize ++
       fullCollectionName.toByteArray ++
       Array(numberToSkip, numberToSkip, numberToReturn).toByteArray ++
       query.toByteArray
@@ -51,5 +52,36 @@ class OpQuery(val msgHeader: MsgHeader,
   }
 }
 
+object OpQueryFlags {
+  def apply(raw: Int): OpQueryFlags = {
+    val bytes = raw.toBooleanArray
+    new OpQueryFlags(bytes(1),bytes(2),bytes(3),bytes(4),bytes(5),bytes(6),bytes(7))
+  }
+}
+
+class OpQueryFlags(val tailableCursor: Boolean = false,
+                   val slaveOk: Boolean = false,
+                   val opLogReply: Boolean = false,
+                   val noCursorTimeOut: Boolean = false,
+                   val awaitData: Boolean = false,
+                   val exhaust: Boolean = false,
+                   val partial: Boolean = false) {
+  def serialize: ByteString = {
+    Array(0, tailableCursor, slaveOk, opLogReply, noCursorTimeOut, awaitData, exhaust, partial)
+      .asInstanceOf[ByteString]
+  }
+
+  override def toString: String = {
+    s"""
+       |tailableCursor: $tailableCursor
+       |slaveOk: $slaveOk
+       |opLogReply: $opLogReply
+       |noCursorTimeOut: $noCursorTimeOut
+       |awaitData: $awaitData
+       |exhaust: $exhaust
+       |partial: $partial
+     """.stripMargin
+  }
+}
 
 

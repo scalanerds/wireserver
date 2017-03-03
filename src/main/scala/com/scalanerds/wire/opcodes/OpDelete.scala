@@ -44,7 +44,7 @@ class OpDelete(val msgHeader: MsgHeader,
 
 object OpDeleteFlags {
   def apply(raw: Int): OpDeleteFlags = {
-    val bytes = raw.toByteArray
+    val bytes = raw.toBooleanArray
     new OpDeleteFlags(
       bytes(0)
     )

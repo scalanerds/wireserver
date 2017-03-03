@@ -50,7 +50,7 @@ class OpUpdate(val msgHeader: MsgHeader,
 
 object OpUpdateFlags {
   def apply(raw: Int): OpUpdateFlags = {
-    val bytes = raw.toByteArray
+    val bytes = raw.toBooleanArray
     new OpUpdateFlags(
       upsert = bytes(0),
       multiUpdate = bytes(1)

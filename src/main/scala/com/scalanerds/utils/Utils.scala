@@ -25,6 +25,9 @@ object Utils {
       // LITTLE_ENDIAN
       ByteBuffer.allocate(4).putInt(value).array.reverse
     }
+    def toBooleanArray : Array[Boolean] = {
+      (for (i <- 0 to 31) yield ((value >> i) & 1) != 0).toArray
+    }
   }
 
   implicit class LongToByteArray(value: Long) {
