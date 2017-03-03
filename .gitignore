@@ -54,3 +54,4 @@ tm.out
 worker*.log
 /bin
 *.sc
+temp

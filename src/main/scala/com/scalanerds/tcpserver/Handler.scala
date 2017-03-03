@@ -3,11 +3,12 @@ package com.scalanerds.tcpserver
 import akka.actor.{Actor, ActorRef, Props}
 import akka.io.Tcp.{Received, _}
 import akka.util.ByteString
+import com.scalanerds.utils.Packet
 
 import scala.util.matching.Regex
 
 trait HandlerProps {
-  def props(connection: ActorRef): Props
+  def props(connection: ActorRef, listener: ActorRef): Props
 }
 
 abstract class Handler(val connection: ActorRef) extends Actor {
@@ -17,6 +18,8 @@ abstract class Handler(val connection: ActorRef) extends Actor {
   val close: Regex = "(?i)close".r
 
   def receive: Receive = {
+    case str: String => received(str)
+    case msg: Packet => received(msg)
     case Received(data) =>
       data.utf8String.trim match {
         case abort() => connection ! Abort
@@ -24,6 +27,7 @@ abstract class Handler(val connection: ActorRef) extends Actor {
         case close() => connection ! Close
         case _ => received(data)
       }
+
     case PeerClosed =>
       peerClosed()
       stop()
@@ -42,6 +46,10 @@ abstract class Handler(val connection: ActorRef) extends Actor {
   }
 
   def received(str: ByteString): Unit
+
+  def received(str: String): Unit
+
+  def received(msg: Packet): Unit
 
   def peerClosed() {
     println("PeerClosed")
