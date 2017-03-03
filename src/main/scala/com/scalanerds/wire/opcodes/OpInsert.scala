@@ -27,4 +27,13 @@ class OpInsert(val msgHeader: MsgHeader,
 
     ByteString((content.length + 4).toByteArray ++ content)
   }
+
+  override def toString: String = {
+    s"""
+       |$msgHeader
+       |flags: $flags
+       |fullCollectionName : $fullCollectionName
+       |documents: ${documents.mkString("\n")}
+     """.stripMargin
+  }
 }

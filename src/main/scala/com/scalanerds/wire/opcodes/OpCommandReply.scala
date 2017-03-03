@@ -28,4 +28,13 @@ class OpCommandReply(val msgHeader: MsgHeader,
 
     ByteString((content.length + 4).toByteArray ++ content)
   }
+
+  override def toString: String = {
+    s"""
+       |$msgHeader
+       |metadata: $metadata
+       |commandReply: $commandReply
+       |outpuDocs: ${outputDocs.mkString("\n")}
+     """.stripMargin
+  }
 }

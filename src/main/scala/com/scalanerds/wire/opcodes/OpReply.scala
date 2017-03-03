@@ -40,6 +40,17 @@ class OpReply(val msgHeader: MsgHeader,
 
     ByteString((content.length + 4).toByteArray ++ content)
   }
+
+  override def toString: String = {
+    s"""
+       |$msgHeader
+       |responseFlags: $responseFlags
+       |cursorId: $cursorId
+       |startingFrom: $startingFrom
+       |numberReturned: $numberReturned
+       |documents: ${documents.mkString("\n")}
+     """.stripMargin
+  }
 }
 
 

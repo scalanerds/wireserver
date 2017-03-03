@@ -36,6 +36,16 @@ class OpUpdate(val msgHeader: MsgHeader,
 
     ByteString((content.length + 4).toByteArray ++ content)
   }
+
+  override def toString: String = {
+    s"""
+       |$msgHeader
+       |fullCollectionName: $fullCollectionName
+       |flags: $flags
+       |selector: $selector
+       |update: $update
+     """.stripMargin
+  }
 }
 
 object OpUpdateFlags {
@@ -52,5 +62,12 @@ class OpUpdateFlags(val upsert: Boolean = false,
                     val multiUpdate: Boolean = false) {
   def serialize: ByteString = {
     Array(upsert, multiUpdate).asInstanceOf[ByteString]
+  }
+
+  override def toString: String = {
+    s"""
+       |upsert: $upsert
+       |multiUpdate: $multiUpdate
+     """.stripMargin
   }
 }

@@ -17,13 +17,13 @@ class WireHandler(connection: ActorRef, val listener: ActorRef) extends Handler(
   val log = Logging(context.system, this)
 
   def received(data: ByteString): Unit = {
-    log.debug("to client")
+    log.debug("to mongod")
     parse(data)
     listener ! Packet(data)
   }
 
   def received(data: Packet): Unit = {
-    log.debug("from client")
+    log.debug("to mongocli")
     parse(data.data)
     connection ! Write(data.data)
   }
@@ -35,17 +35,17 @@ class WireHandler(connection: ActorRef, val listener: ActorRef) extends Handler(
   def parse(data: ByteString): Unit = {
 
     Message(data) match {
-      case _: OpReply => log.debug("OpReply\n" + data)
-      case _: OpMsg => log.debug("OpMsg\n" + data)
-      case _: OpUpdate => log.debug("OpUpdate\n" + data)
-      case _: OpInsert => log.debug("OpInsert\n" + data)
-      case _: OpQuery => log.debug("OpQuery\n" + data)
-      case _: OpGetMore => log.debug("OpGetMore\n" + data)
-      case _: OpDelete => log.debug("OpDelete\n" + data)
-      case _: OpKillCursor => log.debug("OpKillCursor\n" + data)
-      case _: OpCommand => log.debug("OpRCommand\n" + data)
-      case _: OpCommandReply => log.debug("OpCommandReply\n" + data)
-      case _ => log.debug("Unknown message\n" + data)
+      case msg: OpReply => log.debug(s"OpReply\n$data\n$msg\n")
+      case msg: OpMsg => log.debug(s"OpMsg\n$data\n$msg\n")
+      case msg: OpUpdate => log.debug(s"OpUpdate\n$data\n$msg\n")
+      case msg: OpInsert => log.debug(s"OpInsert\n$data\n$msg\n")
+      case msg: OpQuery => log.debug(s"OpQuery\n$data\n$msg\n")
+      case msg: OpGetMore => log.debug(s"OpGetMore\n$data\n$msg\n")
+      case msg: OpDelete => log.debug(s"OpDelete\n$data\n$msg\n")
+      case msg: OpKillCursor => log.debug(s"OpKillCursor\n$data\n$msg\n")
+      case msg: OpCommand => log.debug(s"OpCommand\n$data\n$msg\n")
+      case msg: OpCommandReply => log.debug(s"OpCommandReply\n$data\n$msg\n")
+      case msg => log.debug(s"Unknown message\n$data\n$msg\n")
     }
   }
 }

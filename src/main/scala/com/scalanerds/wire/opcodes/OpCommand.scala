@@ -25,12 +25,23 @@ class OpCommand(val msgHeader: MsgHeader,
                 val inputDocs: Array[BSONObject]) extends Message {
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++
-    database.toByteArray ++
-    commandName.toByteArray ++
-    metadata.toByteArray ++
-    commandArgs.toByteArray ++
-    inputDocs.toByteArray
+      database.toByteArray ++
+      commandName.toByteArray ++
+      metadata.toByteArray ++
+      commandArgs.toByteArray ++
+      inputDocs.toByteArray
 
     ByteString((content.length + 4).toByteArray ++ content)
+  }
+
+  override def toString: String = {
+    s"""
+       |$msgHeader
+       |database: $database
+       |commandName: $commandName
+       |metadata: $metadata
+       |commandArgs: $commandArgs
+       |inputDocs: ${inputDocs.mkString("\n")}
+       """.stripMargin
   }
 }

@@ -31,6 +31,14 @@ class OpDelete(val msgHeader: MsgHeader,
 
     ByteString((content.length + 4).toByteArray ++ content)
   }
+
+  override def toString: String = {
+    s"""
+       |$msgHeader
+       |fullCollectionName: $fullCollectionName
+       |flags: $flags
+     """.stripMargin
+  }
 }
 
 
@@ -46,5 +54,11 @@ object OpDeleteFlags {
 class OpDeleteFlags(val singleRemove: Boolean = false) {
   def serialize: ByteString = {
     Array(singleRemove).asInstanceOf[ByteString]
+  }
+
+  override def toString: String = {
+    s"""
+       |singleRemove: $singleRemove
+     """.stripMargin
   }
 }

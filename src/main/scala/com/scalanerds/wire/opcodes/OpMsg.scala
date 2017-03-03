@@ -17,4 +17,11 @@ class OpMsg(val msgHeader: MsgHeader,
       message.toByteArray
     ByteString((content.length + 4).toByteArray ++ content)
   }
+
+  override def toString: String = {
+    s"""
+       |$msgHeader
+       |message: $message
+     """.stripMargin
+  }
 }

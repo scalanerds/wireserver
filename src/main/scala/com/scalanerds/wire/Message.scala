@@ -9,6 +9,8 @@ trait Message {
   val msgHeader: MsgHeader
 
   def serialize: ByteString
+
+  override def toString: String
 }
 
 object Message {

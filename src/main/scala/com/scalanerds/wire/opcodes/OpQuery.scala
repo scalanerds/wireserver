@@ -38,6 +38,17 @@ class OpQuery(val msgHeader: MsgHeader,
 
     ByteString((content.length + 4).toByteArray ++ content)
   }
+
+  override def toString: String = {
+    s"""
+       |$msgHeader
+       |flags: $flags
+       |fullCollectionName: $fullCollectionName
+       |numberToSkip: $numberToReturn
+       |query: $query
+       |returnFieldsSelector: ${returnFieldsSelector.getOrElse("")}
+     """.stripMargin
+  }
 }
 
 

@@ -30,4 +30,13 @@ class OpGetMore(val msgHeader: MsgHeader,
 
     ByteString((content.length + 4).toByteArray ++ content)
   }
+
+  override def toString: String = {
+    s"""
+       |$msgHeader
+       |fullCollectionName: $fullCollectionName
+       |numberToReturn: $numberToReturn
+       |cursorID: $cursorID
+     """.stripMargin
+  }
 }
