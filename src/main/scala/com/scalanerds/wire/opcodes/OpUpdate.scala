@@ -1,9 +1,9 @@
 package com.scalanerds.wire.opcodes
 
 import akka.util.ByteString
+import com.scalanerds.utils.Utils._
 import com.scalanerds.wire.conversions._
 import com.scalanerds.wire.{Message, MsgHeader}
-import com.scalanerds.utils.Utils._
 import org.bson.BSONObject
 
 object OpUpdate {
@@ -60,8 +60,8 @@ object OpUpdateFlags {
 
 class OpUpdateFlags(val upsert: Boolean = false,
                     val multiUpdate: Boolean = false) {
-  def serialize: ByteString = {
-    Array(upsert, multiUpdate).asInstanceOf[ByteString]
+  def serialize: Array[Byte] = {
+    Array[Byte](upsert, multiUpdate).binaryToInt.toByteArray
   }
 
   override def toString: String = {

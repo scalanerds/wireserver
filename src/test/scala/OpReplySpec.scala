@@ -24,7 +24,7 @@ class OpReplySpec extends FlatSpec with Matchers {
   }
 
   "msgQuery" should "parse content" in {
-    msgReply.responseFlags should be(8)
+    msgReply.responseFlags.serialize should equal(8.toByteArray)
     msgReply.cursorId should be(0)
     msgReply.startingFrom should be(0)
     msgReply.numberReturned should be(1)

@@ -12,7 +12,7 @@ object Utils {
 
   implicit class consumable[T](i: Iterator[T]) {
     def cTake(n: Int): Iterator[T] = {
-      (for (_ <- 1 to n) yield i.next()).iterator
+      (1 to n).map(_ => i.next()).iterator
     }
 
     def cDrop(n: Int) {
@@ -20,13 +20,15 @@ object Utils {
     }
   }
 
-  implicit class IntToByteArray(value: Int) {
+  implicit class IntToArray(value: Int) {
     def toByteArray: Array[Byte] = {
       // LITTLE_ENDIAN
       ByteBuffer.allocate(4).putInt(value).array.reverse
     }
-    def toBooleanArray : Array[Boolean] = {
-      (for (i <- 0 to 31) yield ((value >> i) & 1) != 0).toArray
+
+    def toBooleanArray: Array[Boolean] = {
+      // get the first 8 bits which are required for the flags
+      (0 until 8).map(i => ((value >> i) & 1) != 0).toArray
     }
   }
 
@@ -62,6 +64,10 @@ object Utils {
 
     def toBSONArray: Array[BSONObject] = {
       arr.iterator.getBsonArray
+    }
+
+    def binaryToInt: Int = {
+      arr.zipWithIndex.map(p => p._1 << p._2).sum
     }
   }
 
@@ -113,14 +119,12 @@ object Utils {
       aux(i, Nil).toArray.reverse
     }
 
-    def getLongArray(n:Int) : Array[Long] = {
-      val acc = for(_ <- 1 to n) yield i.getLong
-      acc.toArray
+    def getLongArray(n: Int): Array[Long] = {
+      (1 to n).map(_ => i.getLong).toArray
     }
 
-    def getIntArray(n:Int) : Array[Int] = {
-      val acc = for(_ <- 1 to n) yield i.getInt
-      acc.toArray
+    def getIntArray(n: Int): Array[Int] = {
+      (1 to n).map(_ => i.getInt).toArray
     }
   }
 

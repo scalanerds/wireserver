@@ -2,9 +2,9 @@ package com.scalanerds.wire.opcodes
 
 import akka.util.ByteString
 import com.scalanerds.utils.Utils._
+import com.scalanerds.wire.conversions._
 import com.scalanerds.wire.{Message, MsgHeader}
 import org.bson.BSONObject
-import com.scalanerds.wire.conversions._
 
 object OpQuery {
   def apply(msgHeader: MsgHeader, content: Array[Byte]): OpQuery = {
@@ -66,9 +66,9 @@ class OpQueryFlags(val tailableCursor: Boolean = false,
                    val awaitData: Boolean = false,
                    val exhaust: Boolean = false,
                    val partial: Boolean = false) {
-  def serialize: ByteString = {
-    Array(0, tailableCursor, slaveOk, opLogReply, noCursorTimeOut, awaitData, exhaust, partial)
-      .asInstanceOf[ByteString]
+  def serialize: Array[Byte] = {
+    Array[Byte](0, tailableCursor, slaveOk, opLogReply, noCursorTimeOut, awaitData, exhaust, partial)
+      .binaryToInt.toByteArray
   }
 
   override def toString: String = {

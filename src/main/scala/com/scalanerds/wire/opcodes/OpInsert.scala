@@ -2,9 +2,9 @@ package com.scalanerds.wire.opcodes
 
 import akka.util.ByteString
 import com.scalanerds.utils.Utils._
+import com.scalanerds.wire.conversions._
 import com.scalanerds.wire.{Message, MsgHeader}
 import org.bson.BSONObject
-import com.scalanerds.wire.conversions._
 
 
 object OpInsert {
@@ -41,7 +41,7 @@ class OpInsert(val msgHeader: MsgHeader,
 }
 
 object OpInsertFlags {
-  def apply(raw: Int) : OpInsertFlags = {
+  def apply(raw: Int): OpInsertFlags = {
     val bytes = raw.toBooleanArray
     new OpInsertFlags(
       bytes(0)
@@ -50,8 +50,8 @@ object OpInsertFlags {
 }
 
 class OpInsertFlags(val continueOnError: Boolean = false) {
-  def serialize: ByteString = {
-    Array(continueOnError).asInstanceOf[ByteString]
+  def serialize: Array[Byte] = {
+    Array[Byte](continueOnError).binaryToInt.toByteArray
   }
 
   override def toString: String = {

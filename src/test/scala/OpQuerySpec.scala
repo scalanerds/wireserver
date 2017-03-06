@@ -1,6 +1,7 @@
 import akka.util.ByteString
-import com.scalanerds.wire.{Message, OpCodes}
+import com.scalanerds.utils.Utils._
 import com.scalanerds.wire.opcodes.OpQuery
+import com.scalanerds.wire.{Message, OpCodes}
 import org.bson.BSONObject
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -25,7 +26,7 @@ class OpQuerySpec extends FlatSpec with Matchers {
   }
 
   "msgQuery" should "parse content" in {
-    msgQuery.flags should be(0)
+    msgQuery.flags.serialize should equal(0.toByteArray)
     msgQuery.fullCollectionName should equal("admin.$cmd")
     msgQuery.numberToSkip should be(0)
     msgQuery.numberToReturn should be(1)

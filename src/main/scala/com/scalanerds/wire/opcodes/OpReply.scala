@@ -3,9 +3,9 @@ package com.scalanerds.wire.opcodes
 
 import akka.util.ByteString
 import com.scalanerds.utils.Utils._
+import com.scalanerds.wire.conversions._
 import com.scalanerds.wire.{Message, MsgHeader}
 import org.bson.BSONObject
-import com.scalanerds.wire.conversions._
 
 object OpReply {
   def apply(msgHeader: MsgHeader, content: Array[Byte]): OpReply = {
@@ -58,7 +58,7 @@ class OpReply(val msgHeader: MsgHeader,
 object OpReplyFlags {
   def apply(raw: Int): OpReplyFlags = {
     val bytes = raw.toBooleanArray
-    new OpReplyFlags(bytes(0),bytes(1),bytes(2),bytes(3))
+    new OpReplyFlags(bytes(0), bytes(1), bytes(2), bytes(3))
   }
 }
 
@@ -66,9 +66,9 @@ class OpReplyFlags(val cursorNotFound: Boolean = false,
                    val queryFailure: Boolean = false,
                    val shardConfigStale: Boolean = false,
                    val awaitCapable: Boolean = false) {
-  def serialize: ByteString = {
-    Array(cursorNotFound, queryFailure, shardConfigStale, awaitCapable)
-      .asInstanceOf[ByteString]
+  def serialize: Array[Byte] = {
+    Array[Byte](cursorNotFound, queryFailure, shardConfigStale, awaitCapable)
+      .binaryToInt.toByteArray
   }
 
   override def toString: String = {

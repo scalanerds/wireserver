@@ -1,9 +1,9 @@
 package com.scalanerds.wire.opcodes
 
 import akka.util.ByteString
+import com.scalanerds.utils.Utils._
 import com.scalanerds.wire.conversions._
 import com.scalanerds.wire.{Message, MsgHeader}
-import com.scalanerds.utils.Utils._
 import org.bson.BSONObject
 
 object OpDelete {
@@ -52,8 +52,8 @@ object OpDeleteFlags {
 }
 
 class OpDeleteFlags(val singleRemove: Boolean = false) {
-  def serialize: ByteString = {
-    Array(singleRemove).asInstanceOf[ByteString]
+  def serialize: Array[Byte] = {
+    Array[Byte](singleRemove).binaryToInt.toByteArray
   }
 
   override def toString: String = {

@@ -1,5 +1,5 @@
 import org.scalatest.{FlatSpec, Matchers}
 
-class OpMsg extends FlatSpec with Matchers {
+class OpMsgHeaderSpec extends FlatSpec with Matchers {
 
 }
