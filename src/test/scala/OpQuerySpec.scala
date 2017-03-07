@@ -1,7 +1,7 @@
 import akka.util.ByteString
 import com.scalanerds.utils.Utils._
 import com.scalanerds.wire.opcodes.OpQuery
-import com.scalanerds.wire.{Message, OpCodes}
+import com.scalanerds.wire.{Message, OPCODES}
 import org.bson.BSONObject
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -20,7 +20,7 @@ class OpQuerySpec extends FlatSpec with Matchers {
 
   "msgQuery" should "have header" in {
     val header = msgQuery.msgHeader
-    header.opCode should be(OpCodes.opQuery)
+    header.opCode should be(OPCODES.opQuery)
     header.requestId should be(0)
     header.responseTo should be(0)
   }

@@ -1,7 +1,7 @@
 import akka.util.ByteString
 import com.mongodb.util.JSON
 import com.scalanerds.wire.opcodes.OpCommandReply
-import com.scalanerds.wire.{Message, OpCodes}
+import com.scalanerds.wire.{Message, OPCODES}
 import org.bson.BSONObject
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -18,7 +18,7 @@ class OpCommandReplySpec extends FlatSpec with Matchers {
 
   it should "have header" in {
     val header = reply.msgHeader
-    header.opCode should be(OpCodes.opCommandReply)
+    header.opCode should be(OPCODES.opCommandReply)
     header.requestId should be(97)
     header.responseTo should be(19)
   }

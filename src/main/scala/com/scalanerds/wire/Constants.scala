@@ -5,7 +5,7 @@ package object conversions {
   implicit def bool2byte(b: Boolean): Byte = (if (b) 1 else 0).toByte
 }
 
-object OpCodes {
+object OPCODES {
   val opReply         = 1
   val opMsg           = 1000
   val opUpdate        = 2001
@@ -16,4 +16,11 @@ object OpCodes {
   val opKillCursor    = 2007
   val opCommand       = 2010
   val opCommandReply  = 2011
+
+  val clientCodes = Array(opUpdate, opInsert, opQuery, opGetMore, opDelete, opKillCursor, opCommand)
+  val serverCodes = Array(opReply, opMsg, opCommandReply)
+}
+
+object OPCODESNAMES {
+  val notAdmin = Array("find", "insert", "update", "delete")
 }
