@@ -34,18 +34,19 @@ class WireHandler(connection: ActorRef, val listener: ActorRef) extends Handler(
 
   def parse(data: ByteString): Unit = {
     val byteString = data.mkString(", ")
+    log.debug(byteString)
     val res = Message(data) match {
-      case msg: OpReply => s"OpReply\n$byteString\n$msg\n"
-      case msg: OpMsg => s"OpMsg\n$byteString\n$msg\n"
-      case msg: OpUpdate => s"OpUpdate\n$byteString\n$msg\n"
-      case msg: OpInsert => s"OpInsert\n$byteString\n$msg\n"
-      case msg: OpQuery => s"OpQuery\n$byteString\n$msg\n"
-      case msg: OpGetMore => s"OpGetMore\n$byteString\n$msg\n"
-      case msg: OpDelete => s"OpDelete\n$byteString\n$msg\n"
-      case msg: OpKillCursor => s"OpKillCursor\n$byteString\n$msg\n"
-      case msg: OpCommand => s"OpCommand\n$byteString\n$msg\n"
-      case msg: OpCommandReply => s"OpCommandReply\n$byteString\n$msg\n"
-      case msg => s"Unknown message\n$byteString\n$msg\n"
+      case msg: OpReply => s"OpReply\n$msg\n"
+      case msg: OpMsg => s"OpMsg\n$msg\n"
+      case msg: OpUpdate => s"OpUpdate\n$msg\n"
+      case msg: OpInsert => s"OpInsert\n$msg\n"
+      case msg: OpQuery => s"OpQuery\n$msg\n"
+      case msg: OpGetMore => s"OpGetMore\n$msg\n"
+      case msg: OpDelete => s"OpDelete\n$msg\n"
+      case msg: OpKillCursor => s"OpKillCursor\n$msg\n"
+      case msg: OpCommand => s"OpCommand\n$msg\n"
+      case msg: OpCommandReply => s"OpCommandReply\n$msg\n"
+      case msg => s"Unknown message\n$msg\n"
     }
     log.debug(res)
   }
