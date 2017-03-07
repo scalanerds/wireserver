@@ -4,7 +4,7 @@ import akka.util.ByteString
 import com.scalanerds.utils.Utils._
 import com.scalanerds.wire.conversions._
 import com.scalanerds.wire.{Message, MsgHeader}
-import org.bson.BSONObject
+import org.bson.BsonDocument
 
 object OpDelete {
   def apply(msgHeader: MsgHeader, content: Array[Byte]): OpDelete = {
@@ -20,7 +20,7 @@ object OpDelete {
 class OpDelete(val msgHeader: MsgHeader,
                val fullCollectionName: String,
                val flags: OpDeleteFlags,
-               val selector: BSONObject,
+               val selector: BsonDocument,
                val reserved: Int = 0) extends Message {
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++

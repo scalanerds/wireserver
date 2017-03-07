@@ -1,8 +1,8 @@
 import akka.util.ByteString
 import com.scalanerds.utils.Utils._
 import com.scalanerds.wire.opcodes.OpQuery
-import com.scalanerds.wire.{Message, OpCodes}
-import org.bson.BSONObject
+import com.scalanerds.wire.{Message, OPCODES}
+import org.bson.BsonDocument
 import org.scalatest.{FlatSpec, Matchers}
 
 class OpQuerySpec extends FlatSpec with Matchers {
@@ -20,7 +20,7 @@ class OpQuerySpec extends FlatSpec with Matchers {
 
   "msgQuery" should "have header" in {
     val header = msgQuery.msgHeader
-    header.opCode should be(OpCodes.opQuery)
+    header.opCode should be(OPCODES.opQuery)
     header.requestId should be(0)
     header.responseTo should be(0)
   }
@@ -33,11 +33,11 @@ class OpQuerySpec extends FlatSpec with Matchers {
   }
 
   "msgQuery" should "be BSONObject" in {
-    msgQuery.query shouldBe a[BSONObject]
+    msgQuery.query shouldBe a[BsonDocument]
   }
 
   "msgQuery" should "contain field" in {
-    msgQuery.query.get("isMaster") should be(1)
+    msgQuery.query.getInt32("isMaster").getValue should be(1)
   }
 
   "msgQuery" should "serialize" in {

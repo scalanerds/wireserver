@@ -3,7 +3,7 @@ package com.scalanerds.utils
 import java.nio.ByteBuffer
 
 import akka.util.ByteString
-import org.bson.{BSON, BSONObject}
+import org.bson.{BsonDocument, RawBsonDocument}
 
 import scala.language.implicitConversions
 
@@ -58,11 +58,11 @@ object Utils {
       new String(arr, "UTF-8")
     }
 
-    def toBson: BSONObject = {
-      BSON.decode(arr)
+    def toBson: BsonDocument = {
+      new RawBsonDocument(arr).asDocument()
     }
 
-    def toBSONArray: Array[BSONObject] = {
+    def toBSONArray: Array[BsonDocument] = {
       arr.iterator.getBsonArray
     }
 
@@ -71,13 +71,13 @@ object Utils {
     }
   }
 
-  implicit class BSONToByteArray(bson: BSONObject) {
+  implicit class BSONToByteArray(bson: BsonDocument) {
     def toByteArray: Array[Byte] = {
-      BSON.encode(bson)
+      bson.asInstanceOf[RawBsonDocument].getByteBuffer.array()
     }
   }
 
-  implicit class BSONArrayToByteArray(arr: Array[BSONObject]) {
+  implicit class BSONArrayToByteArray(arr: Array[BsonDocument]) {
     def toByteArray: Array[Byte] = {
       arr.foldLeft(Array[Byte]())(_ ++ _.toByteArray)
     }
@@ -103,12 +103,12 @@ object Utils {
       i.cTake(8).toArray.toLong
     }
 
-    def getBson: BSONObject = {
+    def getBson: BsonDocument = {
       i.cTake(i.take(4).toArray.toInt).toArray.toBson
     }
 
-    def getBsonArray: Array[BSONObject] = {
-      def aux(it: Iterator[Byte], acc: List[BSONObject]): List[BSONObject] = {
+    def getBsonArray: Array[BsonDocument] = {
+      def aux(it: Iterator[Byte], acc: List[BsonDocument]): List[BsonDocument] = {
         if (it.isEmpty) acc
         else {
           val bson = it.getBson

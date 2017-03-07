@@ -1,8 +1,8 @@
 import akka.util.ByteString
 import com.scalanerds.utils.Utils._
 import com.scalanerds.wire.opcodes.OpReply
-import com.scalanerds.wire.{Message, OpCodes}
-import org.bson.BSONObject
+import com.scalanerds.wire.{Message, OPCODES}
+import org.bson.BsonDocument
 import org.scalatest.{FlatSpec, Matchers}
 
 class OpReplySpec extends FlatSpec with Matchers {
@@ -18,7 +18,7 @@ class OpReplySpec extends FlatSpec with Matchers {
 
   "msgQuery" should "have header" in {
     val header = msgReply.msgHeader
-    header.opCode should be(OpCodes.opReply)
+    header.opCode should be(OPCODES.opReply)
     header.requestId should be(0)
     header.responseTo should be(0)
   }
@@ -31,7 +31,7 @@ class OpReplySpec extends FlatSpec with Matchers {
   }
 
   "msgQuery" should "be BSONObject" in {
-    msgReply.documents(0) shouldBe a[BSONObject]
+    msgReply.documents(0) shouldBe a[BsonDocument]
   }
 
   "msgQuery" should "contain field" in {

@@ -1,8 +1,7 @@
 import akka.util.ByteString
-import com.mongodb.util.JSON
 import com.scalanerds.wire.opcodes.OpCommandReply
-import com.scalanerds.wire.{Message, OpCodes}
-import org.bson.BSONObject
+import com.scalanerds.wire.{Message, OPCODES}
+import org.bson.BsonDocument
 import org.scalatest.{FlatSpec, Matchers}
 
 class OpCommandReplySpec extends FlatSpec with Matchers {
@@ -18,15 +17,15 @@ class OpCommandReplySpec extends FlatSpec with Matchers {
 
   it should "have header" in {
     val header = reply.msgHeader
-    header.opCode should be(OpCodes.opCommandReply)
+    header.opCode should be(OPCODES.opCommandReply)
     header.requestId should be(97)
     header.responseTo should be(19)
   }
 
   it should "parse content" in {
-    val bson = JSON.parse("{ \"ismaster\" : true , \"maxBsonObjectSize\" : 16777216 , \"maxMessageSizeBytes\" : " +
+    val bson = BsonDocument.parse("{ \"ismaster\" : true , \"maxBsonObjectSize\" : 16777216 , \"maxMessageSizeBytes\" : " +
       "48000000 , \"maxWriteBatchSize\" : 1000 , \"localTime\" : { \"$date\" : 1488805547638} , \"maxWireVersion\" : " +
-      "5 , \"minWireVersion\" : 0 , \"readOnly\" : false , \"ok\" : 1.0}").asInstanceOf[BSONObject]
+      "5 , \"minWireVersion\" : 0 , \"readOnly\" : false , \"ok\" : 1.0}")
     reply.metadata should equal(bson)
 
   }

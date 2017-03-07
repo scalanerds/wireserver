@@ -4,7 +4,7 @@ import akka.util.ByteString
 import com.scalanerds.utils.Utils._
 import com.scalanerds.wire.conversions._
 import com.scalanerds.wire.{Message, MsgHeader}
-import org.bson.BSONObject
+import org.bson.BsonDocument
 
 object OpUpdate {
   def apply(msgHeader: MsgHeader, content: Array[Byte]): OpUpdate = {
@@ -22,8 +22,8 @@ object OpUpdate {
 class OpUpdate(val msgHeader: MsgHeader,
                val fullCollectionName: String,
                val flags: OpUpdateFlags,
-               val selector: BSONObject,
-               val update: BSONObject,
+               val selector: BsonDocument,
+               val update: BsonDocument,
                val reserved: Int = 0) extends Message {
 
   override def serialize: ByteString = {

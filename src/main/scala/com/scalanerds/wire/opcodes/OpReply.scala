@@ -5,7 +5,7 @@ import akka.util.ByteString
 import com.scalanerds.utils.Utils._
 import com.scalanerds.wire.conversions._
 import com.scalanerds.wire.{Message, MsgHeader}
-import org.bson.BSONObject
+import org.bson.BsonDocument
 
 object OpReply {
   def apply(msgHeader: MsgHeader, content: Array[Byte]): OpReply = {
@@ -30,7 +30,7 @@ class OpReply(val msgHeader: MsgHeader,
               val cursorId: Long,
               val startingFrom: Int,
               val numberReturned: Int,
-              val documents: Array[BSONObject]) extends Message {
+              val documents: Array[BsonDocument]) extends Message {
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++
       responseFlags.serialize ++

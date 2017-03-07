@@ -4,7 +4,7 @@ import akka.util.ByteString
 import com.scalanerds.utils.Utils._
 import com.scalanerds.wire.conversions._
 import com.scalanerds.wire.{Message, MsgHeader}
-import org.bson.BSONObject
+import org.bson.BsonDocument
 
 object OpQuery {
   def apply(msgHeader: MsgHeader, content: Array[Byte]): OpQuery = {
@@ -25,8 +25,8 @@ class OpQuery(val msgHeader: MsgHeader,
               val fullCollectionName: String,
               val numberToSkip: Int,
               val numberToReturn: Int,
-              val query: BSONObject,
-              val returnFieldsSelector: Option[BSONObject] = None) extends Message {
+              val query: BsonDocument,
+              val returnFieldsSelector: Option[BsonDocument] = None) extends Message {
 
   override def serialize: ByteString = {
     var content = msgHeader.serialize ++
