@@ -6,9 +6,7 @@ import akka.actor.{Actor, ActorRef}
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
-
-
-case class Packet(data: ByteString)
+import com.scalanerds.tcpserver.Packet
 
 class Sniffer(remote: InetSocketAddress) extends Actor {
 

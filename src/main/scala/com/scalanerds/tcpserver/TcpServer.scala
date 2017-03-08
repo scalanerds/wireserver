@@ -2,28 +2,30 @@ package com.scalanerds.tcpserver
 
 import java.net.InetSocketAddress
 
-import akka.actor.{Actor, ActorRef, Props}
+import akka.actor.{Actor, Props}
+import akka.io.Tcp.{Bind, CommandFailed, Connected, Register}
 import akka.io.{IO, Tcp}
+import akka.util.ByteString
 
 object TcpServer {
-  def props(handlerProps: HandlerProps, remote: InetSocketAddress , listener: ActorRef): Props =
-    Props(classOf[TcpServer], handlerProps, remote, listener)
+  def props(handlerProps: HandlerProps, remote: InetSocketAddress): Props =
+    Props(classOf[TcpServer], handlerProps, remote)
 }
 
-class TcpServer(handlerProps: HandlerProps, remote: InetSocketAddress, listener: ActorRef) extends Actor {
+class TcpServer(handlerProps: HandlerProps, remote: InetSocketAddress) extends Actor {
 
   import context.system
   println("Starting server")
-  IO(Tcp) ! Tcp.Bind(self, remote)
+  IO(Tcp) ! Bind(self, remote)
   println(s"Listening on port ${remote.getPort} ...")
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Tcp.CommandFailed(_: Tcp.Bind) => context stop self
+    case CommandFailed(_: Tcp.Bind) => context stop self
 
-    case Tcp.Connected(_, _) =>
-      val handler = context.actorOf(handlerProps.props(sender, listener))
-      sender ! Tcp.Register(handler)
-
+    case c @ Connected(_, _) =>
+      val handler = context.actorOf(handlerProps.props(sender))
+      sender ! Register(handler)
   }
-
 }
+
+case class Packet(data: ByteString)

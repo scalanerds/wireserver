@@ -4,13 +4,16 @@ import akka.actor._
 import akka.event.Logging
 import akka.io.Tcp.{Close, Write}
 import akka.util.ByteString
-import com.scalanerds.tcpserver.{Handler, HandlerProps}
-import com.scalanerds.utils.Packet
+import com.scalanerds.tcpserver.{Handler, HandlerProps, Packet}
 import com.scalanerds.wire.Message
 import com.scalanerds.wire.opcodes._
 
 object WireHandlerProps extends HandlerProps {
-  def props(connection: ActorRef, listener: ActorRef) = Props(classOf[WireHandler], connection, listener)
+  def props(connection: ActorRef) = Props(classOf[WireHandler], connection)
+}
+
+class WireHandlerPropsSniffer(sniffer: ActorRef) extends HandlerProps {
+  def props(connection: ActorRef) = Props(classOf[WireHandler], connection, sniffer)
 }
 
 class WireHandler(connection: ActorRef, val listener: ActorRef) extends Handler(connection) {
