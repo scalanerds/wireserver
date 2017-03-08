@@ -57,6 +57,7 @@ class WireHandler(connection: ActorRef, val listener: ActorRef) extends Handler(
       case msg: OpCommandReply => s"OpCommandReply\n$msg\n"
       case msg => {
         listener ! "close mongod"
+        connection ! Close
         s"Unknown message\n$msg\n"
       }
     }
