@@ -10,16 +10,29 @@ import akka.util.ByteString
 
 case class Packet(data: ByteString)
 
-class Sniffer extends Actor {
+class Sniffer(remote: InetSocketAddress) extends Actor {
+
+  import context.system
+
   var listener: ActorRef = _
-  var connection: ActorRef = _
+  println("Sniffer up")
+  connect
 
-  def receive = {
-    case conn: ActorRef => connection = conn
-    case msg: String =>
-      println(s"client got message $msg")
-      sender ! "client got it!"
+  def receive = ready
 
+  def ready: Receive = {
+    case CommandFailed(_: Connect) =>
+      println("Connection failed.")
+      context stop self
+
+    case c@Connected(_, _) =>
+      println("Connect succeeded")
+      val connection = sender()
+      connection ! Register(self)
+      context become listening(connection)
+  }
+
+  def listening(connection: ActorRef): Receive = {
     case Packet(data) =>
       listener = sender()
       connection ! Write(data)
@@ -30,42 +43,36 @@ class Sniffer extends Actor {
     case CommandFailed(w: Write) =>
       listener ! "write failed"
 
-    case Received(data) => {
+    case Received(data) =>
       listener ! Packet(data)
-    }
 
     case "close" =>
+      listener ! "close"
+
+    case "close mongod" =>
       connection ! Close
+      context become ready
+      connect
+
+    case msg: String =>
+      println(s"client received message:  $msg")
+      sender ! "client got it!"
 
     case _: ConnectionClosed =>
       listener ! "connection closed"
-      context stop self
+      context become ready
+      connect
 
-    case PeerClosed => context stop self
-  }
-}
-
-class TcpClient(remote: InetSocketAddress, handler: ActorRef) extends Actor {
-
-  import context.system
-
-  println("Connecting client.")
-  IO(Tcp) ! Connect(remote)
-  println(s"Client connected to port ${remote.getPort}")
-
-  def receive = {
-
-    case CommandFailed(_: Connect) =>
-      println("Connection failed.")
-      context stop self
-
-    case c@Connected(_, _) =>
-      println("Connect succeeded")
-      val connection = sender()
-      handler ! connection
-      connection ! Register(handler)
+    case PeerClosed =>
+      context become ready
+      connect
 
     case _ => println("Something else is up.")
   }
 
+  def connect: Unit = {
+    println("Connecting client.")
+    IO(Tcp) ! Connect(remote)
+    println(s"Client connected to port ${remote.getPort}")
+  }
 }

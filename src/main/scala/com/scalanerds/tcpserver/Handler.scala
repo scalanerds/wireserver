@@ -24,7 +24,10 @@ abstract class Handler(val connection: ActorRef) extends Actor {
       data.utf8String.trim match {
         case abort() => connection ! Abort
         case confirmedClose() => connection ! ConfirmedClose
-        case close() => connection ! Close
+        case close() => {
+
+          connection ! Close
+        }
         case _ => received(data)
       }
 
@@ -51,9 +54,7 @@ abstract class Handler(val connection: ActorRef) extends Actor {
 
   def received(msg: Packet): Unit
 
-  def peerClosed() {
-    println("PeerClosed")
-  }
+  def peerClosed(): Unit
 
   def errorClosed() {
     println("ErrorClosed")
@@ -72,7 +73,7 @@ abstract class Handler(val connection: ActorRef) extends Actor {
   }
 
   def stop() {
-    println("Stopping")
+    println("Server Stopping")
     context stop self
   }
 }

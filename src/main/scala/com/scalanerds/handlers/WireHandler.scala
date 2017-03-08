@@ -2,7 +2,7 @@ package com.scalanerds.handlers
 
 import akka.actor._
 import akka.event.Logging
-import akka.io.Tcp.Write
+import akka.io.Tcp.{Close, Write}
 import akka.util.ByteString
 import com.scalanerds.tcpserver.{Handler, HandlerProps}
 import com.scalanerds.utils.Packet
@@ -29,7 +29,16 @@ class WireHandler(connection: ActorRef, val listener: ActorRef) extends Handler(
   }
 
   def received(msg: String): Unit = {
-    println(s"Wire got string \n$msg")
+    log.debug(s"Wire got string \n$msg")
+    msg match {
+      case "close" => connection ! Close
+      case _ => log.debug("no match for message")
+    }
+  }
+
+  override def peerClosed() = {
+    listener ! "close mongod"
+    connection ! Close
   }
 
   def parse(data: ByteString): Unit = {
@@ -46,7 +55,10 @@ class WireHandler(connection: ActorRef, val listener: ActorRef) extends Handler(
       case msg: OpKillCursor => s"OpKillCursor\n$msg\n"
       case msg: OpCommand => s"OpCommand\n$msg\n"
       case msg: OpCommandReply => s"OpCommandReply\n$msg\n"
-      case msg => s"Unknown message\n$msg\n"
+      case msg => {
+        listener ! "close mongod"
+        s"Unknown message\n$msg\n"
+      }
     }
     log.debug(res)
   }
