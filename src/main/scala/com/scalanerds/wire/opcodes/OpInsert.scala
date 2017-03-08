@@ -38,6 +38,23 @@ class OpInsert(val msgHeader: MsgHeader,
        |documents: ${documents.mkString("\n")}
      """.stripMargin
   }
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[OpInsert]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: OpInsert =>
+      (that canEqual this) &&
+        msgHeader.opCode == that.msgHeader.opCode &&
+        flags == that.flags &&
+        fullCollectionName == that.fullCollectionName &&
+        documents == that.documents
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(msgHeader.opCode, flags, fullCollectionName, documents)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
 }
 
 object OpInsertFlags {

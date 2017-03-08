@@ -46,6 +46,24 @@ class OpUpdate(val msgHeader: MsgHeader,
        |update: $update
      """.stripMargin
   }
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[OpUpdate]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: OpUpdate =>
+      (that canEqual this) &&
+        msgHeader.opCode == that.msgHeader.opCode &&
+        fullCollectionName == that.fullCollectionName &&
+        flags == that.flags &&
+        selector == that.selector &&
+        update == that.update
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(msgHeader.opCode, fullCollectionName, flags, selector, update)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
 }
 
 object OpUpdateFlags {

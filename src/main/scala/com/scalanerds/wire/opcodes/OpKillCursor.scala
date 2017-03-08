@@ -35,4 +35,20 @@ class OpKillCursor(val msgHeader: MsgHeader,
        |cursorIDs: ${cursorIDs.mkString(", ")}
      """.stripMargin
   }
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[OpKillCursor]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: OpKillCursor =>
+      (that canEqual this) &&
+        msgHeader.opCode == that.msgHeader.opCode &&
+        numberOfCursorIDs == that.numberOfCursorIDs &&
+        cursorIDs == that.cursorIDs
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(msgHeader.opCode, numberOfCursorIDs, cursorIDs)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
 }

@@ -52,6 +52,25 @@ class OpReply(val msgHeader: MsgHeader,
        |documents: ${documents.mkString("\n")}
      """.stripMargin
   }
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[OpReply]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: OpReply =>
+      (that canEqual this) &&
+        msgHeader.opCode == that.msgHeader.opCode &&
+        responseFlags == that.responseFlags &&
+        cursorId == that.cursorId &&
+        startingFrom == that.startingFrom &&
+        numberReturned == that.numberReturned &&
+        documents == that.documents
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(msgHeader.opCode, responseFlags, cursorId, startingFrom, numberReturned, documents)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
 }
 
 

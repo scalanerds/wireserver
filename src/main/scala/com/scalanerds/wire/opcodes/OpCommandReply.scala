@@ -37,4 +37,21 @@ class OpCommandReply(val msgHeader: MsgHeader,
        |outpuDocs: ${outputDocs.mkString("\n")}
      """.stripMargin
   }
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[OpCommandReply]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: OpCommandReply =>
+      (that canEqual this) &&
+        msgHeader.opCode == that.msgHeader.opCode &&
+        metadata == that.metadata &&
+        commandReply == that.commandReply &&
+        outputDocs == that.outputDocs
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(msgHeader.opCode, metadata, commandReply, outputDocs)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
 }

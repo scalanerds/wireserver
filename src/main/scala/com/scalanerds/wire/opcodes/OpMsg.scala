@@ -24,4 +24,20 @@ class OpMsg(val msgHeader: MsgHeader,
        |message: $message
      """.stripMargin
   }
+
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[OpMsg]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: OpMsg =>
+      (that canEqual this) &&
+        msgHeader.opCode == that.msgHeader.opCode &&
+        message == that.message
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(msgHeader.opCode, message)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
 }

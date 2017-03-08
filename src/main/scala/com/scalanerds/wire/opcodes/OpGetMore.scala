@@ -39,4 +39,21 @@ class OpGetMore(val msgHeader: MsgHeader,
        |cursorID: $cursorID
      """.stripMargin
   }
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[OpGetMore]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: OpGetMore =>
+      (that canEqual this) &&
+        msgHeader.opCode == that.msgHeader.opCode &&
+        fullCollectionName == that.fullCollectionName &&
+        numberToReturn == that.numberToReturn &&
+        cursorID == that.cursorID
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(msgHeader.opCode, fullCollectionName, numberToReturn, cursorID)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
 }

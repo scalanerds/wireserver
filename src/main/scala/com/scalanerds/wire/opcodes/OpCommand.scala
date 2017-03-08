@@ -32,6 +32,7 @@ class OpCommand(val msgHeader: MsgHeader,
       inputDocs.toByteArray
 
     ByteString((content.length + 4).toByteArray ++ content)
+
   }
 
   override def toString: String = {
@@ -43,5 +44,25 @@ class OpCommand(val msgHeader: MsgHeader,
        |commandArgs: $commandArgs
        |inputDocs: ${inputDocs.mkString("\n")}
        """.stripMargin
+  }
+
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[OpCommand]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: OpCommand =>
+      (that canEqual this) &&
+        msgHeader.opCode == that.msgHeader.opCode &&
+        database == that.database &&
+        commandName == that.commandName &&
+        metadata == that.metadata &&
+        commandArgs == that.commandArgs &&
+        inputDocs == that.inputDocs
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(msgHeader.opCode, database, commandName, metadata, commandArgs, inputDocs)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 }

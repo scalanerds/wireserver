@@ -50,6 +50,26 @@ class OpQuery(val msgHeader: MsgHeader,
        |returnFieldsSelector: ${returnFieldsSelector.getOrElse("")}
      """.stripMargin
   }
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[OpQuery]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: OpQuery =>
+      (that canEqual this) &&
+        msgHeader.opCode == that.msgHeader.opCode &&
+        flags == that.flags &&
+        fullCollectionName == that.fullCollectionName &&
+        numberToSkip == that.numberToSkip &&
+        numberToReturn == that.numberToReturn &&
+        query == that.query &&
+        returnFieldsSelector == that.returnFieldsSelector
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(msgHeader.opCode, flags, fullCollectionName, numberToSkip, numberToReturn, query, returnFieldsSelector)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
 }
 
 object OpQueryFlags {

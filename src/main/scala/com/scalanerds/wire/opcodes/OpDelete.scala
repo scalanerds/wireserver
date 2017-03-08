@@ -39,6 +39,23 @@ class OpDelete(val msgHeader: MsgHeader,
        |flags: $flags
      """.stripMargin
   }
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[OpDelete]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: OpDelete =>
+      (that canEqual this) &&
+        msgHeader.opCode == that.msgHeader.opCode &&
+        fullCollectionName == that.fullCollectionName &&
+        flags == that.flags &&
+        selector == that.selector
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(msgHeader.opCode, fullCollectionName, flags, selector)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
 }
 
 
