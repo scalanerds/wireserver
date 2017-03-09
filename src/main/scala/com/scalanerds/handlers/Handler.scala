@@ -1,8 +1,9 @@
-package com.scalanerds.tcpserver
+package com.scalanerds.handlers
 
 import akka.actor.{Actor, ActorRef, Props}
 import akka.io.Tcp.{Received, _}
 import akka.util.ByteString
+import com.scalanerds.tcpserver.Packet
 
 import scala.util.matching.Regex
 
@@ -46,11 +47,11 @@ abstract class Handler(val connection: ActorRef) extends Actor {
       stop()
   }
 
-  def received(str: ByteString): Unit
+  def received(data: ByteString): Unit
+
+  def received(packet: Packet): Unit
 
   def received(str: String): Unit
-
-  def received(msg: Packet): Unit
 
   def peerClosed() = {
     connection ! Close
@@ -76,3 +77,5 @@ abstract class Handler(val connection: ActorRef) extends Actor {
     context stop self
   }
 }
+
+

@@ -1,4 +1,4 @@
-package com.scalanerds.utils
+package com.example.tcpClient
 
 import java.net.InetSocketAddress
 
@@ -8,22 +8,20 @@ import akka.io.{IO, Tcp}
 import akka.util.ByteString
 import com.scalanerds.tcpserver.Packet
 
-class Sniffer(remote: InetSocketAddress) extends Actor {
+class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
 
   import context.system
 
-  var listener: ActorRef = _
-  println("Sniffer up")
-  connect
+  connect()
 
-  def receive = ready
+  def receive: Receive = ready
 
   def ready: Receive = {
     case CommandFailed(_: Connect) =>
       println("Connection failed.")
       context stop self
 
-    case c@Connected(_, _) =>
+    case Connected(_, _) =>
       println("Connect succeeded")
       val connection = sender()
       connection ! Register(self)
@@ -31,44 +29,39 @@ class Sniffer(remote: InetSocketAddress) extends Actor {
   }
 
   def listening(connection: ActorRef): Receive = {
-    case Packet(data) =>
-      listener = sender()
+    case Packet(_, data) =>
       connection ! Write(data)
 
     case data: ByteString =>
-      listener ! Packet(data)
+      listener ! Packet("mongod", data)
 
-    case CommandFailed(w: Write) =>
+    case CommandFailed(_: Write) =>
       listener ! "write failed"
 
     case Received(data) =>
-      listener ! Packet(data)
+      listener ! Packet("mongod", data)
 
     case "close" =>
       listener ! "close"
 
-    case "close mongod" =>
+    case "drop connection" =>
       connection ! Close
       context become ready
-      connect
-
-    case msg: String =>
-      println(s"client received message:  $msg")
-      sender ! "client got it!"
+      connect()
 
     case _: ConnectionClosed =>
       listener ! "connection closed"
       context become ready
-      connect
+      connect()
 
     case PeerClosed =>
       context become ready
-      connect
+      connect()
 
-    case _ => println("Something else is up.")
+    case msg => println(s"Something else is up.\n$msg")
   }
 
-  def connect: Unit = {
+  def connect(): Unit = {
     println("Connecting client.")
     IO(Tcp) ! Connect(remote)
     println(s"Client connected to port ${remote.getPort}")
