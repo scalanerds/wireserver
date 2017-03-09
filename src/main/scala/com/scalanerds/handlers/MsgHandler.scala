@@ -8,7 +8,7 @@ import com.scalanerds.wire.Message
 import com.scalanerds.wire.opcodes._
 
 
-abstract class MsgHandler(connection: ActorRef) extends Handler(connection) {
+class MsgHandler(connection: ActorRef) extends Handler(connection) {
 
   // data the server receives
   override def received(data: ByteString): Unit = {
@@ -16,9 +16,9 @@ abstract class MsgHandler(connection: ActorRef) extends Handler(connection) {
   }
 
   // to communicate with other actors
-  override def received(packet: Packet): Unit
+  override def received(packet: Packet): Unit = {}
 
-  override def received(str: String): Unit
+  override def received(str: String): Unit = {}
 
   def parse(data: ByteString): Unit = {
     Message(data) match {
@@ -36,26 +36,26 @@ abstract class MsgHandler(connection: ActorRef) extends Handler(connection) {
     }
   }
 
-  def onOpReply(msg: OpReply): Unit
+  def onOpReply(msg: OpReply): Unit = {}
 
-  def onOpMsg(msg: OpMsg): Unit
+  def onOpMsg(msg: OpMsg): Unit = {}
 
-  def onOpUpdate(msg: OpUpdate): Unit
+  def onOpUpdate(msg: OpUpdate): Unit = {}
 
-  def onOpInsert(msg: OpInsert): Unit
+  def onOpInsert(msg: OpInsert): Unit = {}
 
-  def onOpQuery(msg: OpQuery): Unit
+  def onOpQuery(msg: OpQuery): Unit = {}
 
-  def onOpGetMore(msg: OpGetMore): Unit
+  def onOpGetMore(msg: OpGetMore): Unit = {}
 
-  def onOpDelete(msg: OpDelete): Unit
+  def onOpDelete(msg: OpDelete): Unit = {}
 
-  def onOpKillCursor(msg: OpKillCursor): Unit
+  def onOpKillCursor(msg: OpKillCursor): Unit = {}
 
-  def onOpCommand(msg: OpCommand): Unit
+  def onOpCommand(msg: OpCommand): Unit = {}
 
-  def onOpCommandReply(msg: OpCommandReply): Unit
+  def onOpCommandReply(msg: OpCommandReply): Unit = {}
 
-  def onError(msg: Any): Unit
+  def onError(msg: Any): Unit = {}
 
 }
