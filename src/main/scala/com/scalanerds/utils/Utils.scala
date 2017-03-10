@@ -3,7 +3,7 @@ package com.scalanerds.utils
 import java.nio.ByteBuffer
 
 import akka.util.ByteString
-import org.bson.{BsonDocument, RawBsonDocument}
+import org.bson.{BsonDocument, RawBsonDocument, codecs}
 
 import scala.language.implicitConversions
 
@@ -73,7 +73,11 @@ object Utils {
 
   implicit class BSONToByteArray(bson: BsonDocument) {
     def toByteArray: Array[Byte] = {
-      bson.asInstanceOf[RawBsonDocument].getByteBuffer.array()
+      val buf = new RawBsonDocument(bson, new codecs.BsonDocumentCodec)
+        .getByteBuffer
+      val arr = new Array[Byte](buf.getInt)
+      buf.clear().get(arr)
+      arr
     }
   }
 
