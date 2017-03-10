@@ -14,10 +14,19 @@ trait Message {
 }
 
 case class OpError(msgHeader: MsgHeader = MsgHeader(),
-                   content: Array[Byte] = Array[Byte](),
-                   error: String = "Error",
-                   raw: Option[ByteString] = None) extends Message {
+              content: Array[Byte] = Array[Byte](),
+              error: String = "Error",
+              raw: Option[ByteString] = None) extends Message {
   override def serialize = ByteString()
+
+  override def toString: String =
+    s"""
+      |Error
+      |${msgHeader.serialize}
+      |content : ${content.mkString(", ")}
+      |error: $error
+      |raw: ${raw.getOrElse(Nil).mkString(", ")}
+    """.stripMargin
 }
 
 object Message {

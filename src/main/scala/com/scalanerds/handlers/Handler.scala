@@ -51,7 +51,7 @@ abstract class Handler(val connection: ActorRef) extends Actor {
 
   def received(str: String): Unit
 
-  def peerClosed(): Unit = {
+  def peerClosed() {
     connection ! Close
   }
 
