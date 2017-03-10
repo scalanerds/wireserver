@@ -40,7 +40,7 @@ object Message {
       }
     } match {
       case Success(message) => message
-      case Failure(error) => new OpError(error = error.getMessage, raw = Some(data))
+      case Failure(error) => OpError(error = error.getMessage, raw = Some(data))
     }
   }
 }

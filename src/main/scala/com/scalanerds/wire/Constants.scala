@@ -1,5 +1,7 @@
 package com.scalanerds.wire
 
+import scala.language.implicitConversions
+
 package object conversions {
   implicit def byte2bool(b: Byte): Boolean = b.toInt != 0
   implicit def bool2byte(b: Boolean): Byte = (if (b) 1 else 0).toByte

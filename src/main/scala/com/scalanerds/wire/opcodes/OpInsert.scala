@@ -47,7 +47,7 @@ class OpInsert(val msgHeader: MsgHeader,
         msgHeader.opCode == that.msgHeader.opCode &&
         flags == that.flags &&
         fullCollectionName == that.fullCollectionName &&
-        documents == that.documents
+        (documents sameElements that.documents)
     case _ => false
   }
 

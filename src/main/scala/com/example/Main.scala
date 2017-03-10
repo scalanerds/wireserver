@@ -1,4 +1,4 @@
-package com.temp
+package com.example
 
 import com.example.handler.SnifferServerProps
 import com.scalanerds.wireServer.WireServer

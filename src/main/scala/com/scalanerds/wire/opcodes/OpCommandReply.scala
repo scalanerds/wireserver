@@ -46,7 +46,7 @@ class OpCommandReply(val msgHeader: MsgHeader,
         msgHeader.opCode == that.msgHeader.opCode &&
         metadata == that.metadata &&
         commandReply == that.commandReply &&
-        outputDocs == that.outputDocs
+        (outputDocs sameElements that.outputDocs)
     case _ => false
   }
 

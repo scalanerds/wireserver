@@ -76,7 +76,7 @@ class OpReply(val msgHeader: MsgHeader,
         cursorId == that.cursorId &&
         startingFrom == that.startingFrom &&
         numberReturned == that.numberReturned &&
-        documents == that.documents
+        (documents sameElements that.documents)
     case _ => false
   }
 

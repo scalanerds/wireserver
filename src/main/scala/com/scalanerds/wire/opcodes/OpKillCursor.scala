@@ -43,7 +43,7 @@ class OpKillCursor(val msgHeader: MsgHeader,
       (that canEqual this) &&
         msgHeader.opCode == that.msgHeader.opCode &&
         numberOfCursorIDs == that.numberOfCursorIDs &&
-        cursorIDs == that.cursorIDs
+        (cursorIDs sameElements that.cursorIDs)
     case _ => false
   }
 
