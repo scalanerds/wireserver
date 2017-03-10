@@ -23,13 +23,26 @@ object OpReply {
       documents
     )
   }
+
+  def apply(msgHeader: MsgHeader = MsgHeader(),
+            responseFlags: OpReplyFlags = new OpReplyFlags(),
+            cursorId: Long = 0L,
+            startingFrom: Int = 0,
+            documents: Array[BsonDocument]): OpReply = {
+    new OpReply(msgHeader,
+      responseFlags,
+      cursorId,
+      startingFrom,
+      numberReturned = documents.length,
+      documents)
+  }
 }
 
 class OpReply(val msgHeader: MsgHeader,
               val responseFlags: OpReplyFlags,
-              val cursorId: Long,
-              val startingFrom: Int,
-              val numberReturned: Int,
+              val cursorId: Long = 0L,
+              val startingFrom: Int = 0,
+              val numberReturned: Int = 0,
               val documents: Array[BsonDocument]) extends Message {
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++

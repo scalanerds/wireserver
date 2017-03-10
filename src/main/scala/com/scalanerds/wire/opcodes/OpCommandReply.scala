@@ -16,9 +16,9 @@ object OpCommandReply {
 }
 
 class OpCommandReply(val msgHeader: MsgHeader,
-                     val metadata: BsonDocument,
-                     val commandReply: BsonDocument,
-                     val outputDocs: Array[BsonDocument]
+                     val metadata: BsonDocument = new BsonDocument(),
+                     val commandReply: BsonDocument = new BsonDocument(),
+                     val outputDocs: Array[BsonDocument] = Array()
                     ) extends Message {
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++

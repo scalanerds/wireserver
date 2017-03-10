@@ -2,7 +2,7 @@ package com.scalanerds.wire.opcodes
 
 import akka.util.ByteString
 import com.scalanerds.utils.Utils._
-import com.scalanerds.wire.{Message, MsgHeader}
+import com.scalanerds.wire.{Message, MsgHeader, OPCODES}
 import org.bson.BsonDocument
 
 object OpCommand {
@@ -35,6 +35,16 @@ class OpCommand(val msgHeader: MsgHeader,
 
   }
 
+  def reply(reply: BsonDocument): OpCommandReply = {
+    new OpCommandReply(
+      MsgHeader(
+        responseTo = msgHeader.requestId,
+        opCode     = OPCODES.opCommandReply
+      ),
+      commandReply = reply
+    )
+  }
+
   override def toString: String = {
     s"""
        |$msgHeader
@@ -57,7 +67,7 @@ class OpCommand(val msgHeader: MsgHeader,
         commandName == that.commandName &&
         metadata == that.metadata &&
         commandArgs == that.commandArgs &&
-        inputDocs == that.inputDocs
+        inputDocs.sameElements(that.inputDocs)
     case _ => false
   }
 

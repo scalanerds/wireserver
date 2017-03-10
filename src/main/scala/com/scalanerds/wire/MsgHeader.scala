@@ -8,6 +8,7 @@ class MsgHeader(val requestId: Int,
                 //The total size of the message in bytes.
                 // This total includes the 4 bytes that holds the message length.
                 var messageLength: Option[Int] = None) {
+
   def serialize: Array[Byte] = {
     Array(requestId, responseTo, opCode).toByteArray
   }
@@ -23,6 +24,14 @@ class MsgHeader(val requestId: Int,
 }
 
 object MsgHeader {
+  private var lastRequestId  = 0
+  private def issueRequestId(): Int = { lastRequestId += 1; lastRequestId }
+
+  def apply(responseTo: Int,
+            opCode: Int): MsgHeader = {
+    new MsgHeader(issueRequestId(), responseTo, opCode)
+  }
+
   def apply(data: Array[Byte]): MsgHeader = {
     val it = data.iterator
     val length = it.getInt

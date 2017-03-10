@@ -21,6 +21,8 @@ object OPCODES {
   val serverCodes = Array(opReply, opMsg, opCommandReply)
 }
 
-object OPCODESNAMES {
-  val notAdmin = Array("find", "insert", "update", "delete")
+object OPNAMES {
+  val forward  : Array[String] = Array("find", "insert", "update", "delete", "count")
+  val intercept: Array[String] = Array("isMaster", "whatsmyuri", "buildinfo", "getLog")
+  val forbidden: Array[String] = Array()
 }

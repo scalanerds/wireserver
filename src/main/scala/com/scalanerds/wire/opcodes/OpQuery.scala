@@ -3,7 +3,7 @@ package com.scalanerds.wire.opcodes
 import akka.util.ByteString
 import com.scalanerds.utils.Utils._
 import com.scalanerds.wire.conversions._
-import com.scalanerds.wire.{Message, MsgHeader}
+import com.scalanerds.wire.{Message, MsgHeader, OPCODES}
 import org.bson.BsonDocument
 
 object OpQuery {
@@ -28,14 +28,25 @@ class OpQuery(val msgHeader: MsgHeader,
               val query: BsonDocument,
               val returnFieldsSelector: Option[BsonDocument] = None) extends Message {
 
+  def reply(reply: Array[BsonDocument]): OpReply = {
+    OpReply(
+      MsgHeader(
+        responseTo = msgHeader.requestId,
+        opCode     = OPCODES.opReply
+      ),
+      responseFlags = new OpReplyFlags(),
+      documents = reply
+    )
+  }
+
   override def serialize: ByteString = {
     var content = msgHeader.serialize ++
-      flags.serialize ++
-      fullCollectionName.toByteArray ++
-      Array(numberToSkip, numberToSkip, numberToReturn).toByteArray ++
-      query.toByteArray
+    flags.serialize ++
+    fullCollectionName.toByteArray ++
+    Array(numberToSkip, numberToSkip, numberToReturn).toByteArray ++
+    query.toByteArray
     if (returnFieldsSelector.nonEmpty)
-      content ++= returnFieldsSelector.get.toByteArray
+    content ++= returnFieldsSelector.get.toByteArray
 
     ByteString((content.length + 4).toByteArray ++ content)
   }
