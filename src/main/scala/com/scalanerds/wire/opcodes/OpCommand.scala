@@ -35,15 +35,17 @@ class OpCommand(val msgHeader: MsgHeader,
 
   }
 
-  def reply(reply: BsonDocument): OpCommandReply = {
+  def reply(doc: BsonDocument): OpCommandReply = {
     new OpCommandReply(
       MsgHeader(
         responseTo = msgHeader.requestId,
         opCode     = OPCODES.opCommandReply
       ),
-      commandReply = reply
+      commandReply = doc
     )
   }
+
+  def reply(json: String) : OpCommandReply = reply(BsonDocument.parse(json))
 
   override def toString: String = {
     s"""

@@ -28,16 +28,20 @@ class OpQuery(val msgHeader: MsgHeader,
               val query: BsonDocument,
               val returnFieldsSelector: Option[BsonDocument] = None) extends Message {
 
-  def reply(reply: Array[BsonDocument]): OpReply = {
+  def reply(docs: Array[BsonDocument]): OpReply = {
     OpReply(
       MsgHeader(
         responseTo = msgHeader.requestId,
         opCode     = OPCODES.opReply
       ),
       responseFlags = new OpReplyFlags(),
-      documents = reply
+      documents = docs
     )
   }
+
+  def reply(doc: BsonDocument): OpReply = reply(Array(doc))
+
+  def reply(json: String) : OpReply = reply(BsonDocument.parse(json))
 
   override def serialize: ByteString = {
     var content = msgHeader.serialize ++
