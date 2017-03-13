@@ -1,4 +1,4 @@
-package com.example.tcpClient
+package com.scalanerds.wireserver.example.tcpClient
 
 import java.net.InetSocketAddress
 
@@ -6,7 +6,7 @@ import akka.actor.{Actor, ActorRef}
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
-import com.scalanerds.tcpserver.Packet
+import com.scalanerds.wireserver.tcpserver.Packet
 
 class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
 

@@ -1,4 +1,4 @@
-package com.example.handler
+package com.scalanerds.wireserver.example.handler
 
 import java.net.InetSocketAddress
 
@@ -6,10 +6,10 @@ import akka.actor.{ActorRef, Props}
 import akka.event.Logging
 import akka.io.Tcp.{Close, Write}
 import akka.util.ByteString
-import com.example.tcpClient.TcpClient
-import com.scalanerds.handlers.{HandlerProps, MsgHandler}
-import com.scalanerds.tcpserver.Packet
-import com.scalanerds.wire.opcodes._
+import com.scalanerds.wireserver.example.tcpClient.TcpClient
+import com.scalanerds.wireserver.handlers.{HandlerProps, MsgHandler}
+import com.scalanerds.wireserver.tcpserver.Packet
+import com.scalanerds.wireserver.wire.opcodes._
 
 object SnifferServerProps extends HandlerProps {
   def props(connection: ActorRef) = Props(classOf[SnifferServer], connection)

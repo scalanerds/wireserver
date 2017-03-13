@@ -1,4 +1,4 @@
-package com.scalanerds.wire
+package com.scalanerds.wireserver.wire
 
 import scala.language.implicitConversions
 

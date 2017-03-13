@@ -1,6 +1,6 @@
-import com.scalanerds.wire.opcodes.OpQueryFlags
+import com.scalanerds.wireserver.wire.opcodes.OpQueryFlags
 import org.scalatest.{FlatSpec, Matchers}
-import com.scalanerds.utils.Utils._
+import com.scalanerds.wireserver.utils.Utils._
 
 class OpFlagsSpec extends FlatSpec with Matchers {
   val queryFlags = OpQueryFlags(166)

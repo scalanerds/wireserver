@@ -1,10 +1,10 @@
-package com.scalanerds.wireServer
+package com.scalanerds.wireserver
 
 import java.net.InetSocketAddress
 
 import akka.actor.{ActorRef, ActorSystem}
-import com.scalanerds.handlers.HandlerProps
-import com.scalanerds.tcpserver.TcpServer
+import com.scalanerds.wireserver.handlers.HandlerProps
+import com.scalanerds.wireserver.tcpserver.TcpServer
 
 class WireServer(val props: HandlerProps,
                  val connection: InetSocketAddress,

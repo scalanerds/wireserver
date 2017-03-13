@@ -1,8 +1,8 @@
-package com.scalanerds.wire.opcodes
+package com.scalanerds.wireserver.wire.opcodes
 
 import akka.util.ByteString
-import com.scalanerds.utils.Utils._
-import com.scalanerds.wire.{Message, MsgHeader}
+import com.scalanerds.wireserver.utils.Utils._
+import com.scalanerds.wireserver.wire.{Message, MsgHeader}
 
 
 object OpKillCursor {

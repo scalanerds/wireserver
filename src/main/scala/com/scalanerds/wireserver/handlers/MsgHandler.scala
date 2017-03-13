@@ -1,11 +1,11 @@
-package com.scalanerds.handlers
+package com.scalanerds.wireserver.handlers
 
 
 import akka.actor.ActorRef
 import akka.util.ByteString
-import com.scalanerds.tcpserver.Packet
-import com.scalanerds.wire.Message
-import com.scalanerds.wire.opcodes._
+import com.scalanerds.wireserver.tcpserver.Packet
+import com.scalanerds.wireserver.wire.Message
+import com.scalanerds.wireserver.wire.opcodes._
 
 
 class MsgHandler(connection: ActorRef) extends Handler(connection) {

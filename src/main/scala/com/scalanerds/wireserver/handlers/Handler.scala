@@ -1,9 +1,9 @@
-package com.scalanerds.handlers
+package com.scalanerds.wireserver.handlers
 
 import akka.actor.{Actor, ActorRef, Props}
 import akka.io.Tcp.{Received, _}
 import akka.util.ByteString
-import com.scalanerds.tcpserver.Packet
+import com.scalanerds.wireserver.tcpserver.Packet
 
 import scala.util.matching.Regex
 

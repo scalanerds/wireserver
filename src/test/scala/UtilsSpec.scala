@@ -1,4 +1,4 @@
-import com.scalanerds.utils.Utils._
+import com.scalanerds.wireserver.utils.Utils._
 import org.bson.BsonDocument
 import org.scalatest.{FlatSpec, Matchers}
 

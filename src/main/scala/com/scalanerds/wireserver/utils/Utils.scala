@@ -1,4 +1,4 @@
-package com.scalanerds.utils
+package com.scalanerds.wireserver.utils
 
 import java.nio.ByteBuffer
 

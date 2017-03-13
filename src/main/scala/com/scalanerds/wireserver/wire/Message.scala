@@ -1,7 +1,7 @@
-package com.scalanerds.wire
+package com.scalanerds.wireserver.wire
 
 import akka.util.ByteString
-import com.scalanerds.wire.opcodes._
+import com.scalanerds.wireserver.wire.opcodes._
 
 import scala.util.{Failure, Success, Try}
 

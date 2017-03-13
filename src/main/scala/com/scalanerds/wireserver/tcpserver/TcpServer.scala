@@ -1,4 +1,4 @@
-package com.scalanerds.tcpserver
+package com.scalanerds.wireserver.tcpserver
 
 import java.net.InetSocketAddress
 
@@ -6,7 +6,7 @@ import akka.actor.{Actor, Props}
 import akka.io.Tcp.{Bind, CommandFailed, Connected, Register}
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
-import com.scalanerds.handlers.HandlerProps
+import com.scalanerds.wireserver.handlers.HandlerProps
 
 // Packet to send messages to another actor eg. TcpClient
 case class Packet(msg: String, data: ByteString)
