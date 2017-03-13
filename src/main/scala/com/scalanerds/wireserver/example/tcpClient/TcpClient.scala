@@ -6,6 +6,7 @@ import akka.actor.{Actor, ActorRef}
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
+import com.scalanerds.wireserver.messages.Response
 import com.scalanerds.wireserver.tcpserver.Packet
 
 class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
@@ -33,13 +34,13 @@ class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
       connection ! Write(data)
 
     case data: ByteString =>
-      listener ! Packet("mongod", data)
+      listener ! Response(data)
 
     case CommandFailed(_: Write) =>
       listener ! "write failed"
 
     case Received(data) =>
-      listener ! Packet("mongod", data)
+      listener ! Response(data)
 
     case "close" =>
       listener ! "close"

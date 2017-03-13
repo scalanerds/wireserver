@@ -3,8 +3,7 @@ package com.scalanerds.wireserver.handlers
 import akka.actor.{Actor, ActorRef, Props}
 import akka.io.Tcp.{Received, _}
 import akka.util.ByteString
-import com.scalanerds.wireserver.messages.GetPort
-import com.scalanerds.wireserver.tcpserver.Packet
+import com.scalanerds.wireserver.messages.{GetPort, Response}
 
 import scala.util.matching.Regex
 
@@ -19,15 +18,19 @@ abstract class Handler(val connection: ActorRef) extends Actor {
   val close: Regex = "(?i)close".r
 
   def receive: Receive = {
-    case str: String => received(str)
-    case msg: Packet => received(msg)
-    case Received(data) =>
-      data.utf8String.trim match {
-        case abort() => connection ! Abort
-        case confirmedClose() => connection ! ConfirmedClose
-        case close() => connection ! Close
-        case _ => received(data)
-      }
+
+    case data: Response =>
+      received(data)
+
+    case Received(data) => data.utf8String.trim match {
+      case abort() => connection ! Abort
+      case confirmedClose() => connection ! ConfirmedClose
+      case close() => connection ! Close
+      case _ => received(data)
+    }
+
+    case Close =>
+      connection ! Close
 
     case PeerClosed =>
       peerClosed()
@@ -51,9 +54,9 @@ abstract class Handler(val connection: ActorRef) extends Actor {
 
   def received(data: ByteString): Unit
 
-  def received(packet: Packet): Unit
-
-  def received(str: String): Unit
+  def received(response: Response): Unit = {
+    connection ! Write(response.data)
+  }
 
   def peerClosed() {
     connection ! Close

@@ -3,7 +3,7 @@ package com.scalanerds.wireserver.handlers
 
 import akka.actor.ActorRef
 import akka.util.ByteString
-import com.scalanerds.wireserver.tcpserver.Packet
+import com.scalanerds.wireserver.messages.Response
 import com.scalanerds.wireserver.wire.Message
 import com.scalanerds.wireserver.wire.opcodes._
 
@@ -14,11 +14,6 @@ class MsgHandler(connection: ActorRef) extends Handler(connection) {
   override def received(data: ByteString): Unit = {
     parse(data)
   }
-
-  // to communicate with other actors
-  override def received(packet: Packet): Unit = {}
-
-  override def received(str: String): Unit = {}
 
   def parse(data: ByteString): Unit = {
     Message(data) match {
@@ -58,4 +53,7 @@ class MsgHandler(connection: ActorRef) extends Handler(connection) {
 
   def onError(msg: Any): Unit = {}
 
+  override def received(response: Response): Unit = {
+    context.parent ! response
+  }
 }
