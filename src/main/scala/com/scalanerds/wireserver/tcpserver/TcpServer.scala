@@ -7,6 +7,7 @@ import akka.io.Tcp.{Bind, CommandFailed, Connected, Register}
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
 import com.scalanerds.wireserver.handlers.HandlerProps
+import com.scalanerds.wireserver.messages.{GetPort, Port}
 
 // Packet to send messages to another actor eg. TcpClient
 case class Packet(msg: String, data: ByteString)
@@ -30,5 +31,8 @@ class TcpServer(handlerProps: HandlerProps, remote: InetSocketAddress) extends A
     case Connected(_, _) =>
       val handler = context.actorOf(handlerProps.props(sender))
       sender ! Register(handler)
+
+    case GetPort =>
+      sender ! Port(number = remote.getPort)
   }
 }

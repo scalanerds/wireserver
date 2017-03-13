@@ -3,6 +3,7 @@ package com.scalanerds.wireserver.handlers
 import akka.actor.{Actor, ActorRef, Props}
 import akka.io.Tcp.{Received, _}
 import akka.util.ByteString
+import com.scalanerds.wireserver.messages.GetPort
 import com.scalanerds.wireserver.tcpserver.Packet
 
 import scala.util.matching.Regex
@@ -43,6 +44,9 @@ abstract class Handler(val connection: ActorRef) extends Actor {
     case Aborted =>
       aborted()
       stop()
+
+    case GetPort =>
+      context.parent forward GetPort
   }
 
   def received(data: ByteString): Unit
