@@ -47,7 +47,7 @@ class OpQuery(val msgHeader: MsgHeader,
     var content = msgHeader.serialize ++
     flags.serialize ++
     fullCollectionName.toByteArray ++
-    Array(numberToSkip, numberToSkip, numberToReturn).toByteArray ++
+    Array(numberToSkip, numberToReturn).toByteArray ++
     query.toByteArray
     if (returnFieldsSelector.nonEmpty)
     content ++= returnFieldsSelector.get.toByteArray
