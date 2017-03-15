@@ -3,6 +3,7 @@ package com.scalanerds.wireserver.example.tcpClient
 import java.net.InetSocketAddress
 
 import akka.actor.{Actor, ActorRef}
+import akka.event.Logging
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
@@ -11,6 +12,7 @@ import com.scalanerds.wireserver.tcpserver.Packet
 class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
 
   import context.system
+  val log = Logging(context.system, this)
 
   connect()
 
@@ -36,25 +38,30 @@ class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
       listener ! Packet("mongod", data)
 
     case CommandFailed(_: Write) =>
+      log.debug("client write failed")
       listener ! "write failed"
 
     case Received(data) =>
       listener ! Packet("mongod", data)
 
     case "close" =>
+      log.debug("client close")
       listener ! "close"
 
     case "drop connection" =>
+      log.debug("client drop connection")
       connection ! Close
       context become ready
       connect()
 
-    case _: ConnectionClosed =>
+    case c: ConnectionClosed =>
+      log.debug("client connectionClosed " + c.getErrorCause)
       listener ! "connection closed"
       context become ready
       connect()
 
     case PeerClosed =>
+      log.debug("client peerClosed")
       context become ready
       connect()
 

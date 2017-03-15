@@ -2,7 +2,7 @@ package com.scalanerds.wireserver.example.handler
 
 import java.net.InetSocketAddress
 
-import akka.actor.{ActorRef, Props}
+import akka.actor.{ActorRef, PoisonPill, Props}
 import akka.event.Logging
 import akka.io.Tcp.{Close, Write}
 import akka.util.ByteString
@@ -17,15 +17,17 @@ object SnifferServerProps extends HandlerProps {
 
 class SnifferServer(connection: ActorRef) extends MsgHandler(connection) {
 
-  val log = Logging(context.system, this)
+//  val log = Logging(context.system, this)
   val tcpClient: ActorRef = context.actorOf(Props(new TcpClient(self, new InetSocketAddress("localhost", 27017))), "sniffer")
 
   override def received(data: ByteString): Unit = {
+    log.debug("alice says: \n" + data.mkString(", "))
     parse(data)
     tcpClient ! Packet("mongocli", data)
   }
 
   override def received(packet: Packet): Unit = {
+    log.debug("bob says: \n" + packet.data.mkString(", "))
     parse(packet.data)
     connection ! Write(packet.data)
   }
@@ -35,6 +37,10 @@ class SnifferServer(connection: ActorRef) extends MsgHandler(connection) {
       case "close" => connection ! Close
       case m => log.debug(s"no match for message $m")
     }
+  }
+  override def peerClosed() {
+    tcpClient ! PoisonPill
+    connection ! Close
   }
 
   override def onOpReply(msg: OpReply): Unit = log.debug(s"OpReply\n$msg\n")
@@ -58,6 +64,7 @@ class SnifferServer(connection: ActorRef) extends MsgHandler(connection) {
   override def onOpCommandReply(msg: OpCommandReply): Unit = log.debug(s"OpCommandReply\n$msg\n")
 
   override def onError(msg: Any): Unit = {
+    log.debug("sniffer error")
     tcpClient ! "drop connection"
     tcpClient ! stop
     connection ! Close

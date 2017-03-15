@@ -1,47 +1,51 @@
 package com.scalanerds.wireserver.handlers
 
 import akka.actor.{Actor, ActorRef, Props}
+import akka.event.Logging
 import akka.io.Tcp.{Received, _}
 import akka.util.ByteString
 import com.scalanerds.wireserver.messages.GetPort
 import com.scalanerds.wireserver.tcpserver.Packet
+import com.scalanerds.wireserver.utils.Utils._
 
 import scala.util.matching.Regex
+
+case object Ack extends Event
 
 trait HandlerProps {
   def props(connection: ActorRef): Props
 }
 
-abstract class Handler(val connection: ActorRef) extends Actor {
+abstract class Handler(val connection: ActorRef)
+  extends Actor {
+  val log = Logging(context.system, this)
 
-  val abort: Regex = "(?i)abort".r
-  val confirmedClose: Regex = "(?i)confirmedclose".r
-  val close: Regex = "(?i)close".r
+  context watch connection
 
   def receive: Receive = {
     case str: String => received(str)
     case msg: Packet => received(msg)
     case Received(data) =>
-      data.utf8String.trim match {
-        case abort() => connection ! Abort
-        case confirmedClose() => connection ! ConfirmedClose
-        case close() => connection ! Close
-        case _ => received(data)
-      }
+      buffer(data)
 
     case PeerClosed =>
+      log.debug("server peerClosed")
       peerClosed()
       stop()
     case ErrorClosed =>
+      log.debug("server errorClosed")
       errorClosed()
       stop()
     case Closed =>
+      log.debug("server closed")
       closed()
       stop()
     case ConfirmedClosed =>
+      log.debug("server confirmedClosed")
       confirmedClosed()
       stop()
     case Aborted =>
+      log.debug("server aborted")
       aborted()
       stop()
 
@@ -60,23 +64,60 @@ abstract class Handler(val connection: ActorRef) extends Actor {
   }
 
   def errorClosed() {
-    println("ErrorClosed")
+    log.debug("server ErrorClosed")
   }
 
   def closed() {
-    println("Closed")
+    log.debug("server Closed")
   }
 
   def confirmedClosed() {
-    println("ConfirmedClosed")
+    log.debug("server ConfirmedClosed")
   }
 
   def aborted() {
-    println("Aborted")
+    log.debug("server Aborted")
   }
 
   def stop() {
+    log.debug("server stop")
     context stop self
+  }
+
+  var storage = Vector.empty[ByteString]
+  var stored = 0L
+  var lastLen = Long.MaxValue
+
+  private def buffer(data: ByteString): Unit = {
+    val len = data.take(4).toArray.toInt
+    log.debug(s"len: $len, realLen: ${data.length}\ndata: ${data.mkString(", ")}")
+
+    if(stored == 0 && len == data.length){
+      log.debug("forward as is")
+      resetBuffer()
+      received(data)
+    } else {
+      log.debug("append to buffer")
+      storage :+= data
+      stored += data.size
+
+      if(lastLen == Long.MaxValue)
+        lastLen = len
+
+      if(stored >= lastLen) {
+        log.debug("assemble buffer")
+        val buf = ByteString(storage.flatten.toArray)
+        resetBuffer()
+        received(buf)
+      }
+    }
+  }
+
+  private def resetBuffer() = {
+    context.unbecome()
+    storage = Vector.empty[ByteString]
+    stored = 0
+    lastLen = Long.MaxValue
   }
 }
 
