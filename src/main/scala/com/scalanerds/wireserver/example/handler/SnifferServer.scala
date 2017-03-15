@@ -8,7 +8,7 @@ import akka.io.Tcp.{Close, Write}
 import akka.util.ByteString
 import com.scalanerds.wireserver.example.tcpClient.TcpClient
 import com.scalanerds.wireserver.handlers.{HandlerProps, MsgHandler}
-import com.scalanerds.wireserver.messages.Response
+import com.scalanerds.wireserver.messageTypes.Response
 import com.scalanerds.wireserver.tcpserver.Packet
 import com.scalanerds.wireserver.wire.opcodes._
 
@@ -27,8 +27,8 @@ class SnifferServer(connection: ActorRef) extends MsgHandler(connection) {
   }
 
   override def received(response: Response): Unit = {
-    parse(response.data)
-    connection ! Write(response.data)
+    parse(response.bytes)
+    connection ! Write(response.bytes)
   }
 
   override def onOpReply(msg: OpReply): Unit = log.debug(s"OpReply\n$msg\n")

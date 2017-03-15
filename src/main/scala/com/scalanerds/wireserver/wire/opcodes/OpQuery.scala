@@ -14,7 +14,7 @@ object OpQuery {
     val numberToSkip = it.getInt
     val numberToReturn = it.getInt
     val bson = it.getBsonArray
-    val query = bson(0)
+    val query = bson.lift(0).getOrElse(BsonDocument.parse("{}"))
     val returnFieldSelector = if (bson.length == 2) Some(bson(1)) else None
     new OpQuery(msgHeader, flags, fullCollectionName, numberToSkip, numberToReturn, query, returnFieldSelector)
   }

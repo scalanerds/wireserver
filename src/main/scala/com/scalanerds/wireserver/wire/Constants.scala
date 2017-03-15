@@ -19,12 +19,24 @@ object OPCODES {
   val opCommand       = 2010
   val opCommandReply  = 2011
 
-  val clientCodes = Array(opUpdate, opInsert, opQuery, opGetMore, opDelete, opKillCursor, opCommand)
-  val serverCodes = Array(opReply, opMsg, opCommandReply)
+  val clientCodes = Vector(opUpdate, opInsert, opQuery, opGetMore, opDelete, opKillCursor, opCommand)
+  val serverCodes = Vector(opReply, opMsg, opCommandReply)
 }
 
 object OPNAMES {
-  val forward  : Array[String] = Array("find", "insert", "update", "delete", "count")
-  val intercept: Array[String] = Array("isMaster", "whatsmyuri", "buildinfo", "getLog")
-  val forbidden: Array[String] = Array()
+  val forward  : Vector[String] = Vector(
+    "find", "insert", "update", "delete", "count")
+  val intercept: Vector[String] = Vector(
+    "buildinfo", "buildInfo", "getLog", "isMaster", "replSetGetStatus", "whatsmyuri", // Basic
+    "currentOp", "fsync", "fsyncUnlock", "getlasterror", "getpreverror", "killOp", "listCommands",
+    "reseterror", // Advanced
+    "auth", "logout", // Authentication
+    "create") // DB administration
+  val forbidden: Vector[String] = Vector(
+    "addUser", "createUser",  "dropUser", "removeUser", "updateUser", "usersInfo", // Users management
+    "grantPrivilegesToRole", "grantRolesToRole", "grantRolesToUser", "revokePrivilegesFromRole", "revokeRolesFromRole",
+    "revokeRolesFromUser", "rolesInfo", "updateRole", // Roles management
+    "collStats", "dbStats", "forceError", "getCmdLineOpts", "getParameter", "hostInfo", "profile", "serverStatus",
+    "setParameter", "shutdownServer", // Server administration
+    "dbEval", "eval", "$eval") // Javascript stuff
 }

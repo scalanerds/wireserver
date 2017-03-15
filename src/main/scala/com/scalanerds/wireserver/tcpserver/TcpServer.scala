@@ -7,7 +7,7 @@ import akka.io.Tcp.{Bind, CommandFailed, Connected, Register}
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
 import com.scalanerds.wireserver.handlers.HandlerProps
-import com.scalanerds.wireserver.messages.{GetPort, Port}
+import com.scalanerds.wireserver.messageTypes.{GetPort, Port}
 
 // Packet to send messages to another actor eg. TcpClient
 case class Packet(msg: String, data: ByteString)

@@ -3,7 +3,7 @@ package com.scalanerds.wireserver.handlers
 
 import akka.actor.ActorRef
 import akka.util.ByteString
-import com.scalanerds.wireserver.messages.Response
+import com.scalanerds.wireserver.messageTypes.Response
 import com.scalanerds.wireserver.wire.Message
 import com.scalanerds.wireserver.wire.opcodes._
 

@@ -3,7 +3,7 @@ package com.scalanerds.wireserver.handlers
 import akka.actor.{Actor, ActorRef, Props}
 import akka.io.Tcp.{Received, _}
 import akka.util.ByteString
-import com.scalanerds.wireserver.messages.{GetPort, Response}
+import com.scalanerds.wireserver.messageTypes.{GetPort, Response}
 
 import scala.util.matching.Regex
 
@@ -55,7 +55,7 @@ abstract class Handler(val connection: ActorRef) extends Actor {
   def received(data: ByteString): Unit
 
   def received(response: Response): Unit = {
-    connection ! Write(response.data)
+    connection ! Write(response.bytes)
   }
 
   def peerClosed() {

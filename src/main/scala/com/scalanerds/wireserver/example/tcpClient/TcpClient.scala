@@ -6,7 +6,7 @@ import akka.actor.{Actor, ActorRef}
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
-import com.scalanerds.wireserver.messages.Response
+import com.scalanerds.wireserver.messageTypes.{Request, Response}
 import com.scalanerds.wireserver.tcpserver.Packet
 
 class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
@@ -30,8 +30,8 @@ class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
   }
 
   def listening(connection: ActorRef): Receive = {
-    case Packet(_, data) =>
-      connection ! Write(data)
+    case Request(bytes) =>
+      connection ! Write(bytes)
 
     case data: ByteString =>
       listener ! Response(data)
