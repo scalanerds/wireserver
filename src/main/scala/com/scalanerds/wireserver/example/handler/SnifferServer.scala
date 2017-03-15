@@ -1,15 +1,11 @@
 package com.scalanerds.wireserver.example.handler
 
-import java.net.InetSocketAddress
-
-import akka.actor.{ActorRef, Props}
-import akka.event.Logging
-import akka.io.Tcp.{Close, Write}
+import akka.actor.{ActorRef, PoisonPill, Props}
+import akka.io.Tcp.Close
 import akka.util.ByteString
 import com.scalanerds.wireserver.example.tcpClient.TcpClient
 import com.scalanerds.wireserver.handlers.{HandlerProps, MsgHandler}
-import com.scalanerds.wireserver.messageTypes.Response
-import com.scalanerds.wireserver.tcpserver.Packet
+import com.scalanerds.wireserver.messageTypes.{Request, Response}
 import com.scalanerds.wireserver.wire.opcodes._
 
 object SnifferServerProps extends HandlerProps {
@@ -18,17 +14,21 @@ object SnifferServerProps extends HandlerProps {
 
 class SnifferServer(connection: ActorRef) extends MsgHandler(connection) {
 
-  val log = Logging(context.system, this)
-  val tcpClient: ActorRef = context.actorOf(Props(new TcpClient(self, new InetSocketAddress("localhost", 27017))), "sniffer")
+  val tcpClient: ActorRef = context.actorOf(TcpClient.props(self, "127.0.0.1", 27017), "sniffer")
 
   override def received(data: ByteString): Unit = {
     parse(data)
-    tcpClient ! Packet("mongocli", data)
+    tcpClient ! Request(data)
   }
 
   override def received(response: Response): Unit = {
     parse(response.bytes)
-    connection ! Write(response.bytes)
+    super.received(response)
+  }
+
+  override def peerClosed(): Unit = {
+    tcpClient ! PoisonPill
+    super.peerClosed()
   }
 
   override def onOpReply(msg: OpReply): Unit = log.debug(s"OpReply\n$msg\n")

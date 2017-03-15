@@ -2,12 +2,19 @@ package com.scalanerds.wireserver.example.tcpClient
 
 import java.net.InetSocketAddress
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.{Actor, ActorRef, Props}
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
 import com.scalanerds.wireserver.messageTypes.{Request, Response}
 import com.scalanerds.wireserver.tcpserver.Packet
+
+object TcpClient {
+
+  def props(listener: ActorRef, host: String = "127.0.0.1", port: Int = 27017): Props = {
+    Props(new TcpClient(listener, new InetSocketAddress(host, port)))
+  }
+}
 
 class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
 
