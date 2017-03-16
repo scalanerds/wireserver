@@ -3,6 +3,7 @@ package com.scalanerds.wireserver.tcpserver
 import java.net.InetSocketAddress
 
 import akka.actor.{Actor, Props}
+import akka.event.Logging
 import akka.io.Tcp.{Bind, CommandFailed, Connected, Register}
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
@@ -17,22 +18,24 @@ object TcpServer {
     Props(classOf[TcpServer], handlerProps, remote)
 }
 
-class TcpServer(handlerProps: HandlerProps, remote: InetSocketAddress) extends Actor {
+class TcpServer(handlerProps: HandlerProps, socket: InetSocketAddress) extends Actor {
 
   import context.system
+  val log = Logging(context.system, this)
 
   println("Starting server")
-  IO(Tcp) ! Bind(self, remote)
-  println(s"Listening on port ${remote.getPort} ...")
+  IO(Tcp) ! Bind(self, socket)
+  println(s"Listening on port ${socket.getPort} ...")
 
   override def receive: PartialFunction[Any, Unit] = {
     case CommandFailed(_: Tcp.Bind) => context stop self
 
     case Connected(_, _) =>
-      val handler = context.actorOf(handlerProps.props(sender))
-      sender ! Register(handler)
+      context.actorOf(handlerProps.props(sender))
+      log.debug("Walter is born " + sender.path)
+
 
     case GetPort =>
-      sender ! Port(number = remote.getPort)
+      sender ! Port(number = socket.getPort)
   }
 }

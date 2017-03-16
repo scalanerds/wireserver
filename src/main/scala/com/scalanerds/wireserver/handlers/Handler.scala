@@ -4,11 +4,9 @@ import akka.actor.{Actor, ActorRef, Props}
 import akka.event.Logging
 import akka.io.Tcp.{Received, _}
 import akka.util.ByteString
-import com.scalanerds.wireserver.messages.GetPort
+import com.scalanerds.wireserver.messages.{GetPort, Ready}
 import com.scalanerds.wireserver.tcpserver.Packet
 import com.scalanerds.wireserver.utils.Utils._
-
-import scala.util.matching.Regex
 
 case object Ack extends Event
 
@@ -20,7 +18,11 @@ abstract class Handler(val connection: ActorRef)
   extends Actor {
   val log = Logging(context.system, this)
 
-  context watch connection
+  override def postStop(): Unit = {
+    connection ! Close
+    log.debug("walter died " + connection.path)
+    super.postStop()
+  }
 
   def receive: Receive = {
     case str: String => received(str)
@@ -29,29 +31,32 @@ abstract class Handler(val connection: ActorRef)
       buffer(data)
 
     case PeerClosed =>
-      log.debug("server peerClosed")
+      log.debug("server peerClosed " + connection.path)
       peerClosed()
-      stop()
     case ErrorClosed =>
-      log.debug("server errorClosed")
+      log.debug("server errorClosed " + connection.path)
       errorClosed()
       stop()
     case Closed =>
-      log.debug("server closed")
+      log.debug("server closed " + connection.path)
       closed()
       stop()
     case ConfirmedClosed =>
-      log.debug("server confirmedClosed")
+      log.debug("server confirmedClosed " + connection.path)
       confirmedClosed()
       stop()
     case Aborted =>
-      log.debug("server aborted")
+      log.debug("server aborted " + connection.path)
       aborted()
       stop()
 
     case GetPort =>
       context.parent forward GetPort
+
+    case Ready => connection ! Register(self)
+
   }
+
 
   def received(data: ByteString): Unit
 
@@ -60,27 +65,27 @@ abstract class Handler(val connection: ActorRef)
   def received(str: String): Unit
 
   def peerClosed() {
-    connection ! Close
+    stop()
   }
 
   def errorClosed() {
-    log.debug("server ErrorClosed")
+    log.debug("server ErrorClosed " + connection.path)
   }
 
   def closed() {
-    log.debug("server Closed")
+    log.debug("server Closed " + connection.path)
   }
 
   def confirmedClosed() {
-    log.debug("server ConfirmedClosed")
+    log.debug("server ConfirmedClosed " + connection.path)
   }
 
   def aborted() {
-    log.debug("server Aborted")
+    log.debug("server Aborted " + connection.path)
   }
 
   def stop() {
-    log.debug("server stop")
+    log.debug("server stop " + connection.path)
     context stop self
   }
 
@@ -90,22 +95,18 @@ abstract class Handler(val connection: ActorRef)
 
   private def buffer(data: ByteString): Unit = {
     val len = data.take(4).toArray.toInt
-    log.debug(s"len: $len, realLen: ${data.length}\ndata: ${data.mkString(", ")}")
-
-    if(stored == 0 && len == data.length){
-      log.debug("forward as is")
+    if (stored == 0 && len == data.length) {
       resetBuffer()
       received(data)
     } else {
-      log.debug("append to buffer")
+
       storage :+= data
       stored += data.size
 
-      if(lastLen == Long.MaxValue)
+      if (lastLen == Long.MaxValue)
         lastLen = len
 
-      if(stored >= lastLen) {
-        log.debug("assemble buffer")
+      if (stored >= lastLen) {
         val buf = ByteString(storage.flatten.toArray)
         resetBuffer()
         received(buf)

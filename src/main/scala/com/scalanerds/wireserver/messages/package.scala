@@ -7,5 +7,6 @@ package messages {
 
   case class Port(number: Int)
 
+  case object Ready
 
 }
