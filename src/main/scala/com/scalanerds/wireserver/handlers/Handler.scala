@@ -4,9 +4,9 @@ import akka.actor.{Actor, ActorRef, Props}
 import akka.event.Logging
 import akka.io.Tcp.{Received, _}
 import akka.util.ByteString
-import com.scalanerds.wireserver.messageTypes.{FromClient, ToClient}
+import com.scalanerds.wireserver.messageTypes.{FromClient, ToClient, WirePacket}
 import com.scalanerds.wireserver.messages.{GetPort, Ready}
-import com.scalanerds.wireserver.utils.Utils._
+import com.scalanerds.wireserver.tcpserver.TcpBuffer
 
 case object Ack extends Event
 
@@ -14,7 +14,7 @@ trait HandlerProps {
   def props(connection: ActorRef): Props
 }
 
-abstract class Handler(val connection: ActorRef) extends Actor {
+abstract class Handler(val connection: ActorRef) extends Actor with TcpBuffer {
   val log = Logging(context.system, this)
 
   override def postStop(): Unit = {
@@ -78,7 +78,11 @@ abstract class Handler(val connection: ActorRef) extends Actor {
     * @param request
     * @return
     */
-  def onReceived(request: FromClient): Unit = Unit
+  def onReceived(request: WirePacket): Unit = Unit
+
+  def packetWrapper(packet: ByteString): WirePacket = {
+    FromClient(packet)
+  }
 
   def onPeerClosed() {
     stop()
@@ -102,51 +106,6 @@ abstract class Handler(val connection: ActorRef) extends Actor {
   def stop() {
     log.debug("server stop " + connection.path)
     context stop self
-  }
-
-  var storage = Vector.empty[ByteString]
-  var storedBytes = 0L
-  // length of the ByteString as declared in the first 4 bytes of the first segment
-  var frameLength : Option[Int] = None
-
-  /**
-    * Buffer that joins consequent segments into a single frame
-    * @param segment
-    */
-  private def buffer(segment: ByteString): Unit = {
-    // get the length of the ByteString by reading the first 4 bytes as Int
-    val msgLength = segment.take(4).toArray.toInt
-    // if we don't have anything in buffer and the length is equal to the ByteString length
-    // then the frame is complete
-    if (storedBytes == 0 && msgLength == segment.length) {
-      resetBuffer()
-      onReceived(FromClient(segment))
-    } else {
-      //if is the first incomplete ByteString then store the msgLength
-      if (frameLength.isEmpty)
-        frameLength = Some(msgLength)
-      // store the incomplete ByteString
-      storage :+= segment
-      // store how many bytes we have stored
-      storedBytes += segment.size
-      // check if the frame is complete
-      if (storedBytes >= frameLength.get) {
-        // join the segments
-        val frame = ByteString(storage.flatten.toArray)
-        resetBuffer()
-        onReceived(FromClient(frame))
-      }
-    }
-  }
-
-  /**
-    * Reset the framing buffer
-    */
-  private def resetBuffer() = {
-    context.unbecome()
-    storage = Vector.empty[ByteString]
-    storedBytes = 0
-    frameLength = None
   }
 }
 

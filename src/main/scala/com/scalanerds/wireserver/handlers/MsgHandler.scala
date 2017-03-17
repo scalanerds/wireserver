@@ -3,7 +3,7 @@ package com.scalanerds.wireserver.handlers
 
 import akka.actor.ActorRef
 import akka.util.ByteString
-import com.scalanerds.wireserver.messageTypes.FromClient
+import com.scalanerds.wireserver.messageTypes.{FromClient, WirePacket}
 import com.scalanerds.wireserver.wire.Message
 import com.scalanerds.wireserver.wire.opcodes._
 
@@ -14,7 +14,7 @@ class MsgHandler(connection: ActorRef) extends Handler(connection) {
     * By default, parse messages from received requests
     * @param request
     */
-  override def onReceived(request: FromClient): Unit = {
+  override def onReceived(request: WirePacket): Unit = {
     parse(request.bytes)
   }
 

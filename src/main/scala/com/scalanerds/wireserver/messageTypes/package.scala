@@ -12,14 +12,15 @@ package messageTypes {
 
   /**
     * Serialized Wire packets
-    * @param bytes
     */
-  sealed abstract class WirePacket(bytes: ByteString)
-  case class Response(bytes: ByteString) extends WirePacket(bytes: ByteString)
-  case class Request(bytes: ByteString) extends WirePacket(bytes: ByteString)
-  case class FromClient(bytes: ByteString) extends WirePacket(bytes: ByteString)
-  case class FromServer(bytes: ByteString) extends WirePacket(bytes: ByteString)
-  case class ToClient(bytes: ByteString) extends WirePacket(bytes: ByteString)
-  case class ToServer(bytes: ByteString) extends WirePacket(bytes: ByteString)
+  trait WirePacket {
+    def bytes: ByteString
+  }
+  case class Response(bytes: ByteString) extends WirePacket
+  case class Request(bytes: ByteString) extends WirePacket
+  case class FromClient(bytes: ByteString) extends WirePacket
+  case class FromServer(bytes: ByteString) extends WirePacket
+  case class ToClient(bytes: ByteString) extends WirePacket
+  case class ToServer(bytes: ByteString) extends WirePacket
 
 }

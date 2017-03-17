@@ -7,7 +7,7 @@ import akka.actor.{ActorRef, Props}
 import akka.io.Tcp._
 import com.scalanerds.wireserver.example.tcpClient.TcpClient
 import com.scalanerds.wireserver.handlers.{HandlerProps, MsgHandler}
-import com.scalanerds.wireserver.messageTypes.{FromClient, FromServer, ToClient, ToServer}
+import com.scalanerds.wireserver.messageTypes._
 import com.scalanerds.wireserver.messages.DropConnection
 import com.scalanerds.wireserver.wire.opcodes._
 
@@ -36,20 +36,19 @@ class SnifferServer(connection: ActorRef) extends MsgHandler(connection) {
   }
 
   override def preStart(): Unit = {
-    tcpClient = context.actorOf(Props(new TcpClient(self, new InetSocketAddress("localhost", 27017))), "sniffer")
+    tcpClient = context.actorOf(Props(new TcpClient(self, new InetSocketAddress("ds063856.mlab.com", 63856))), "sniffer")
     super.preStart()
   }
 
-  override def onReceived(request: FromClient): Unit = {
-    log.warning("alice says: " + connection.path) // \n" + data.mkString(", "))
-    parse(request.bytes)
-    tcpClient ! ToServer(request.bytes)
-  }
-
-  def onReceived(response: FromServer): Unit = {
-    log.error("bob replies: " + connection.path) // \n" + packet.data.mkString(", "))
-    parse(response.bytes)
-    self ! ToClient(response.bytes)
+  override def onReceived(msg: WirePacket): Unit = msg match {
+      case FromClient(bytes) =>
+        log.warning("alice says: " + connection.path) // \n" + data.mkString(", "))
+        parse(bytes)
+        tcpClient ! ToServer(bytes)
+      case FromServer(bytes) =>
+        log.error("bob replies: " + connection.path) // \n" + packet.data.mkString(", "))
+        parse(bytes)
+        self ! ToClient(bytes)
   }
 
   override def onOpReply(msg: OpReply): Unit = log.debug(s"OpReply\n${msg.msgHeader}\n${msg.documents.mkString("\n")

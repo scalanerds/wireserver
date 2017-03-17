@@ -7,10 +7,11 @@ import akka.event.Logging
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
-import com.scalanerds.wireserver.messageTypes.{FromServer, ToServer}
+import com.scalanerds.wireserver.messageTypes.{FromServer, ToServer, WirePacket}
 import com.scalanerds.wireserver.messages.{DropConnection, Ready}
+import com.scalanerds.wireserver.tcpserver.TcpBuffer
 
-class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
+class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor with TcpBuffer {
 
   import context.system
   val log = Logging(context.system, this)
@@ -50,7 +51,7 @@ class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
       * WirePacket receivers
       */
     case Received(bytes) =>
-      listener ! FromServer(bytes)
+      buffer(bytes)
 
     case ToServer(bytes) =>
       connection ! Write(beforeWrite(bytes))
@@ -93,6 +94,14 @@ class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
     log.debug("Connecting client.")
     IO(Tcp) ! Connect(remote)
     log.info(s"Client connected to port ${remote.getPort}")
+  }
+
+  def onReceived(msg: WirePacket) = {
+    listener ! msg.asInstanceOf[FromServer]
+  }
+
+  def packetWrapper(packet: ByteString): WirePacket = {
+    FromServer(packet)
   }
 
   /**
