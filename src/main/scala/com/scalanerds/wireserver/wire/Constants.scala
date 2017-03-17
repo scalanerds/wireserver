@@ -19,12 +19,7 @@ object OPCODES {
   val opCommand       = 2010
   val opCommandReply  = 2011
 
-  val clientCodes = Array(opUpdate, opInsert, opQuery, opGetMore, opDelete, opKillCursor, opCommand)
-  val serverCodes = Array(opReply, opMsg, opCommandReply)
+  val clientCodes = Vector(opUpdate, opInsert, opQuery, opGetMore, opDelete, opKillCursor, opCommand)
+  val serverCodes = Vector(opReply, opMsg, opCommandReply)
 }
 
-object OPNAMES {
-  val forward  : Array[String] = Array("find", "insert", "update", "delete", "count")
-  val intercept: Array[String] = Array("isMaster", "whatsmyuri", "buildinfo", "getLog")
-  val forbidden: Array[String] = Array()
-}
