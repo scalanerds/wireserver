@@ -38,9 +38,14 @@ trait TcpBuffer {
       // check if the frame is complete
       if (storedBytes >= frameLength.get) {
         // join the segments
-        val frame = ByteString(storage.flatten.toArray)
-        resetBuffer()
+        val (frame, tail) = ByteString(storage.flatten.toArray).splitAt(frameLength.get)
         onReceived(packetWrapper(frame))
+        if(tail.isEmpty) resetBuffer()
+        else {
+          storedBytes = tail.length
+          frameLength = Some(tail.take(4).toArray.toInt)
+          storage = Vector(tail)
+        }
       }
     }
   }

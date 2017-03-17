@@ -35,7 +35,7 @@ class SnifferServer(connection: ActorRef) extends MsgHandler(connection) {
   }
 
   override def preStart(): Unit = {
-    tcpClient = context.actorOf(Props(new TcpClient(self, new InetSocketAddress("localhost", 47017))), "sniffer")
+    tcpClient = context.actorOf(Props(new TcpClient(self, new InetSocketAddress("localhost", 27017))), "sniffer")
     super.preStart()
   }
 

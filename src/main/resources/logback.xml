@@ -10,7 +10,7 @@
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>./log/traces.log</file>
-        <append>true</append>
+        <append>false</append>
         <encoder>
             <pattern>%X{akkaTimestamp} - %msg%n</pattern>
         </encoder>
