@@ -7,7 +7,7 @@ import akka.event.Logging
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
-import com.scalanerds.wireserver.messages.Ready
+import com.scalanerds.wireserver.messages.{DropConnection, Ready}
 import com.scalanerds.wireserver.tcpserver.Packet
 
 class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
@@ -59,7 +59,7 @@ class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
     case Received(data) =>
       listener ! Packet("mongod", data)
 
-    case "drop connection" =>
+    case DropConnection =>
       log.debug("client drop connection")
       connection ! Close
       context become ready

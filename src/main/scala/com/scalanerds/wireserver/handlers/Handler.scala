@@ -50,12 +50,13 @@ abstract class Handler(val connection: ActorRef)
 
   }
 
-
   def received(data: ByteString): Unit
 
   def received(packet: Packet): Unit
 
-  def received(str: String): Unit
+  def received(str: String) {
+    log.debug(s"unknown $str")
+  }
 
   def peerClosed() {
     stop()
@@ -79,23 +80,29 @@ abstract class Handler(val connection: ActorRef)
   }
 
   var storage = Vector.empty[ByteString]
-  var stored = 0L
-  var lastLen = Long.MaxValue
+  var storedBytes = 0L
+  // length of the ByteString as declared in the first 4 bytes of the first segment
+  var frameLength : Option[Int] = None
 
   private def buffer(data: ByteString): Unit = {
-    val len = data.take(4).toArray.toInt
-    if (stored == 0 && len == data.length) {
+    // get the length of the ByteString by reading the first 4 bytes as Int
+    val msgLength = data.take(4).toArray.toInt
+    // if we don't have anything in buffer and the length is equal to the ByteString length
+    // then the frame is complete
+    if (storedBytes == 0 && msgLength == data.length) {
       resetBuffer()
       received(data)
     } else {
-
+      //if is the first incomplete ByteString then store the msgLength
+      if (frameLength.isEmpty)
+        frameLength = Some(msgLength)
+      // store the incomplete ByteString
       storage :+= data
-      stored += data.size
-
-      if (lastLen == Long.MaxValue)
-        lastLen = len
-
-      if (stored >= lastLen) {
+      // store how many bytes we have stored
+      storedBytes += data.size
+      // check if the frame is complete
+      if (storedBytes >= frameLength.get) {
+        // join the segments
         val buf = ByteString(storage.flatten.toArray)
         resetBuffer()
         received(buf)
@@ -106,8 +113,8 @@ abstract class Handler(val connection: ActorRef)
   private def resetBuffer() = {
     context.unbecome()
     storage = Vector.empty[ByteString]
-    stored = 0
-    lastLen = Long.MaxValue
+    storedBytes = 0
+    frameLength = None
   }
 }
 

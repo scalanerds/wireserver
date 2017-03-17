@@ -7,6 +7,7 @@ import akka.io.Tcp._
 import akka.util.ByteString
 import com.scalanerds.wireserver.example.tcpClient.TcpClient
 import com.scalanerds.wireserver.handlers.{HandlerProps, MsgHandler}
+import com.scalanerds.wireserver.messages.DropConnection
 import com.scalanerds.wireserver.tcpserver.Packet
 import com.scalanerds.wireserver.wire.opcodes._
 
@@ -36,13 +37,6 @@ class SnifferServer(connection: ActorRef) extends MsgHandler(connection) {
     connection ! Write(packet.data)
   }
 
-  override def received(str: String): Unit = {
-    str match {
-      case "close" => connection ! Close
-      case m => log.debug(s"no match for message $m")
-    }
-  }
-
   override def onOpReply(msg: OpReply): Unit = log.debug(s"OpReply\n${msg.msgHeader}\n${msg.documents.mkString("\n")
   }\n")
 
@@ -66,7 +60,7 @@ class SnifferServer(connection: ActorRef) extends MsgHandler(connection) {
 
   override def onError(msg: Any): Unit = {
     log.debug("sniffer error")
-    tcpClient ! "drop connection"
+    tcpClient ! DropConnection
     tcpClient ! stop
     connection ! Close
     log.debug(s"Unknown message\n$msg\n")

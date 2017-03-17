@@ -9,4 +9,6 @@ package messages {
 
   case object Ready
 
+  case object  DropConnection
+
 }
