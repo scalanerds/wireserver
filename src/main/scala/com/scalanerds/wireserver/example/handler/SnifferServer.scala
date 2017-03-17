@@ -2,13 +2,13 @@ package com.scalanerds.wireserver.example.handler
 
 import java.net.InetSocketAddress
 
+import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{ActorRef, Props}
 import akka.io.Tcp._
-import akka.util.ByteString
 import com.scalanerds.wireserver.example.tcpClient.TcpClient
 import com.scalanerds.wireserver.handlers.{HandlerProps, MsgHandler}
+import com.scalanerds.wireserver.messageTypes.{FromClient, FromServer, ToClient, ToServer}
 import com.scalanerds.wireserver.messages.DropConnection
-import com.scalanerds.wireserver.tcpserver.Packet
 import com.scalanerds.wireserver.wire.opcodes._
 
 
@@ -20,21 +20,36 @@ class SnifferServer(connection: ActorRef) extends MsgHandler(connection) {
 
   var tcpClient: ActorRef = _
 
+  override def receive: Receive = {
+
+    /**
+      * Handle server responses
+      */
+    case response: FromServer =>
+      onReceived(response)
+
+    /**
+      * Pass all other messages to underlying Handler's own receiver
+      */
+    case msg =>
+      super.receive(msg)
+  }
+
   override def preStart(): Unit = {
     tcpClient = context.actorOf(Props(new TcpClient(self, new InetSocketAddress("localhost", 27017))), "sniffer")
     super.preStart()
   }
 
-  override def received(data: ByteString): Unit = {
+  override def onReceived(request: FromClient): Unit = {
     log.warning("alice says: " + connection.path) // \n" + data.mkString(", "))
-    parse(data)
-    tcpClient ! Packet("mongocli", data)
+    parse(request.bytes)
+    tcpClient ! ToServer(request.bytes)
   }
 
-  override def received(packet: Packet): Unit = {
+  def onReceived(response: FromServer): Unit = {
     log.error("bob replies: " + connection.path) // \n" + packet.data.mkString(", "))
-    parse(packet.data)
-    connection ! Write(packet.data)
+    parse(response.bytes)
+    self ! ToClient(response.bytes)
   }
 
   override def onOpReply(msg: OpReply): Unit = log.debug(s"OpReply\n${msg.msgHeader}\n${msg.documents.mkString("\n")
@@ -61,7 +76,7 @@ class SnifferServer(connection: ActorRef) extends MsgHandler(connection) {
   override def onError(msg: Any): Unit = {
     log.debug("sniffer error")
     tcpClient ! DropConnection
-    tcpClient ! stop
+    tcpClient ! Stop
     connection ! Close
     log.debug(s"Unknown message\n$msg\n")
   }

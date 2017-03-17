@@ -7,8 +7,8 @@ import akka.event.Logging
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
+import com.scalanerds.wireserver.messageTypes.{FromServer, ToServer}
 import com.scalanerds.wireserver.messages.{DropConnection, Ready}
-import com.scalanerds.wireserver.tcpserver.Packet
 
 class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
 
@@ -24,7 +24,6 @@ class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
   override def postStop(): Unit = {
     connection ! Close
     super.postStop()
-
   }
 
   def receive: Receive = ready
@@ -46,18 +45,22 @@ class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
   }
 
   def listening(connection: ActorRef): Receive = {
-    case Packet(_, data) =>
-      connection ! Write(data)
 
-    case data: ByteString =>
-      listener ! Packet("mongod", data)
+    /**
+      * WirePacket receivers
+      */
+    case Received(bytes) =>
+      listener ! FromServer(bytes)
 
+    case ToServer(bytes) =>
+      connection ! Write(beforeWrite(bytes))
+
+    /**
+      * TCP signals handling
+      */
     case CommandFailed(_: Write) =>
       log.debug("client write failed")
       listener ! "write failed"
-
-    case Received(data) =>
-      listener ! Packet("mongod", data)
 
     case DropConnection =>
       log.debug("client drop connection")
@@ -76,12 +79,26 @@ class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
       context become ready
       connect()
 
-    case msg => println(s"Something else is up.\n$msg")
+    /**
+      * Fallback
+      */
+    case msg =>
+      log.warning(s"TCP Client reveived an unexpected message: \n$msg")
   }
 
+  /**
+    * Try to perform connection
+    */
   def connect(): Unit = {
-    println("Connecting client.")
+    log.debug("Connecting client.")
     IO(Tcp) ! Connect(remote)
-    println(s"Client connected to port ${remote.getPort}")
+    log.info(s"Client connected to port ${remote.getPort}")
   }
+
+  /**
+    * Override this method to intercept outcoming bytes
+    * @param bytes
+    * @return
+    */
+  def beforeWrite(bytes: ByteString): ByteString = bytes
 }
