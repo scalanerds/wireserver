@@ -4,8 +4,7 @@ import akka.actor.{Actor, ActorRef, Props}
 import akka.event.Logging
 import akka.io.Tcp.{Received, _}
 import akka.util.ByteString
-import com.scalanerds.wireserver.messageTypes.{FromClient, ToClient}
-import com.scalanerds.wireserver.messages.{GetPort, Ready}
+import com.scalanerds.wireserver.messageTypes.{FromClient, GetPort, Ready, ToClient}
 import com.scalanerds.wireserver.utils.Utils._
 
 case object Ack extends Event
@@ -24,7 +23,6 @@ abstract class Handler(val connection: ActorRef) extends Actor {
   }
 
   def receive: Receive = {
-
     /**
       * WirePacket receivers
       */

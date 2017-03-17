@@ -7,8 +7,7 @@ import akka.actor.{ActorRef, Props}
 import akka.io.Tcp._
 import com.scalanerds.wireserver.example.tcpClient.TcpClient
 import com.scalanerds.wireserver.handlers.{HandlerProps, MsgHandler}
-import com.scalanerds.wireserver.messageTypes.{FromClient, FromServer, ToClient, ToServer}
-import com.scalanerds.wireserver.messages.DropConnection
+import com.scalanerds.wireserver.messageTypes._
 import com.scalanerds.wireserver.wire.opcodes._
 
 

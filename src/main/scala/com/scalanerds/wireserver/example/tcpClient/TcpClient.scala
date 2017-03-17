@@ -7,8 +7,7 @@ import akka.event.Logging
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
-import com.scalanerds.wireserver.messageTypes.{FromServer, ToServer}
-import com.scalanerds.wireserver.messages.{DropConnection, Ready}
+import com.scalanerds.wireserver.messageTypes.{DropConnection, FromServer, Ready, ToServer}
 
 class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
 
