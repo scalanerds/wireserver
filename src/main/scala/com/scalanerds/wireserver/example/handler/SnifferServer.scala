@@ -16,7 +16,6 @@ object SnifferServerProps extends HandlerProps {
 }
 
 class SnifferServer(connection: ActorRef) extends MsgHandler(connection) {
-  log.debug("Walter giving life to Eve")
 
   var tcpClient: ActorRef = _
 
@@ -42,10 +41,6 @@ class SnifferServer(connection: ActorRef) extends MsgHandler(connection) {
       case "close" => connection ! Close
       case m => log.debug(s"no match for message $m")
     }
-  }
-
-  override def peerClosed(): Unit = {
-    tcpClient ! ConfirmedClose
   }
 
   override def onOpReply(msg: OpReply): Unit = log.debug(s"OpReply\n${msg.msgHeader}\n${msg.documents.mkString("\n")

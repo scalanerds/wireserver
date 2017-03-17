@@ -29,7 +29,6 @@ abstract class Handler(val connection: ActorRef)
     case msg: Packet => received(msg)
     case Received(data) =>
       buffer(data)
-
     case PeerClosed =>
       log.debug("server peerClosed " + connection.path)
       peerClosed()
@@ -41,18 +40,12 @@ abstract class Handler(val connection: ActorRef)
       log.debug("server closed " + connection.path)
       closed()
       stop()
-    case ConfirmedClosed =>
-      log.debug("server confirmedClosed " + connection.path)
-      confirmedClosed()
-      stop()
     case Aborted =>
       log.debug("server aborted " + connection.path)
       aborted()
       stop()
-
     case GetPort =>
       context.parent forward GetPort
-
     case Ready => connection ! Register(self)
 
   }
@@ -74,10 +67,6 @@ abstract class Handler(val connection: ActorRef)
 
   def closed() {
     log.debug("server Closed " + connection.path)
-  }
-
-  def confirmedClosed() {
-    log.debug("server ConfirmedClosed " + connection.path)
   }
 
   def aborted() {

@@ -14,11 +14,17 @@ class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
 
   import context.system
   val log = Logging(context.system, this)
-  log.debug("Eve constructor")
+  var connection: ActorRef = _
+
   override def preStart(): Unit = {
-    log.debug("Eve is born")
     connect()
     super.preStart()
+  }
+
+  override def postStop(): Unit = {
+    connection ! Close
+    super.postStop()
+
   }
 
   def receive: Receive = ready
@@ -30,13 +36,13 @@ class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
 
     case Connected(_, _) =>
       log.debug("Eve connection succeeded")
-      val connection = sender()
+      connection = sender()
       connection ! Register(self)
       listener ! Ready
 
       context become listening(connection)
 
-    case msg: String => log.debug("wrong " + msg)
+    case msg => log.debug(s"unknown message: $msg")
   }
 
   def listening(connection: ActorRef): Receive = {
@@ -52,14 +58,6 @@ class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor {
 
     case Received(data) =>
       listener ! Packet("mongod", data)
-
-    case ConfirmedClose =>
-      log.debug("client close")
-      connection ! ConfirmedClose
-
-    case ConfirmedClosed =>
-      log.debug("client confirmed closed")
-      listener ! ConfirmedClosed
 
     case "drop connection" =>
       log.debug("client drop connection")
