@@ -2,11 +2,11 @@ package com.scalanerds.wireserver.handlers
 
 import akka.actor.{Actor, ActorRef, Props}
 import akka.event.Logging
-import akka.io.Tcp.{Received, _}
+import akka.io.Tcp._
 import akka.util.ByteString
-import com.scalanerds.wireserver.messageTypes.{FromClient, ToClient, WirePacket}
-import com.scalanerds.wireserver.messages.{GetPort, Ready}
+import com.scalanerds.wireserver.messageTypes._
 import com.scalanerds.wireserver.tcpserver.TcpBuffer
+
 
 case object Ack extends Event
 
@@ -24,7 +24,6 @@ abstract class Handler(val connection: ActorRef) extends Actor with TcpBuffer {
   }
 
   def receive: Receive = {
-
     /**
       * WirePacket receivers
       */
@@ -68,6 +67,7 @@ abstract class Handler(val connection: ActorRef) extends Actor with TcpBuffer {
 
   /**
     * Override this method to intercept outcoming bytes
+    *
     * @param bytes
     * @return
     */
@@ -75,6 +75,7 @@ abstract class Handler(val connection: ActorRef) extends Actor with TcpBuffer {
 
   /**
     * Override this method to handle incoming requests
+    *
     * @param request
     * @return
     */

@@ -4,6 +4,9 @@ package messageTypes {
 
   import akka.util.ByteString
 
+  case object Ready
+  case object DropConnection
+
   /**
     * TCP Server commands and entities
     */

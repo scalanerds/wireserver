@@ -7,13 +7,13 @@ import akka.event.Logging
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
-import com.scalanerds.wireserver.messageTypes.{FromServer, ToServer, WirePacket}
-import com.scalanerds.wireserver.messages.{DropConnection, Ready}
+import com.scalanerds.wireserver.messageTypes._
 import com.scalanerds.wireserver.tcpserver.TcpBuffer
 
 class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor with TcpBuffer {
 
   import context.system
+
   val log = Logging(context.system, this)
   var connection: ActorRef = _
 
@@ -96,7 +96,7 @@ class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor wit
     log.info(s"Client connected to port ${remote.getPort}")
   }
 
-  def onReceived(msg: WirePacket) = {
+  def onReceived(msg: WirePacket): Unit = {
     listener ! msg.asInstanceOf[FromServer]
   }
 
@@ -106,6 +106,7 @@ class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor wit
 
   /**
     * Override this method to intercept outcoming bytes
+    *
     * @param bytes
     * @return
     */

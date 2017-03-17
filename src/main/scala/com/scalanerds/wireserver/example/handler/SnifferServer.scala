@@ -8,7 +8,6 @@ import akka.io.Tcp._
 import com.scalanerds.wireserver.example.tcpClient.TcpClient
 import com.scalanerds.wireserver.handlers.{HandlerProps, MsgHandler}
 import com.scalanerds.wireserver.messageTypes._
-import com.scalanerds.wireserver.messages.DropConnection
 import com.scalanerds.wireserver.wire.opcodes._
 
 
@@ -36,7 +35,7 @@ class SnifferServer(connection: ActorRef) extends MsgHandler(connection) {
   }
 
   override def preStart(): Unit = {
-    tcpClient = context.actorOf(Props(new TcpClient(self, new InetSocketAddress("ds063856.mlab.com", 63856))), "sniffer")
+    tcpClient = context.actorOf(Props(new TcpClient(self, new InetSocketAddress("localhost", 47017))), "sniffer")
     super.preStart()
   }
 
