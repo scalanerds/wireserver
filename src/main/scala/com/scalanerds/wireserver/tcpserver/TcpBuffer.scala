@@ -39,7 +39,7 @@ trait TcpBuffer {
       // store how many bytes we have stored
       storedBytes += segment.size
       // check if the frame is complete
-      log.debug(s"segment received ${storedBytes} \n${segment.mkString(", ")}")
+      log.debug(s"segment received $storedBytes \n${segment.mkString(", ")}")
 
       if (storedBytes >= frameLength.get) {
         // join the segments and split at frame length
