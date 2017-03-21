@@ -5,6 +5,8 @@ import akka.util.ByteString
 import com.scalanerds.wireserver.messageTypes.{FromClient, WirePacket}
 import com.scalanerds.wireserver.utils.Utils._
 
+import scala.annotation.tailrec
+
 trait TcpBuffer {
   this: {
     def log : LoggingAdapter
@@ -21,13 +23,12 @@ trait TcpBuffer {
     * Buffer that joins consequent segments into a single frame
     * @param segment
     */
-  def buffer(segment: ByteString): Unit = {
+  @tailrec final def buffer(segment: ByteString): Unit = {
     // get the length of the ByteString by reading the first 4 bytes as Int
     val msgLength = segment.take(4).toArray.toInt
     // if we don't have anything in buffer and the length is equal to the ByteString length
     // then the frame is complete
     if (storedBytes == 0 && msgLength == segment.length) {
-      resetBuffer()
       onReceived(packetWrapper(segment))
     } else {
       //if is the first incomplete ByteString then store the msgLength
