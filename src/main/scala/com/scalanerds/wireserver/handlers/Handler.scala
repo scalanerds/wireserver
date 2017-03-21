@@ -17,6 +17,7 @@ trait HandlerProps {
 abstract class Handler(val connection: ActorRef) extends Actor with TcpBuffer {
   val log = Logging(context.system, this)
 
+
   override def postStop(): Unit = {
     connection ! Close
     log.debug("walter died " + connection.path)

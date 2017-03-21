@@ -1,11 +1,13 @@
 package com.scalanerds.wireserver.tcpserver
 
+import akka.event.LoggingAdapter
 import akka.util.ByteString
 import com.scalanerds.wireserver.messageTypes.{FromClient, WirePacket}
 import com.scalanerds.wireserver.utils.Utils._
 
 trait TcpBuffer {
   this: {
+    def log : LoggingAdapter
     def onReceived(data: WirePacket): Unit
     def packetWrapper(data: ByteString): WirePacket
   } =>
@@ -36,16 +38,16 @@ trait TcpBuffer {
       // store how many bytes we have stored
       storedBytes += segment.size
       // check if the frame is complete
+      log.debug(s"segment received ${storedBytes} \n${segment.mkString(", ")}")
+
       if (storedBytes >= frameLength.get) {
-        // join the segments
+        // join the segments and split at frame length
         val (frame, tail) = ByteString(storage.flatten.toArray).splitAt(frameLength.get)
+        log.debug(s"frame completed\n${frame.mkString(", ")}")
         onReceived(packetWrapper(frame))
-        if(tail.isEmpty) resetBuffer()
-        else {
-          storedBytes = tail.length
-          frameLength = Some(tail.take(4).toArray.toInt)
-          storage = Vector(tail)
-        }
+        resetBuffer()
+        // if tail not empty continue buffering
+        if(tail.nonEmpty) buffer(tail)
       }
     }
   }
