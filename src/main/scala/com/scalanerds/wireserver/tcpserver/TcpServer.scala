@@ -31,7 +31,7 @@ class TcpServer(handlerProps: HandlerProps, socket: InetSocketAddress) extends A
     case CommandFailed(_: Tcp.Bind) => context stop self
 
     case Connected(_, _) =>
-      context.actorOf(handlerProps.props(sender))
+      context.actorOf(handlerProps.props)
       log.debug("Walter is born " + sender.path)
 
     case GetPort =>

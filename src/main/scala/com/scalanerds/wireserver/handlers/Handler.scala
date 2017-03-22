@@ -11,15 +11,17 @@ import com.scalanerds.wireserver.tcpserver.TcpBuffer
 case object Ack extends Event
 
 trait HandlerProps {
-  def props(connection: ActorRef): Props
+  def props: Props
+//  def props(connection: ActorRef): Props
 }
-
-abstract class Handler(val connection: ActorRef) extends Actor with TcpBuffer {
+abstract class Handler extends Actor with TcpBuffer {
+//abstract class Handler(val connection: ActorRef) extends Actor with TcpBuffer {
+  var connection: ActorRef  = _
   val log = Logging(context.system, this)
 
 
   override def postStop(): Unit = {
-    connection ! Close
+//    connection ! Close
     log.debug("walter died " + connection.path)
     super.postStop()
   }
@@ -29,10 +31,28 @@ abstract class Handler(val connection: ActorRef) extends Actor with TcpBuffer {
       * WirePacket receivers
       */
     case ToClient(bytes) =>
-      connection ! Write(beforeWrite(bytes))
+      log.debug(s"sending to alice !!!!!! $bytes")
+      connection ! beforeWrite(bytes)
 
     case Received(segment: ByteString) =>
+//      buffer(segment)
+      onReceived(FromClient(segment))
+
+    case segment: ByteString =>
+      log.debug(s"got bytes")// ${segment.mkString("Bytestring(", ", ", ")")}")
+//      onReceived(FromClient(segment))
+//      connection = sender()
       buffer(segment)
+
+    case ref: ActorRef => {
+      log.debug("Got ref to alice")
+      connection = ref
+    }
+
+    case "exit" => {
+      log.debug("exit")
+      stop()
+    }
 
     /**
       * TCP signals
@@ -57,7 +77,8 @@ abstract class Handler(val connection: ActorRef) extends Actor with TcpBuffer {
       * Listener signals
       */
     case Ready =>
-      connection ! Register(self)
+      log.debug("eve ready")
+//      connection ! Register(self)
 
     /**
       * Commands

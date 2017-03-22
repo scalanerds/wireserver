@@ -7,8 +7,8 @@ import com.scalanerds.wireserver.messageTypes.{FromClient, WirePacket}
 import com.scalanerds.wireserver.wire.Message
 import com.scalanerds.wireserver.wire.opcodes._
 
-
-class MsgHandler(connection: ActorRef) extends Handler(connection) {
+class MsgHandler extends Handler {
+//class MsgHandler(connection: ActorRef) extends Handler(connection) {
 
   /**
     * By default, parse messages from received requests

@@ -52,6 +52,7 @@ class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor wit
       */
     case Received(bytes) =>
       buffer(bytes)
+//      listener ! FromServer(bytes)
 
     case ToServer(bytes) =>
       connection ! Write(beforeWrite(bytes))

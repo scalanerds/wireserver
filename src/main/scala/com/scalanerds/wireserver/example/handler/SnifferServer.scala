@@ -12,10 +12,11 @@ import com.scalanerds.wireserver.wire.opcodes._
 
 
 object SnifferServerProps extends HandlerProps {
-  def props(connection: ActorRef) = Props(classOf[SnifferServer], connection)
+  def props = Props(classOf[SnifferServer])
+//  def props(connection: ActorRef) = Props(classOf[SnifferServer], connection)
 }
-
-class SnifferServer(connection: ActorRef) extends MsgHandler(connection) {
+class SnifferServer extends MsgHandler {
+//class SnifferServer(connection: ActorRef) extends MsgHandler(connection) {
 
   var tcpClient: ActorRef = _
 
@@ -41,11 +42,11 @@ class SnifferServer(connection: ActorRef) extends MsgHandler(connection) {
 
   override def onReceived(msg: WirePacket): Unit = msg match {
       case FromClient(bytes) =>
-        log.warning("alice says: " + connection.path) // \n" + data.mkString(", "))
+        log.warning("alice says: " + connection.path)// + "\n" + bytes.mkString("ByteString(",", ", ")"))
         parse(bytes)
         tcpClient ! ToServer(bytes)
       case FromServer(bytes) =>
-        log.error("bob replies: " + connection.path) // \n" + packet.data.mkString(", "))
+        log.error("bob replies: " + connection.path)// + "\n" + bytes.mkString("ByteString(",", ", ")"))
         parse(bytes)
         self ! ToClient(bytes)
   }
