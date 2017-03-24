@@ -2,37 +2,29 @@ package com.scalanerds.wireserver.example.tcpClient
 
 
 import akka.NotUsed
-import akka.actor.{ActorRef, ActorSystem, PoisonPill, Stash}
+import akka.actor.{Actor, ActorRef, ActorSystem, PoisonPill}
 import akka.event.Logging
 import akka.io.Tcp._
-import akka.stream.scaladsl.{Flow, Keep, Sink, Source, Tcp}
+import akka.stream.scaladsl.{Flow, Sink, Source, Tcp}
 import akka.stream.{ActorMaterializer, OverflowStrategy}
 import akka.util.ByteString
 import com.scalanerds.wireserver.messageTypes._
 import com.scalanerds.wireserver.tcpserver.TcpBuffer
 
 class PlainTcpClient(listener: ActorRef, address: String, port: Int)
-  extends TcpBuffer with Stash {
+  extends Actor with TcpBuffer {
 
   implicit val system: ActorSystem = context.system
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
-  var connection: ActorRef = _
+  val sink: Sink[ByteString, NotUsed] = Flow[ByteString].to(Sink.actorRef(self, PoisonPill))
+
+  val tcpFlow = Flow[ByteString].via(Tcp().outgoingConnection(address, port))
+  var connection = Source.actorRef(1, OverflowStrategy.fail).via(tcpFlow).to(sink).run()
+
   val log = Logging(context.system, this)
 
-  override def receive: Receive = uninitialized
-
-  def uninitialized: Receive = {
-    case ref: ActorRef =>
-      connection = ref
-      log.debug("context become")
-      context.become(initialized)
-      unstashAll()
-
-    case _ => stash()
-  }
-
-  def initialized: Receive = {
+  override def receive: Receive = {
     /**
       * WirePacket receivers
       */
@@ -42,21 +34,9 @@ class PlainTcpClient(listener: ActorRef, address: String, port: Int)
     case ToServer(bytes) =>
       connection ! beforeWrite(bytes)
 
-    case segment : ByteString => buffer(segment)
+    case segment: ByteString => buffer(segment)
 
   }
-
-  val in: Sink[ByteString, NotUsed] = Flow[ByteString].to(Sink.actorRef(self, PoisonPill))
-
-  val out: Source[ByteString, Unit] = Source.actorRef[ByteString](1, OverflowStrategy.fail)
-    .mapMaterializedValue(self ! _)
-
-  val flow: Flow[ByteString, ByteString, NotUsed] = Flow.fromSinkAndSourceMat(in, out)(Keep.none)
-
-
-  val client = Tcp().outgoingConnection(address, port)
-
-  client.join(flow).run()
 
   def onReceived(msg: WirePacket): Unit = {
     listener ! msg.asInstanceOf[FromServer]
