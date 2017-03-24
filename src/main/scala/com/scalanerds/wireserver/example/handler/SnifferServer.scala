@@ -6,34 +6,33 @@ import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{ActorRef, Props}
 import akka.io.Tcp._
 import com.scalanerds.wireserver.example.tcpClient.TcpClient
-import com.scalanerds.wireserver.handlers.{HandlerProps, MsgHandler}
+import com.scalanerds.wireserver.handlers.{MsgHandler, MsgHandlerProps}
 import com.scalanerds.wireserver.messageTypes._
 import com.scalanerds.wireserver.wire.opcodes._
 
 
-object SnifferServerProps extends HandlerProps {
+object SnifferServerProps extends MsgHandlerProps {
   def props = Props(classOf[SnifferServer])
-//  def props(connection: ActorRef) = Props(classOf[SnifferServer], connection)
 }
+
 class SnifferServer extends MsgHandler {
-//class SnifferServer(connection: ActorRef) extends MsgHandler(connection) {
 
   var tcpClient: ActorRef = _
 
-  override def receive: Receive = {
-
-    /**
-      * Handle server responses
-      */
-    case response: FromServer =>
-      onReceived(response)
-
-    /**
-      * Pass all other messages to underlying Handler's own receiver
-      */
-    case msg =>
-      super.receive(msg)
-  }
+  //  override def receive: Receive = {
+  //
+  //    /**
+  //      * Handle server responses
+  //      */
+  //    case response: FromServer =>
+  //      onReceived(response)
+  //
+  //    /**
+  //      * Pass all other messages to underlying Handler's own receiver
+  //      */
+  //    case msg =>
+  //      super.receive(msg)
+  //  }
 
   override def preStart(): Unit = {
     tcpClient = context.actorOf(Props(new TcpClient(self, new InetSocketAddress("localhost", 27017))), "sniffer")
@@ -41,17 +40,18 @@ class SnifferServer extends MsgHandler {
   }
 
   override def onReceived(msg: WirePacket): Unit = msg match {
-      case FromClient(bytes) =>
-        log.warning("alice says: " + connection.path)// + "\n" + bytes.mkString("ByteString(",", ", ")"))
-        parse(bytes)
-        tcpClient ! ToServer(bytes)
-      case FromServer(bytes) =>
-        log.error("bob replies: " + connection.path)// + "\n" + bytes.mkString("ByteString(",", ", ")"))
-        parse(bytes)
-        self ! ToClient(bytes)
+    case FromClient(bytes) =>
+      log.warning("alice says: " + connection.path) // + "\n" + bytes.mkString("ByteString(",", ", ")"))
+      parse(bytes)
+      tcpClient ! ToServer(bytes)
+    case FromServer(bytes) =>
+      log.error("bob replies: " + connection.path) // + "\n" + bytes.mkString("ByteString(",", ", ")"))
+      parse(bytes)
+      self ! ToClient(bytes)
   }
 
-  override def onOpReply(msg: OpReply): Unit = log.debug(s"OpReply\n${msg.msgHeader}\n${msg.documents.mkString("\n")
+  override def onOpReply(msg: OpReply): Unit = log.debug(s"OpReply\n${msg.msgHeader}\n${
+    msg.documents.mkString("\n")
   }\n")
 
   override def onOpMsg(msg: OpMsg): Unit = log.debug(s"OpMsg\n${msg.msgHeader}\n")

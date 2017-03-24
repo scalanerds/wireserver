@@ -38,7 +38,7 @@ class TcpClient(listener: ActorRef, remote: InetSocketAddress) extends Actor wit
       log.debug("Eve connection succeeded")
       connection = sender()
       connection ! Register(self)
-      listener ! Ready
+//      listener ! Ready
 
       context become listening(connection)
 

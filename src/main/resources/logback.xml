@@ -4,7 +4,7 @@
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
         <encoder>
-            <pattern>%X{akkaTimestamp} %logger{0} - %msg%n</pattern>
+            <pattern>%X{akkaTimestamp} %logger{0} - %msg%n%rEx</pattern>
         </encoder>
     </appender>
 
@@ -12,7 +12,7 @@
         <file>./log/traces.log</file>
         <append>false</append>
         <encoder>
-            <pattern>%X{akkaTimestamp} - %msg%n</pattern>
+            <pattern>%X{akkaTimestamp} - %msg%n%rEx</pattern>
         </encoder>
     </appender>
 

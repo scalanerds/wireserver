@@ -1,40 +1,37 @@
 package com.scalanerds.wireserver.tcpserver
 
-import java.net.InetSocketAddress
-
+import akka.Done
 import akka.actor.{Actor, Props}
-import akka.event.Logging
-import akka.io.Tcp.{Bind, CommandFailed, Connected, Register}
-import akka.io.{IO, Tcp}
-import akka.util.ByteString
-import com.scalanerds.wireserver.handlers.HandlerProps
-import com.scalanerds.wireserver.messageTypes.{GetPort, Port}
-
-// Packet to send messages to another actor eg. TcpClient
-case class Packet(msg: String, data: ByteString)
+import akka.stream.ActorMaterializer
+import akka.stream.scaladsl.{Sink, Tcp}
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 object TcpServer {
-  def props(handlerProps: HandlerProps, remote: InetSocketAddress): Props =
-    Props(classOf[TcpServer], handlerProps, remote)
+  def props(address: String = "localhost",
+            port: Int = 3000): Props =
+    Props(classOf[TcpServer], address, port)
 }
 
-class TcpServer(handlerProps: HandlerProps, socket: InetSocketAddress) extends Actor {
+abstract class TcpServer(address: String, port: Int) extends Actor {
+  implicit val system = context.system
+  implicit val materializer: ActorMaterializer = ActorMaterializer()
 
-  import context.system
-  val log = Logging(context.system, this)
+  def handler: Sink[Tcp.IncomingConnection, Future[Done]]
 
-  println("Starting server")
-  IO(Tcp) ! Bind(self, socket)
-  println(s"Listening on port ${socket.getPort} ...")
+  private val connections = Tcp().bind(address, port)
+  private val binding = connections.to(handler).run()
 
-  override def receive: PartialFunction[Any, Unit] = {
-    case CommandFailed(_: Tcp.Bind) => context stop self
+  binding.onComplete {
+    case Success(b) =>
+      println("Server started, listening on: " + b.localAddress)
+    case Failure(e) =>
+      println(s"Server could not bind to $address:$port ${e.getMessage}")
+      context stop self
+  }
 
-    case Connected(_, _) =>
-      context.actorOf(handlerProps.props)
-      log.debug("Walter is born " + sender.path)
-
-    case GetPort =>
-      sender ! Port(number = socket.getPort)
+  override def receive: Receive = {
+    case msg => println(msg)
   }
 }

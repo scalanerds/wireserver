@@ -1,20 +1,80 @@
 package com.scalanerds.wireserver.handlers
 
-
-import akka.actor.ActorRef
+import akka.actor.{Actor, ActorRef, Props, Stash}
+import akka.event.Logging
+import akka.io.Tcp._
 import akka.util.ByteString
-import com.scalanerds.wireserver.messageTypes.{FromClient, WirePacket}
+import com.scalanerds.wireserver.messageTypes._
+import com.scalanerds.wireserver.tcpserver.TcpBuffer
 import com.scalanerds.wireserver.wire.Message
 import com.scalanerds.wireserver.wire.opcodes._
 
-class MsgHandler extends Handler {
-//class MsgHandler(connection: ActorRef) extends Handler(connection) {
+
+trait MsgHandlerProps {
+  def props: Props
+}
+abstract class MsgHandler extends Actor with TcpBuffer with Stash {
+  var connection: ActorRef  = _
+  val log = Logging(context.system, this)
+
+
+  override def postStop(): Unit = {
+    log.debug("walter died " + connection.path)
+    super.postStop()
+  }
+
+  def receive: Receive = uninitialized
+
+  def uninitialized: Receive = {
+    case ref: ActorRef =>
+      connection = ref
+      log.debug("context become")
+      context.become(initialized)
+      unstashAll()
+
+    case _ => stash()
+  }
+
+
+  def initialized: Receive = {
+    /**
+      * WirePacket receivers
+      */
+    case ToClient(bytes) =>
+      connection ! beforeWrite(bytes)
+
+    case Received(segment: ByteString) =>
+      onReceived(FromClient(segment))
+
+    case segment: ByteString =>
+      log.debug(s"got bytes \n${segment.mkString("ByteString(",", ", ")")}")
+      buffer(segment)
+
+    case response: FromServer =>
+      onReceived(response)
+
+    /**
+      * Commands
+      */
+    case GetPort =>
+      context.parent forward GetPort
+  }
 
   /**
+    * Override this method to intercept outcoming bytes
+    *
+    * @param bytes
+    * @return
+    */
+  def beforeWrite(bytes: ByteString): ByteString = bytes
+
+
+  /**
+    * Override this method to handle incoming requests
     * By default, parse messages from received requests
     * @param request
     */
-  override def onReceived(request: WirePacket): Unit = {
+  def onReceived(request: WirePacket): Unit = {
     parse(request.bytes)
   }
 
@@ -56,4 +116,17 @@ class MsgHandler extends Handler {
 
   def onError(msg: Any): Unit = {}
 
+  def packetWrapper(packet: ByteString): WirePacket = {
+    FromClient(packet)
+  }
+
+  /**
+    * Stop this actor
+    */
+  def stop() {
+    log.debug("MsgHandler stop " + connection.path)
+    context stop self
+  }
 }
+
+
