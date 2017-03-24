@@ -40,9 +40,6 @@ abstract class MsgHandler extends Actor with TcpBuffer with Stash {
     case ToClient(bytes) =>
       connection ! beforeWrite(bytes)
 
-    case Received(segment: ByteString) =>
-      onReceived(FromClient(segment))
-
     case segment: ByteString =>
       log.debug(s"got bytes \n${segment.mkString("ByteString(",", ", ")")}")
       buffer(segment)

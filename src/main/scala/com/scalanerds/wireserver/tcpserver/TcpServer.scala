@@ -1,9 +1,10 @@
 package com.scalanerds.wireserver.tcpserver
 
 import akka.Done
-import akka.actor.{Actor, Props}
+import akka.actor.{Actor, ActorSystem, Props}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Tcp}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
@@ -15,7 +16,7 @@ object TcpServer {
 }
 
 abstract class TcpServer(address: String, port: Int) extends Actor {
-  implicit val system = context.system
+  implicit val system: ActorSystem = context.system
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
   def handler: Sink[Tcp.IncomingConnection, Future[Done]]

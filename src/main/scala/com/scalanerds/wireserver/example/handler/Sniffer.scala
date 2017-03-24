@@ -1,11 +1,9 @@
 package com.scalanerds.wireserver.example.handler
 
-import java.net.InetSocketAddress
-
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{ActorRef, Props}
 import akka.io.Tcp._
-import com.scalanerds.wireserver.example.tcpClient.TcpClient
+import com.scalanerds.wireserver.example.tcpClient.PlainTcpClient
 import com.scalanerds.wireserver.handlers.MsgHandler
 import com.scalanerds.wireserver.messageTypes._
 import com.scalanerds.wireserver.wire.opcodes._
@@ -20,7 +18,7 @@ class Sniffer extends MsgHandler {
   var tcpClient: ActorRef = _
 
   override def preStart(): Unit = {
-    tcpClient = context.actorOf(Props(new TcpClient(self, new InetSocketAddress("localhost", 27017))), "sniffer")
+    tcpClient = context.actorOf(Props(new PlainTcpClient(self, "localhost", 27017)), "sniffer")
     super.preStart()
   }
 
