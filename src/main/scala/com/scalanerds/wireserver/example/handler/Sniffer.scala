@@ -6,33 +6,18 @@ import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{ActorRef, Props}
 import akka.io.Tcp._
 import com.scalanerds.wireserver.example.tcpClient.TcpClient
-import com.scalanerds.wireserver.handlers.{MsgHandler, MsgHandlerProps}
+import com.scalanerds.wireserver.handlers.MsgHandler
 import com.scalanerds.wireserver.messageTypes._
 import com.scalanerds.wireserver.wire.opcodes._
 
 
-object SnifferServerProps extends MsgHandlerProps {
-  def props = Props(classOf[SnifferServer])
+object Sniffer {
+  def props = Props(classOf[Sniffer])
 }
 
-class SnifferServer extends MsgHandler {
+class Sniffer extends MsgHandler {
 
   var tcpClient: ActorRef = _
-
-  //  override def receive: Receive = {
-  //
-  //    /**
-  //      * Handle server responses
-  //      */
-  //    case response: FromServer =>
-  //      onReceived(response)
-  //
-  //    /**
-  //      * Pass all other messages to underlying Handler's own receiver
-  //      */
-  //    case msg =>
-  //      super.receive(msg)
-  //  }
 
   override def preStart(): Unit = {
     tcpClient = context.actorOf(Props(new TcpClient(self, new InetSocketAddress("localhost", 27017))), "sniffer")

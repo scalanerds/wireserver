@@ -10,9 +10,6 @@ import com.scalanerds.wireserver.wire.Message
 import com.scalanerds.wireserver.wire.opcodes._
 
 
-trait MsgHandlerProps {
-  def props: Props
-}
 abstract class MsgHandler extends Actor with TcpBuffer with Stash {
   var connection: ActorRef  = _
   val log = Logging(context.system, this)
