@@ -1,5 +1,7 @@
 package com.scalanerds.wireserver.example.handler
 
+import java.net.InetSocketAddress
+
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{ActorRef, Props}
 import akka.io.Tcp._
@@ -10,10 +12,11 @@ import com.scalanerds.wireserver.wire.opcodes._
 
 
 object Sniffer {
-  def props = Props(classOf[Sniffer])
+  def props(remote: InetSocketAddress, local: InetSocketAddress) = Props(classOf[Sniffer], remote, local)
 }
 
-class Sniffer extends MsgHandler {
+class Sniffer(remote: InetSocketAddress, local: InetSocketAddress) extends MsgHandler {
+  log.debug(s"\nsniffer remote address: $remote\nsniffer local address $local")
 
   var tcpClient: ActorRef = _
 
