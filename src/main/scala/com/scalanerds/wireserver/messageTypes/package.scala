@@ -11,9 +11,9 @@ package messageTypes {
   /**
     * TCP Server commands and entities
     */
-  case object GetPort
+  case object GetServerInfo
 
-  case class Port(number: Int)
+  case class ServerInfo(address: String, port: Int)
 
   /**
     * Serialized Wire packets

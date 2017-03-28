@@ -2,7 +2,7 @@ package com.scalanerds.wireserver.wire.opcodes
 
 import akka.util.ByteString
 import com.scalanerds.wireserver.utils.Utils._
-import com.scalanerds.wireserver.wire.{Message, MsgHeader}
+import com.scalanerds.wireserver.wire.{Message, MsgHeader, OPCODES}
 import org.bson.BsonDocument
 
 object OpCommandReply {
@@ -12,6 +12,14 @@ object OpCommandReply {
     val commandReply = it.getBson
     val outputDocs = it.getBsonArray
     new OpCommandReply(msgHeader, metadata, commandReply, outputDocs)
+  }
+
+  def apply(replyTo : Int,
+            metadata: BsonDocument = new BsonDocument()): OpCommandReply = {
+    new OpCommandReply(new MsgHeader(
+      responseTo = replyTo,
+      opCode=OPCODES.opCommandReply
+    ), metadata=metadata)
   }
 }
 

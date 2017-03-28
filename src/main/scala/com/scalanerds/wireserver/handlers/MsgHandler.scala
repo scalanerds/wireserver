@@ -50,8 +50,8 @@ abstract class MsgHandler extends Actor with TcpBuffer with Stash {
     /**
       * Commands
       */
-    case GetPort =>
-      context.parent forward GetPort
+    case GetServerInfo =>
+      context.parent forward GetServerInfo
   }
 
   /**
