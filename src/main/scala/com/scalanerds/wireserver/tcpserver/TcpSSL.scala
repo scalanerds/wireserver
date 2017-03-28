@@ -4,15 +4,15 @@ import java.security.{KeyStore, SecureRandom}
 import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
 
 trait TcpSSL {
-  def sslContext(): SSLContext = {
+  def sslContext(keystore: String, truststore: String): SSLContext = {
 
     val password = "123456".toCharArray
 
     val keyStore = KeyStore.getInstance(KeyStore.getDefaultType)
-    keyStore.load(getClass.getResourceAsStream("/keystore"), password)
+    keyStore.load(getClass.getResourceAsStream(keystore), password)
 
     val trustStore = KeyStore.getInstance(KeyStore.getDefaultType)
-    trustStore.load(getClass.getResourceAsStream("/truststore"), password)
+    trustStore.load(getClass.getResourceAsStream(truststore), password)
 
     val keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm)
     keyManagerFactory.init(keyStore, password)

@@ -55,5 +55,5 @@ worker*.log
 /bin
 *.sc
 temp
-keystore
-truststore
+*keystore
+*truststore

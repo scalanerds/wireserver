@@ -20,7 +20,7 @@ object SSLTcpServer {
 }
 
 class SSLTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, address: String, port: Int) extends TcpServer(address, port) with TcpSSL {
-  private val serverSSL = TLS(sslContext(), TLSProtocol.negotiateNewSession, TLSRole.server)
+  private val serverSSL = TLS(sslContext("/server.keystore","/truststore"), TLSProtocol.negotiateNewSession, TLSRole.server)
 
   override def handler: Sink[Tcp.IncomingConnection, Future[Done]] = Sink.foreach[Tcp.IncomingConnection] { conn =>
     println("Client connected from: " + conn.remoteAddress)
