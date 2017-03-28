@@ -21,7 +21,7 @@ class Sniffer(remote: InetSocketAddress, local: InetSocketAddress) extends MsgHa
   var tcpClient: ActorRef = _
 
   override def preStart(): Unit = {
-    tcpClient = context.actorOf(Props(new SSLTcpClient(self, "localhost", 27017)), "sniffer")
+    tcpClient = context.actorOf(Props(new PlainTcpClient(self, "localhost", 27017)), "sniffer")
     super.preStart()
   }
 
