@@ -4,10 +4,10 @@ import akka.actor.{Actor, ActorRef, ActorSystem}
 import akka.stream.ActorMaterializer
 import akka.util.ByteString
 import com.scalanerds.wireserver.messageTypes.{FromServer, ToServer, WirePacket}
-import com.scalanerds.wireserver.tcpserver.TcpBuffer
+
 
 abstract class TcpClient(listener: ActorRef, address: String, port: Int)
-  extends Actor with TcpBuffer {
+  extends Actor {
 
   implicit val system: ActorSystem = context.system
   implicit val materializer: ActorMaterializer = ActorMaterializer()
@@ -19,12 +19,12 @@ abstract class TcpClient(listener: ActorRef, address: String, port: Int)
     case ToServer(bytes) =>
       connection ! beforeWrite(bytes)
 
-    case segment: ByteString => buffer(segment)
+    case segment: ByteString => onReceived(segment)
 
   }
 
-  def onReceived(msg: WirePacket): Unit = {
-    listener ! msg.asInstanceOf[FromServer]
+  def onReceived(msg: ByteString): Unit = {
+    listener ! FromServer(msg)
   }
 
   def packetWrapper(packet: ByteString): WirePacket = {

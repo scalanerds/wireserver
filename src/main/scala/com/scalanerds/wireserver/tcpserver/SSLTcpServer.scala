@@ -1,7 +1,6 @@
 package com.scalanerds.wireserver.tcpserver
 
 
-
 import java.net.InetSocketAddress
 
 import akka.actor.{ActorRef, PoisonPill, Props}
@@ -14,13 +13,16 @@ import akka.{Done, NotUsed}
 import scala.concurrent.Future
 
 object SSLTcpServer {
-  def props(props: (InetSocketAddress, InetSocketAddress) => Props, address: String = "localhost", port: Int = 6000): Props =
+  def props(props: (InetSocketAddress, InetSocketAddress) => Props, address: String = "localhost", port: Int = 6000):
+  Props =
     Props(classOf[SSLTcpServer], props, address, port)
 
 }
 
-class SSLTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, address: String, port: Int) extends TcpServer(address, port) with TcpSSL {
-  private val serverSSL = TLS(sslContext("/server.keystore","/truststore"), TLSProtocol.negotiateNewSession, TLSRole.server)
+class SSLTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, address: String, port: Int)
+  extends TcpServer(address, port) with TcpSSL with TcpFraming {
+  private val serverSSL = TLS(sslContext("/server.keystore", "/truststore"),
+    TLSProtocol.negotiateNewSession, TLSRole.server)
 
   override def handler: Sink[Tcp.IncomingConnection, Future[Done]] = Sink.foreach[Tcp.IncomingConnection] { conn =>
     println("Client connected from: " + conn.remoteAddress)
@@ -30,7 +32,7 @@ class SSLTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, addre
 
     val out: Source[ByteString, Unit] = Source.actorRef[ByteString](1, OverflowStrategy.fail)
       .mapMaterializedValue(actor ! _)
-    val flow: Flow[ByteString, ByteString, NotUsed] = Flow.fromSinkAndSourceMat(in, out)(Keep.none)
+    val flow: Flow[ByteString, ByteString, NotUsed] = Flow.fromSinkAndSourceMat(framing.to(in), out)(Keep.none)
 
     val ssl = Flow[SslTlsInbound]
       .collect[ByteString] { case SessionBytes(_, bytes) => bytes }
