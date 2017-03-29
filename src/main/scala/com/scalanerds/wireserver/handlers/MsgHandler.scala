@@ -44,12 +44,6 @@ abstract class MsgHandler extends Actor with Stash {
 
     case response: FromServer =>
       onReceived(response)
-
-    /**
-      * Commands
-      */
-    case GetPort =>
-      context.parent forward GetPort
   }
 
   /**

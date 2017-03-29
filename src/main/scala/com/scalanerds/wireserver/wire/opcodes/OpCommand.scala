@@ -17,12 +17,12 @@ object OpCommand {
   }
 }
 
-class OpCommand(val msgHeader: MsgHeader,
+class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opCommand),
                 val database: String,
                 val commandName: String,
-                val metadata: BsonDocument,
-                val commandArgs: BsonDocument,
-                val inputDocs: Array[BsonDocument]) extends Message {
+                val metadata: BsonDocument = new BsonDocument(),
+                val commandArgs: BsonDocument = new BsonDocument(),
+                val inputDocs: Array[BsonDocument] = Array[BsonDocument]()) extends Message {
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++
       database.toByteArray ++
@@ -36,13 +36,7 @@ class OpCommand(val msgHeader: MsgHeader,
   }
 
   def reply(doc: BsonDocument): OpCommandReply = {
-    new OpCommandReply(
-      MsgHeader(
-        responseTo = msgHeader.requestId,
-        opCode     = OPCODES.opCommandReply
-      ),
-      commandReply = doc
-    )
+    OpCommandReply(msgHeader.requestId, doc)
   }
 
   def reply(json: String) : OpCommandReply = reply(BsonDocument.parse(json))

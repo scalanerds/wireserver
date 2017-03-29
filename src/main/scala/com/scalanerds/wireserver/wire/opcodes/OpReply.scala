@@ -4,7 +4,7 @@ package com.scalanerds.wireserver.wire.opcodes
 import akka.util.ByteString
 import com.scalanerds.wireserver.utils.Utils._
 import com.scalanerds.wireserver.wire.conversions._
-import com.scalanerds.wireserver.wire.{Message, MsgHeader}
+import com.scalanerds.wireserver.wire.{Message, MsgHeader, OPCODES}
 import org.bson.BsonDocument
 
 object OpReply {
@@ -24,26 +24,22 @@ object OpReply {
     )
   }
 
-  def apply(msgHeader: MsgHeader = MsgHeader(),
-            responseFlags: OpReplyFlags = new OpReplyFlags(),
-            cursorId: Long = 0L,
-            startingFrom: Int = 0,
-            documents: Array[BsonDocument]): OpReply = {
-    new OpReply(msgHeader,
-      responseFlags,
-      cursorId,
-      startingFrom,
-      numberReturned = documents.length,
-      documents)
+  def apply(replyTo: Int,
+            documents:  Array[BsonDocument] = Array[BsonDocument]()): OpReply = {
+    val msgHeader = new MsgHeader(replyTo, opCode =OPCODES.opReply)
+    new OpReply(msgHeader, documents=documents)
   }
 }
 
-class OpReply(val msgHeader: MsgHeader,
-              val responseFlags: OpReplyFlags,
+class OpReply(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opReply),
+              val responseFlags: OpReplyFlags = new OpReplyFlags(),
               val cursorId: Long = 0L,
               val startingFrom: Int = 0,
-              val numberReturned: Int = 0,
+              var numberReturned: Int = 0,
               val documents: Array[BsonDocument]) extends Message {
+
+  numberReturned = documents.length
+
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++
       responseFlags.serialize ++

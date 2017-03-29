@@ -20,23 +20,16 @@ object OpQuery {
   }
 }
 
-class OpQuery(val msgHeader: MsgHeader,
-              val flags: OpQueryFlags,
+class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opQuery),
+              val flags: OpQueryFlags = new OpQueryFlags(),
               val fullCollectionName: String,
-              val numberToSkip: Int,
-              val numberToReturn: Int,
-              val query: BsonDocument,
+              val numberToSkip: Int = 0,
+              val numberToReturn: Int = 1,
+              val query: BsonDocument = new BsonDocument(),
               val returnFieldsSelector: Option[BsonDocument] = None) extends Message {
 
   def reply(docs: Array[BsonDocument]): OpReply = {
-    OpReply(
-      MsgHeader(
-        responseTo = msgHeader.requestId,
-        opCode     = OPCODES.opReply
-      ),
-      responseFlags = new OpReplyFlags(),
-      documents = docs
-    )
+    OpReply(msgHeader.requestId, documents = docs)
   }
 
   def reply(doc: BsonDocument): OpReply = reply(Array(doc))

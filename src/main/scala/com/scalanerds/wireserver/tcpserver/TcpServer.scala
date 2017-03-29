@@ -4,6 +4,7 @@ import akka.Done
 import akka.actor.{Actor, ActorSystem, Props}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Tcp}
+import com.scalanerds.wireserver.messageTypes.{GetInfo, Info}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -33,6 +34,6 @@ abstract class TcpServer(address: String, port: Int) extends Actor {
   }
 
   override def receive: Receive = {
-    case msg => println(msg)
+    case msg => println("Unhandled message:", msg)
   }
 }

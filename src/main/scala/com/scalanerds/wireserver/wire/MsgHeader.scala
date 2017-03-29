@@ -2,8 +2,8 @@ package com.scalanerds.wireserver.wire
 
 import com.scalanerds.wireserver.utils.Utils.{IntToByte, _}
 
-class MsgHeader(val requestId: Int,
-                val responseTo: Int,
+class MsgHeader(val requestId: Int = MsgHeader.issueRequestId(),
+                var responseTo: Int = 0,
                 val opCode: Int,
                 //The total size of the message in bytes.
                 // This total includes the 4 bytes that holds the message length.
@@ -26,11 +26,6 @@ class MsgHeader(val requestId: Int,
 object MsgHeader {
   private var lastRequestId  = 0
   private def issueRequestId(): Int = { lastRequestId += 1; lastRequestId }
-
-  def apply(responseTo: Int,
-            opCode: Int): MsgHeader = {
-    new MsgHeader(issueRequestId(), responseTo, opCode)
-  }
 
   def apply(data: Array[Byte]): MsgHeader = {
     val it = data.iterator
