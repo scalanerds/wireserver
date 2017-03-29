@@ -4,6 +4,8 @@ import akka.util.ByteString
 
 package messageTypes {
 
+  import java.net.InetSocketAddress
+
   case object Ready
 
   case object DropConnection
@@ -11,9 +13,9 @@ package messageTypes {
   /**
     * TCP Server commands and entities
     */
-  case object GetServerInfo
+  case object GetInfo
 
-  case class ServerInfo(address: String, port: Int)
+  case class Info(local: InetSocketAddress, remote: InetSocketAddress)
 
   /**
     * Serialized Wire packets

@@ -46,12 +46,6 @@ abstract class MsgHandler extends Actor with TcpBuffer with Stash {
 
     case response: FromServer =>
       onReceived(response)
-
-    /**
-      * Commands
-      */
-    case GetServerInfo =>
-      context.parent forward GetServerInfo
   }
 
   /**
