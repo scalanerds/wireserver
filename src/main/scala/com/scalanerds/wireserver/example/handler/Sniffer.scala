@@ -16,7 +16,7 @@ object Sniffer {
 }
 
 class Sniffer(remote: InetSocketAddress, local: InetSocketAddress) extends MsgHandler {
-  log.debug(s"\nsniffer remote address: $remote\nsniffer local address $local")
+//  log.debug(s"\nsniffer remote address: $remote\nsniffer local address $local")
 
   var tcpClient: ActorRef = _
 
@@ -27,36 +27,36 @@ class Sniffer(remote: InetSocketAddress, local: InetSocketAddress) extends MsgHa
 
   override def onReceived(msg: WirePacket): Unit = msg match {
     case FromClient(bytes) =>
-      log.warning("alice says: " + connection.path) // + "\n" + bytes.mkString("ByteString(",", ", ")"))
+      log.warning("alice says: " + connection.path + "\n" + bytes.mkString("ByteString(",", ", ")"))
       parse(bytes)
       tcpClient ! ToServer(bytes)
     case FromServer(bytes) =>
-      log.error("bob replies: " + connection.path) // + "\n" + bytes.mkString("ByteString(",", ", ")"))
+      log.error("bob replies: " + connection.path + "\n" + bytes.mkString("ByteString(",", ", ")"))
       parse(bytes)
       self ! ToClient(bytes)
   }
 
-  override def onOpReply(msg: OpReply): Unit = log.debug(s"OpReply\n${msg.msgHeader}\n${
-    msg.documents.mkString("\n")
-  }\n")
+  override def onOpReply(msg: OpReply): Unit = log.debug(s"OpReply") // \n${msg.msgHeader}\n${
+//    msg.documents.mkString("\n")
+//  }\n")
 
-  override def onOpMsg(msg: OpMsg): Unit = log.debug(s"OpMsg\n${msg.msgHeader}\n")
+  override def onOpMsg(msg: OpMsg): Unit = log.debug(s"OpMsg") // \n${msg.msgHeader}\n")
 
-  override def onOpUpdate(msg: OpUpdate): Unit = log.debug(s"OpUpdate\n${msg.msgHeader}\n")
+  override def onOpUpdate(msg: OpUpdate): Unit = log.debug(s"OpUpdate") // \n${msg.msgHeader}\n")
 
-  override def onOpInsert(msg: OpInsert): Unit = log.debug(s"OpInsert\n${msg.msgHeader}\n")
+  override def onOpInsert(msg: OpInsert): Unit = log.debug(s"OpInsert") // \n${msg.msgHeader}\n")
 
-  override def onOpQuery(msg: OpQuery): Unit = log.debug(s"OpQuery\n${msg.msgHeader}\n${msg.query}\n")
+  override def onOpQuery(msg: OpQuery): Unit = log.debug(s"OpQuery") // \n${msg.msgHeader}\n${msg.query}\n")
 
-  override def onOpGetMore(msg: OpGetMore): Unit = log.debug(s"OpGetMore\n${msg.msgHeader}\n")
+  override def onOpGetMore(msg: OpGetMore): Unit = log.debug(s"OpGetMore") // \n${msg.msgHeader}\n")
 
-  override def onOpDelete(msg: OpDelete): Unit = log.debug(s"OpDelete\n${msg.msgHeader}\n")
+  override def onOpDelete(msg: OpDelete): Unit = log.debug(s"OpDelete") // \n${msg.msgHeader}\n")
 
-  override def onOpKillCursor(msg: OpKillCursor): Unit = log.debug(s"OpKillCursor\n${msg.msgHeader}\n")
+  override def onOpKillCursor(msg: OpKillCursor): Unit = log.debug(s"OpKillCursor") // \n${msg.msgHeader}\n")
 
-  override def onOpCommand(msg: OpCommand): Unit = log.debug(s"OpCommand\n${msg.msgHeader}\n")
+  override def onOpCommand(msg: OpCommand): Unit = log.debug(s"OpCommand") // \n${msg.msgHeader}\n")
 
-  override def onOpCommandReply(msg: OpCommandReply): Unit = log.debug(s"OpCommandReply\n${msg.msgHeader}\n")
+  override def onOpCommandReply(msg: OpCommandReply): Unit = log.debug(s"OpCommandReply") // \n${msg.msgHeader}\n")
 
   override def onError(msg: Any): Unit = {
     log.debug("sniffer error")
