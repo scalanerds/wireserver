@@ -39,11 +39,7 @@ abstract class MsgHandler extends Actor with Stash {
       connection ! beforeWrite(bytes)
 
     case segment: ByteString =>
-      //      log.debug(s"got bytes \n${segment.mkString("ByteString(",", ", ")")}")
       onReceived(FromClient(segment))
-
-    case response: FromServer =>
-      onReceived(response)
   }
 
   /**

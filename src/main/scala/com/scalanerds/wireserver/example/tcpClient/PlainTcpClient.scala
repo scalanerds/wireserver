@@ -11,7 +11,7 @@ class PlainTcpClient(listener: ActorRef, address: String, port: Int)
 
   private val sink = Flow[ByteString].to(Sink.actorRef(self, PoisonPill))
 
-  private val tcpFlow = Flow[ByteString].via(Tcp().outgoingConnection(address, port))
+  private val tcpFlow = Flow[ByteString].via(Tcp().outgoingConnection(address, port)).alsoTo(Sink.onComplete(_ => println("Bob died")))
   val connection: ActorRef = Source.actorRef(1, OverflowStrategy.fail).via(tcpFlow).via(framing).to(sink).run()
 
 }

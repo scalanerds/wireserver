@@ -25,6 +25,13 @@ class Sniffer(remote: InetSocketAddress, local: InetSocketAddress) extends MsgHa
     super.preStart()
   }
 
+  override def initialized: Receive = {
+    case response: FromServer =>
+      onReceived(response)
+    case msg =>
+      super.initialized(msg)
+  }
+
   override def onReceived(msg: WirePacket): Unit = msg match {
     case FromClient(bytes) =>
       log.warning("alice says: " + connection.path + "\n" + bytes.mkString("ByteString(",", ", ")"))
