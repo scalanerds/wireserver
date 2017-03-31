@@ -23,7 +23,6 @@ abstract class MsgHandler extends Actor with Stash {
   def uninitialized: Receive = {
     case ref: ActorRef =>
       connection = ref
-      log.debug("context become")
       context.become(initialized)
       unstashAll()
 
@@ -40,6 +39,8 @@ abstract class MsgHandler extends Actor with Stash {
 
     case segment: ByteString =>
       onReceived(FromClient(segment))
+
+    case m => println(s"unknown message $m")
   }
 
   /**
