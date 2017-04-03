@@ -41,6 +41,7 @@ abstract class MsgHandler extends Actor with Stash {
       onReceived(FromClient(segment))
 
     case m => println(s"unknown message $m")
+
   }
 
   /**

@@ -3,6 +3,7 @@ package com.scalanerds.wireserver.tcpserver
 
 import java.net.InetSocketAddress
 
+import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{ActorRef, PoisonPill, Props}
 import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source, Tcp}
