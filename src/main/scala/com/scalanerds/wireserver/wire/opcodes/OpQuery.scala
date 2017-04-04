@@ -3,7 +3,7 @@ package com.scalanerds.wireserver.wire.opcodes
 import akka.util.ByteString
 import com.scalanerds.wireserver.utils.Utils._
 import com.scalanerds.wireserver.wire.conversions._
-import com.scalanerds.wireserver.wire.{Message, MsgHeader, OPCODES}
+import com.scalanerds.wireserver.wire.{Message, MsgHeader, OPCODES, Request}
 import org.bson.BsonDocument
 
 object OpQuery {
@@ -26,7 +26,11 @@ class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opQuery)
               val numberToSkip: Int = 0,
               val numberToReturn: Int = 1,
               val query: BsonDocument = new BsonDocument(),
-              val returnFieldsSelector: Option[BsonDocument] = None) extends Message {
+              val returnFieldsSelector: Option[BsonDocument] = None) extends Message with Request {
+
+  def reply(content: Array[Byte]) : OpReply = {
+    OpReply(msgHeader.requestId, content = content)
+  }
 
   def reply(docs: Array[BsonDocument]): OpReply = {
     OpReply(msgHeader.requestId, documents = docs)
@@ -36,16 +40,15 @@ class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opQuery)
 
   def reply(json: String) : OpReply = reply(BsonDocument.parse(json))
 
-  override def serialize: ByteString = {
-    var content = msgHeader.serialize ++
-    flags.serialize ++
-    fullCollectionName.toByteArray ++
-    Array(numberToSkip, numberToReturn).toByteArray ++
-    query.toByteArray
+  override def contentSerialize: Array[Byte] = {
+    var content =
+      flags.serialize ++
+      fullCollectionName.toByteArray ++
+      Array(numberToSkip, numberToReturn).toByteArray ++
+      query.toByteArray
     if (returnFieldsSelector.nonEmpty)
-    content ++= returnFieldsSelector.get.toByteArray
-
-    ByteString((content.length + 4).toByteArray ++ content)
+      content ++= returnFieldsSelector.get.toByteArray
+    content
   }
 
   override def toString: String = {
@@ -78,6 +81,16 @@ class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opQuery)
     val state = Seq(msgHeader.opCode, flags, fullCollectionName, numberToSkip, numberToReturn, query, returnFieldsSelector)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
+
+  override def realm: String = fullCollectionName
+
+  override def command: String = {
+    val keys = query.keySet.toArray
+    if (keys.nonEmpty)
+      keys.head.asInstanceOf[String]
+    else
+      null
+  }
 }
 
 object OpQueryFlags {
@@ -97,6 +110,11 @@ class OpQueryFlags(val tailableCursor: Boolean = false,
   def serialize: Array[Byte] = {
     Array[Byte](0, tailableCursor, slaveOk, opLogReply, noCursorTimeOut, awaitData, exhaust, partial)
       .binaryToInt.toByteArray
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(0, tailableCursor, slaveOk, opLogReply, noCursorTimeOut, awaitData, exhaust, partial)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 
   override def toString: String = {

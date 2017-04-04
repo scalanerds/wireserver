@@ -13,9 +13,12 @@ object OpMsg {
 class OpMsg(val msgHeader: MsgHeader,
             val message: String) extends Message {
   override def serialize: ByteString = {
-    val content = msgHeader.serialize ++
-      message.toByteArray
+    val content = msgHeader.serialize ++ contentSerialize
     ByteString((content.length + 4).toByteArray ++ content)
+  }
+
+  override def contentSerialize: Array[Byte] = {
+    message.toByteArray
   }
 
   override def toString: String = {

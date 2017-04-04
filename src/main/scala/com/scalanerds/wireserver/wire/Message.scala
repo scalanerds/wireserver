@@ -2,22 +2,40 @@ package com.scalanerds.wireserver.wire
 
 import akka.util.ByteString
 import com.scalanerds.wireserver.wire.opcodes._
+import com.scalanerds.wireserver.utils.Utils._
 
 import scala.util.{Failure, Success, Try}
 
 trait Message {
   val msgHeader: MsgHeader
 
-  def serialize: ByteString
-
+  def contentSerialize: Array[Byte]
   override def toString: String
+
+  def serialize: ByteString = {
+    if (msgHeader.raw.isEmpty) {
+      val content = msgHeader.serialize ++ contentSerialize
+      msgHeader.raw = Some(ByteString((content.length + 4).toByteArray ++ content))
+    }
+    msgHeader.raw.get
+  }
 }
+
+trait Request extends Message {
+  def realm  : String
+  def command: String
+}
+
+trait Response extends Message
 
 case class OpError(msgHeader: MsgHeader = MsgHeader(),
               content: Array[Byte] = Array[Byte](),
               error: String = "Error",
               raw: Option[ByteString] = None) extends Message {
-  override def serialize = ByteString()
+
+  def realm = null
+
+  override def contentSerialize: Array[Byte] = Array[Byte]()
 
   override def toString: String =
     s"""
@@ -30,10 +48,10 @@ case class OpError(msgHeader: MsgHeader = MsgHeader(),
 }
 
 object Message {
-  def apply(data: ByteString): Message = {
+  def apply(raw: ByteString): Message = {
     Try {
-      val (head, content) = data.toArray.splitAt(16)
-      val header = MsgHeader(head)
+      val (head, content) = raw.toArray.splitAt(16)
+      val header = MsgHeader(head, raw)
       header.opCode match {
         case OPCODES.opReply => OpReply(header, content)
         case OPCODES.opMsg => OpMsg(header, content)
@@ -49,7 +67,7 @@ object Message {
       }
     } match {
       case Success(message) => message
-      case Failure(error) => OpError(error = error.getMessage, raw = Some(data))
+      case Failure(error) => OpError(error = error.getMessage, raw = Some(raw))
     }
   }
 }

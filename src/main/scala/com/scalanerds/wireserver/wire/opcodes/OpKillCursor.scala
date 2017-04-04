@@ -20,12 +20,14 @@ class OpKillCursor(val msgHeader: MsgHeader,
                    val cursorIDs: Array[Long],
                    val reserved: Int = 0) extends Message {
   override def serialize: ByteString = {
-    val content = msgHeader.serialize ++
-      reserved.toByteArray ++
-      numberOfCursorIDs.toByteArray ++
-      cursorIDs.map(_.toByteArray).reduce(_ ++ _)
-
+    val content = msgHeader.serialize ++ contentSerialize
     ByteString((content.length + 4).toByteArray ++ content)
+  }
+
+  override def contentSerialize: Array[Byte] = {
+    reserved.toByteArray ++
+    numberOfCursorIDs.toByteArray ++
+    cursorIDs.map(_.toByteArray).reduce(_ ++ _)
   }
 
   override def toString: String = {

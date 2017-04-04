@@ -2,7 +2,7 @@ package com.scalanerds.wireserver.wire.opcodes
 
 import akka.util.ByteString
 import com.scalanerds.wireserver.utils.Utils._
-import com.scalanerds.wireserver.wire.{Message, MsgHeader, OPCODES}
+import com.scalanerds.wireserver.wire.{Message, MsgHeader, OPCODES, Response}
 import org.bson.BsonDocument
 
 object OpCommandReply {
@@ -21,20 +21,24 @@ object OpCommandReply {
       opCode=OPCODES.opCommandReply
     ), metadata=metadata)
   }
+
+  def apply(replyTo: Int,
+            content: Array[Byte]): OpCommandReply = {
+    val msgHeader = new MsgHeader(replyTo, opCode = OPCODES.opCommandReply)
+    OpCommandReply(msgHeader, content)
+  }
 }
 
-class OpCommandReply(val msgHeader: MsgHeader,
+class OpCommandReply(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opCommandReply),
                      val metadata: BsonDocument = new BsonDocument(),
                      val commandReply: BsonDocument = new BsonDocument(),
                      val outputDocs: Array[BsonDocument] = Array()
-                    ) extends Message {
-  override def serialize: ByteString = {
-    val content = msgHeader.serialize ++
-      metadata.toByteArray ++
-      commandReply.toByteArray ++
-      outputDocs.toByteArray
+                    ) extends Message with Response {
 
-    ByteString((content.length + 4).toByteArray ++ content)
+  override def contentSerialize: Array[Byte] = {
+    metadata.toByteArray ++
+    commandReply.toByteArray ++
+    outputDocs.toByteArray
   }
 
   override def toString: String = {

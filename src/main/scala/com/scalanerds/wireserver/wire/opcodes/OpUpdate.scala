@@ -3,7 +3,7 @@ package com.scalanerds.wireserver.wire.opcodes
 import akka.util.ByteString
 import com.scalanerds.wireserver.utils.Utils._
 import com.scalanerds.wireserver.wire.conversions._
-import com.scalanerds.wireserver.wire.{Message, MsgHeader}
+import com.scalanerds.wireserver.wire.{Message, MsgHeader, Request}
 import org.bson.BsonDocument
 
 object OpUpdate {
@@ -24,17 +24,14 @@ class OpUpdate(val msgHeader: MsgHeader,
                val flags: OpUpdateFlags,
                val selector: BsonDocument,
                val update: BsonDocument,
-               val reserved: Int = 0) extends Message {
+               val reserved: Int = 0) extends Message with Request {
 
-  override def serialize: ByteString = {
-    val content = msgHeader.serialize ++
-      reserved.toByteArray ++
-      fullCollectionName.toByteArray ++
-      flags.serialize ++
-      selector.toByteArray ++
-      update.toByteArray
-
-    ByteString((content.length + 4).toByteArray ++ content)
+  override def contentSerialize: Array[Byte] = {
+    reserved.toByteArray ++
+    fullCollectionName.toByteArray ++
+    flags.serialize ++
+    selector.toByteArray ++
+    update.toByteArray
   }
 
   override def toString: String = {
@@ -64,6 +61,10 @@ class OpUpdate(val msgHeader: MsgHeader,
     val state = Seq(msgHeader.opCode, fullCollectionName, flags, selector, update)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
+
+  override def realm: String = fullCollectionName
+
+  override def command: String = "update"
 }
 
 object OpUpdateFlags {

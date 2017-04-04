@@ -2,7 +2,7 @@ package com.scalanerds.wireserver.wire.opcodes
 
 import akka.util.ByteString
 import com.scalanerds.wireserver.utils.Utils._
-import com.scalanerds.wireserver.wire.{Message, MsgHeader, OPCODES}
+import com.scalanerds.wireserver.wire.{Message, MsgHeader, OPCODES, Request}
 import org.bson.BsonDocument
 
 object OpCommand {
@@ -22,17 +22,14 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opComm
                 val commandName: String,
                 val metadata: BsonDocument = new BsonDocument(),
                 val commandArgs: BsonDocument = new BsonDocument(),
-                val inputDocs: Array[BsonDocument] = Array[BsonDocument]()) extends Message {
-  override def serialize: ByteString = {
-    val content = msgHeader.serialize ++
-      database.toByteArray ++
-      commandName.toByteArray ++
-      metadata.toByteArray ++
-      commandArgs.toByteArray ++
-      inputDocs.toByteArray
+                val inputDocs: Array[BsonDocument] = Array[BsonDocument]()) extends Message with Request {
 
-    ByteString((content.length + 4).toByteArray ++ content)
-
+  override def contentSerialize: Array[Byte] = {
+    database.toByteArray ++
+    commandName.toByteArray ++
+    metadata.toByteArray ++
+    commandArgs.toByteArray ++
+    inputDocs.toByteArray
   }
 
   def reply(doc: BsonDocument): OpCommandReply = {
@@ -40,6 +37,10 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opComm
   }
 
   def reply(json: String) : OpCommandReply = reply(BsonDocument.parse(json))
+
+  def reply(content: Array[Byte]) : OpCommandReply = {
+    OpCommandReply(msgHeader.requestId, content)
+  }
 
   override def toString: String = {
     s"""
@@ -71,4 +72,8 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opComm
     val state = Seq(msgHeader.opCode, database, commandName, metadata, commandArgs, inputDocs)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
+
+  override def realm: String = database + ".$cmd"
+
+  override def command: String = commandName
 }
