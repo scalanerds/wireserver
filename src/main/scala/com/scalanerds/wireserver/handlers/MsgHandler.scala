@@ -1,17 +1,15 @@
 package com.scalanerds.wireserver.handlers
 
-import akka.actor.{Actor, ActorRef, Props, Stash}
+import akka.actor.{Actor, ActorRef, Stash}
 import akka.event.Logging
-import akka.io.Tcp._
 import akka.util.ByteString
 import com.scalanerds.wireserver.messageTypes._
-import com.scalanerds.wireserver.tcpserver.TcpBuffer
 import com.scalanerds.wireserver.wire.Message
 import com.scalanerds.wireserver.wire.opcodes._
 
 
-abstract class MsgHandler extends Actor with TcpBuffer with Stash {
-  var connection: ActorRef  = _
+abstract class MsgHandler extends Actor with Stash {
+  var connection: ActorRef = _
   val log = Logging(context.system, this)
 
 
@@ -25,7 +23,6 @@ abstract class MsgHandler extends Actor with TcpBuffer with Stash {
   def uninitialized: Receive = {
     case ref: ActorRef =>
       connection = ref
-      log.debug("context become")
       context.become(initialized)
       unstashAll()
 
@@ -41,11 +38,10 @@ abstract class MsgHandler extends Actor with TcpBuffer with Stash {
       connection ! beforeWrite(bytes)
 
     case segment: ByteString =>
-      log.debug(s"got bytes \n${segment.mkString("ByteString(",", ", ")")}")
-      buffer(segment)
+      onReceived(FromClient(segment))
 
-    case response: FromServer =>
-      onReceived(response)
+    case m => println(s"unknown message $m")
+
   }
 
   /**
@@ -60,6 +56,7 @@ abstract class MsgHandler extends Actor with TcpBuffer with Stash {
   /**
     * Override this method to handle incoming requests
     * By default, parse messages from received requests
+    *
     * @param request
     */
   def onReceived(request: WirePacket): Unit = {
@@ -103,10 +100,6 @@ abstract class MsgHandler extends Actor with TcpBuffer with Stash {
   def onOpCommandReply(msg: OpCommandReply): Unit = {}
 
   def onError(msg: Any): Unit = {}
-
-  def packetWrapper(packet: ByteString): WirePacket = {
-    FromClient(packet)
-  }
 
   /**
     * Stop this actor

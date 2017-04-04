@@ -2,10 +2,8 @@ package com.scalanerds.wireserver.example.handler
 
 import java.net.InetSocketAddress
 
-import akka.actor.SupervisorStrategy.Stop
-import akka.actor.{ActorRef, Props}
-import akka.io.Tcp._
-import com.scalanerds.wireserver.example.tcpClient.{PlainTcpClient, SSLTcpClient}
+import akka.actor.{ActorRef, PoisonPill, Props}
+import com.scalanerds.wireserver.example.tcpClient.PlainTcpClient
 import com.scalanerds.wireserver.handlers.MsgHandler
 import com.scalanerds.wireserver.messageTypes._
 import com.scalanerds.wireserver.wire.opcodes._
@@ -25,13 +23,20 @@ class Sniffer(remote: InetSocketAddress, local: InetSocketAddress) extends MsgHa
     super.preStart()
   }
 
+  override def initialized: Receive = {
+    case response: FromServer =>
+      onReceived(response)
+    case msg =>
+      super.initialized(msg)
+  }
+
   override def onReceived(msg: WirePacket): Unit = msg match {
     case FromClient(bytes) =>
-      log.warning("alice says: " + connection.path) // + "\n" + bytes.mkString("ByteString(",", ", ")"))
+      log.warning("alice says: " + connection.path + "\n" + bytes.mkString("ByteString(",", ", ")"))
       parse(bytes)
       tcpClient ! ToServer(bytes)
     case FromServer(bytes) =>
-      log.error("bob replies: " + connection.path) // + "\n" + bytes.mkString("ByteString(",", ", ")"))
+      log.error("bob replies: " + connection.path + "\n" + bytes.mkString("ByteString(",", ", ")"))
       parse(bytes)
       self ! ToClient(bytes)
   }
@@ -60,9 +65,8 @@ class Sniffer(remote: InetSocketAddress, local: InetSocketAddress) extends MsgHa
 
   override def onError(msg: Any): Unit = {
     log.debug("sniffer error")
-    tcpClient ! DropConnection
-    tcpClient ! Stop
-    connection ! Close
+    tcpClient ! PoisonPill
+    context stop self
     log.debug(s"Unknown message\n$msg\n")
   }
 }
