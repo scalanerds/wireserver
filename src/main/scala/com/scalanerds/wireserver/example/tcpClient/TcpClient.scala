@@ -3,7 +3,7 @@ package com.scalanerds.wireserver.example.tcpClient
 import akka.actor.{Actor, ActorRef, ActorSystem}
 import akka.stream.ActorMaterializer
 import akka.util.ByteString
-import com.scalanerds.wireserver.messageTypes.{FromServer, ToServer, WirePacket}
+import com.scalanerds.wireserver.messageTypes.{BytesFromServer, BytesToServer, WirePacket}
 
 
 abstract class TcpClient(listener: ActorRef, address: String, port: Int)
@@ -16,7 +16,7 @@ abstract class TcpClient(listener: ActorRef, address: String, port: Int)
 
   override def receive: Receive = {
 
-    case ToServer(bytes) =>
+    case BytesToServer(bytes) =>
       connection ! beforeWrite(bytes)
 
     case segment: ByteString => onReceived(segment)
@@ -24,11 +24,11 @@ abstract class TcpClient(listener: ActorRef, address: String, port: Int)
   }
 
   def onReceived(msg: ByteString): Unit = {
-    listener ! FromServer(msg)
+    listener ! BytesFromServer(msg)
   }
 
   def packetWrapper(packet: ByteString): WirePacket = {
-    FromServer(packet)
+    BytesFromServer(packet)
   }
 
   /**

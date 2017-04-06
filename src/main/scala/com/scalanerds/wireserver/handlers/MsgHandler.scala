@@ -34,11 +34,11 @@ abstract class MsgHandler extends Actor with Stash {
     /**
       * WirePacket receivers
       */
-    case ToClient(bytes) =>
+    case BytesToClient(bytes) =>
       connection ! beforeWrite(bytes)
 
     case segment: ByteString =>
-      onReceived(FromClient(segment))
+      onReceived(BytesFromClient(segment))
 
     case m => println(s"unknown message $m")
 

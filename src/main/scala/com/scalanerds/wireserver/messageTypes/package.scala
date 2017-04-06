@@ -1,6 +1,7 @@
 package com.scalanerds.wireserver
 
 import akka.util.ByteString
+import com.scalanerds.wireserver.wire.{Request, Response}
 
 package messageTypes {
 
@@ -24,16 +25,16 @@ package messageTypes {
     def bytes: ByteString
   }
 
-  case class Response(bytes: ByteString) extends WirePacket
+  case class ResponseBytes(bytes: ByteString) extends WirePacket
+  case class RequestBytes(bytes: ByteString) extends WirePacket
+  case class BytesFromClient(bytes: ByteString) extends WirePacket
+  case class BytesFromServer(bytes: ByteString) extends WirePacket
+  case class BytesToClient(bytes: ByteString) extends WirePacket
+  case class BytesToServer(bytes: ByteString) extends WirePacket
 
-  case class Request(bytes: ByteString) extends WirePacket
-
-  case class FromClient(bytes: ByteString) extends WirePacket
-
-  case class FromServer(bytes: ByteString) extends WirePacket
-
-  case class ToClient(bytes: ByteString) extends WirePacket
-
-  case class ToServer(bytes: ByteString) extends WirePacket
+  case class MessageFromClient(message: Request)
+  case class MessageFromServer(message: Response)
+  case class MessageToClient(message: Response)
+  case class MessageToServer(message: Request)
 
 }

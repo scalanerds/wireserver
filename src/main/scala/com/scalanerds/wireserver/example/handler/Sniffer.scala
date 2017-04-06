@@ -24,21 +24,21 @@ class Sniffer(remote: InetSocketAddress, local: InetSocketAddress) extends MsgHa
   }
 
   override def initialized: Receive = {
-    case response: FromServer =>
+    case response: BytesFromServer =>
       onReceived(response)
     case msg =>
       super.initialized(msg)
   }
 
   override def onReceived(msg: WirePacket): Unit = msg match {
-    case FromClient(bytes) =>
+    case BytesFromClient(bytes) =>
       log.warning("alice says: " + connection.path + "\n" + bytes.mkString("ByteString(",", ", ")"))
       parse(bytes)
-      tcpClient ! ToServer(bytes)
-    case FromServer(bytes) =>
+      tcpClient ! BytesToServer(bytes)
+    case BytesFromServer(bytes) =>
       log.error("bob replies: " + connection.path + "\n" + bytes.mkString("ByteString(",", ", ")"))
       parse(bytes)
-      self ! ToClient(bytes)
+      self ! BytesToClient(bytes)
   }
 
   override def onOpReply(msg: OpReply): Unit = log.debug(s"OpReply\n${msg.msgHeader}\n${
