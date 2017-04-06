@@ -82,7 +82,17 @@ class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opQuery)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 
-  override def realm: String = fullCollectionName
+  def collection = {
+    val chunks = fullCollectionName.split("\\.")
+    if (chunks.last == "$cmd") {
+      val cmd = command
+      if (cmd != null)
+        chunks(0) + "." + query.getString(cmd).getValue
+      else fullCollectionName
+    } else fullCollectionName
+  }
+
+  override def realm: String = collection
 
   override def command: String = {
     val keys = query.keySet.toArray
