@@ -3,7 +3,7 @@ package com.scalanerds.wireserver.wire.opcodes
 import akka.util.ByteString
 import com.scalanerds.wireserver.utils.Utils._
 import com.scalanerds.wireserver.wire.{Message, MsgHeader, OPCODES, Request}
-import org.bson.{BsonDocument, BsonDouble, BsonInt64, BsonString}
+import org.bson._
 
 object OpCommand {
   def apply(msgHeader: MsgHeader, content: Array[Byte]): OpCommand = {
@@ -75,8 +75,8 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opComm
 
   def getCollection: Option[String] = {
     val commandValue = metadata.get(commandName)
-    commandValue.getBsonType match {
-      case BsonString => Some(commandValue.asString().getValue)
+    commandValue match {
+      case s: BsonString => Some(s.asString().getValue)
       case _          => None
     }
   }

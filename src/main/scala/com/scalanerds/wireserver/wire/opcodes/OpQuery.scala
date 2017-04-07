@@ -4,7 +4,7 @@ import akka.util.ByteString
 import com.scalanerds.wireserver.utils.Utils._
 import com.scalanerds.wireserver.wire.conversions._
 import com.scalanerds.wireserver.wire.{Message, MsgHeader, OPCODES, Request}
-import org.bson.BsonDocument
+import org.bson.{BsonDocument, BsonString, BsonValue}
 
 object OpQuery {
   def apply(msgHeader: MsgHeader, content: Array[Byte]): OpQuery = {
@@ -86,8 +86,14 @@ class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opQuery)
     val chunks = fullCollectionName.split("\\.")
     if (chunks.last == "$cmd") {
       val cmd = command
-      if (cmd != null)
-        chunks(0) + "." + query.getString(cmd).getValue
+      if (cmd != null){
+        chunks(0) +
+          (query.get(cmd) match {
+          case s: BsonString  => "." + s.asString().getValue
+          case _              => ""
+        })
+      }
+
       else fullCollectionName
     } else fullCollectionName
   }
