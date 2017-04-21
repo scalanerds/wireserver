@@ -84,7 +84,7 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opComm
   override def realm: String = {
     val collection = getCollection
     if (collection.isDefined)
-      database + '.' + collection
+      database + '.' + collection.get
     else
       database
   }
