@@ -14,7 +14,10 @@ abstract class MsgHandler extends Actor with Stash {
 
 
   override def postStop(): Unit = {
-    log.debug("walter died " + connection.path)
+    if (connection == null)
+      log.debug("Walter died without processing valid messages")
+    else
+      log.debug("Walter died " + connection.path)
     super.postStop()
   }
 

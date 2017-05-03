@@ -52,8 +52,10 @@ class DualTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, addr
       .map[SslTlsOutbound](SendBytes)
 
     // handle ssl connections
-    val sslFlow: Flow[ByteString, ByteString, NotUsed] = serverSSL.reversed.join(ssl).alsoTo(Sink.onComplete(_ =>
-      println("Client disconnected")))
+    val sslFlow: Flow[ByteString, ByteString, NotUsed] = serverSSL.reversed.join(ssl).alsoTo(Sink.onComplete(_ => {
+      println("Client disconnected")
+      streamHandler ! PoisonPill
+    }))
 
     // redirects the stream to sslFlow or plainFlow
     val router = Flow.fromGraph(GraphDSL.create() { implicit b =>
