@@ -30,9 +30,9 @@ object OpCommandReply {
 }
 
 class OpCommandReply(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opCommandReply),
-                     val metadata: BsonDocument = new BsonDocument(),
-                     val commandReply: BsonDocument = new BsonDocument(),
-                     val outputDocs: Array[BsonDocument] = Array()
+                     var metadata: BsonDocument = new BsonDocument(),
+                     var commandReply: BsonDocument = new BsonDocument(),
+                     var outputDocs: Array[BsonDocument] = Array()
                     ) extends Message with Response {
 
   override def contentSerialize: Array[Byte] = {

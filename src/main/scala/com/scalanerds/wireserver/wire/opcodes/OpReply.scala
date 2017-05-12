@@ -42,7 +42,7 @@ class OpReply(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opReply)
               val cursorId: Long = 0L,
               val startingFrom: Int = 0,
               var numberReturned: Int = 0,
-              val documents: Array[BsonDocument]) extends Message with Response {
+              var documents: Array[BsonDocument]) extends Message with Response {
 
   numberReturned = documents.length
 
