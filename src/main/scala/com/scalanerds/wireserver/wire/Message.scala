@@ -3,11 +3,14 @@ package com.scalanerds.wireserver.wire
 import akka.util.ByteString
 import com.scalanerds.wireserver.wire.opcodes._
 import com.scalanerds.wireserver.utils.Utils._
+import org.bson.BsonDocument
+import org.bson.json.{JsonMode, JsonWriterSettings}
 
 import scala.util.{Failure, Success, Try}
 
 trait Message {
   val msgHeader: MsgHeader
+  val jsonSettings = new JsonWriterSettings(JsonMode.STRICT, "    ", "\\n")
 
   def contentSerialize: Array[Byte]
   override def toString: String
@@ -24,9 +27,29 @@ trait Message {
 trait Request extends Message {
   def realm  : String
   def command: String
+
+  def JSON: String = {
+    this match {
+      case opQuery: OpQuery =>
+        opQuery.query.toJson(jsonSettings)
+      case opCommand: OpCommand =>
+        opCommand.metadata.toJson(jsonSettings)
+    }
+  }
 }
 
-trait Response extends Message
+trait Response extends Message {
+  def JSON: String = {
+    this match {
+      case opReply: OpReply =>
+        opReply.documents
+        .map((doc: BsonDocument) => doc.toJson(jsonSettings))
+        .mkString("[\\n    ", ",\\n    ", "\\n]")
+      case opCommandReply: OpCommandReply =>
+        opCommandReply.commandReply.toJson(jsonSettings)
+    }
+  }
+}
 
 case class OpError(msgHeader: MsgHeader = MsgHeader(),
               content: Array[Byte] = Array[Byte](),
