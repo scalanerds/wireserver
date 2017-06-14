@@ -4,7 +4,7 @@
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
         <encoder>
-            <pattern>%X{akkaTimestamp} %logger{0} - %msg%n%rEx</pattern>
+            <pattern>%d{HH:mm:ss.SSS} |- %highlight(%-5level) %magenta(%-25.25logger{15}) [%cyan(%M -> %L)] - %msg %red(%ex{full}) %boldYellow(%throwable) %green(%xException{10}) %n</pattern>
         </encoder>
     </appender>
 
@@ -16,7 +16,7 @@
         </encoder>
     </appender>
 
-    <logger name="akka" level="DEBUG" />
+    <logger name="ch.qos.logback" level="OFF"/>
 
     <root level="DEBUG">
         <appender-ref ref="CONSOLE"/>
