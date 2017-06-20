@@ -1,12 +1,13 @@
 package com.scalanerds.wireserver.wire
 
 import akka.util.ByteString
-import com.scalanerds.wireserver.wire.opcodes._
 import com.scalanerds.wireserver.utils.Utils._
+import com.scalanerds.wireserver.wire.opcodes._
 import org.bson.BsonDocument
 import org.bson.json.{JsonMode, JsonWriterSettings}
 
 import scala.util.{Failure, Success, Try}
+
 
 trait Message {
   val msgHeader: MsgHeader
@@ -36,6 +37,24 @@ trait Request extends Message {
         opCommand.metadata.toJson(jsonSettings)
     }
   }
+
+  def shiftDatabase(database: String): Request = {
+    val shifted = this match {
+      case cmd: OpQuery =>
+        val fullCollectionName = database + '.' + cmd.fullCollectionName.split('.')(1)
+        new OpQuery(cmd.msgHeader, cmd.flags, fullCollectionName, cmd.numberToSkip,
+                                  cmd.numberToReturn, cmd.query, cmd.returnFieldsSelector)
+      case cmd: OpCommand =>
+        new OpCommand(cmd.msgHeader, database, cmd.commandName, cmd.metadata, cmd.commandArgs, cmd.inputDocs)
+    }
+    shifted.msgHeader.raw = None
+    shifted
+  }
+
+  def reply(content: Array[Byte]): Response
+  def reply(docs: Array[BsonDocument]): Response
+  def reply(doc: BsonDocument): Response
+  def reply(json: String): Response
 }
 
 trait Response extends Message {

@@ -21,7 +21,7 @@ class OpDelete(val msgHeader: MsgHeader,
                val fullCollectionName: String,
                val flags: OpDeleteFlags,
                val selector: BsonDocument,
-               val reserved: Int = 0) extends Message with Request {
+               val reserved: Int = 0) extends Message {
 
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++ contentSerialize
@@ -60,9 +60,6 @@ class OpDelete(val msgHeader: MsgHeader,
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 
-  override def realm: String = fullCollectionName
-
-  override def command: String = "delete"
 }
 
 

@@ -7,15 +7,15 @@ package messageTypes {
 
   import java.net.InetSocketAddress
 
-  case object Ready
+  import scala.concurrent.Promise
 
+  case object Ready
   case object DropConnection
 
   /**
     * TCP Server commands and entities
     */
   case object GetInfo
-
   case class Info(local: InetSocketAddress, remote: InetSocketAddress)
 
   /**
@@ -25,16 +25,20 @@ package messageTypes {
     def bytes: ByteString
   }
 
-  case class ResponseBytes(bytes: ByteString) extends WirePacket
-  case class RequestBytes(bytes: ByteString) extends WirePacket
+  // Request handling flow stages
   case class BytesFromClient(bytes: ByteString) extends WirePacket
-  case class BytesFromServer(bytes: ByteString) extends WirePacket
-  case class BytesToClient(bytes: ByteString) extends WirePacket
+  case class RequestFromClient(request: Request)
+  case class RequestToEnforcer(request: Request)
+  case class RequestAwaitForResponse(request: Request, promise: Promise[Response])
+  case class RequestToServer(request: Request)
   case class BytesToServer(bytes: ByteString) extends WirePacket
 
-  case class MessageFromClient(message: Request)
-  case class MessageFromServer(message: Response)
-  case class MessageToClient(message: Response)
-  case class MessageToServer(message: Request)
+  // Response handling flow stages
+  case class BytesFromServer(bytes: ByteString) extends WirePacket
+  case class ResponseFromServer(response: Response)
+  case class ResponseFromEnforcer(response: Response)
+  case class ResponseFromMasker(response: Response, payload: Option[(Request, String)])
+  case class ResponseToClient(response: Response)
+  case class BytesToClient(bytes: ByteString) extends WirePacket
 
 }

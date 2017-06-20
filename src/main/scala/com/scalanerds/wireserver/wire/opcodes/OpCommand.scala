@@ -2,7 +2,7 @@ package com.scalanerds.wireserver.wire.opcodes
 
 import akka.util.ByteString
 import com.scalanerds.wireserver.utils.Utils._
-import com.scalanerds.wireserver.wire.{Message, MsgHeader, OPCODES, Request}
+import com.scalanerds.wireserver.wire._
 import org.bson._
 
 object OpCommand {
@@ -22,7 +22,8 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opComm
                 val commandName: String,
                 val metadata: BsonDocument = new BsonDocument(),
                 val commandArgs: BsonDocument = new BsonDocument(),
-                val inputDocs: Array[BsonDocument] = Array[BsonDocument]()) extends Message with Request {
+                val inputDocs: Array[BsonDocument] = Array[BsonDocument]())
+  extends Message with Request {
 
   override def contentSerialize: Array[Byte] = {
     database.toByteArray ++
@@ -32,13 +33,17 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opComm
     inputDocs.toByteArray
   }
 
-  def reply(doc: BsonDocument): OpCommandReply = {
+  override def reply(doc: BsonDocument): OpCommandReply = {
     OpCommandReply(msgHeader.requestId, doc)
   }
 
-  def reply(json: String) : OpCommandReply = reply(BsonDocument.parse(json))
+  override def reply(docs: Array[BsonDocument]): OpCommandReply = {
+    OpCommandReply(msgHeader.requestId, docs.head)
+  }
 
-  def reply(content: Array[Byte]) : OpCommandReply = {
+  override def reply(json: String) : OpCommandReply = reply(BsonDocument.parse(json))
+
+  override def reply(content: Array[Byte]) : OpCommandReply = {
     OpCommandReply(msgHeader.requestId, content)
   }
 

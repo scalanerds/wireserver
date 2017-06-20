@@ -20,7 +20,7 @@ object OpInsert {
 class OpInsert(val msgHeader: MsgHeader,
                val flags: OpInsertFlags,
                val fullCollectionName: String,
-               val documents: Array[BsonDocument]) extends Message with Request {
+               val documents: Array[BsonDocument]) extends Message {
 
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++ contentSerialize
@@ -58,10 +58,6 @@ class OpInsert(val msgHeader: MsgHeader,
     val state = Seq(msgHeader.opCode, flags, fullCollectionName, documents)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
-
-  override def realm: String = fullCollectionName
-
-  override def command: String = "insert"
 }
 
 object OpInsertFlags {

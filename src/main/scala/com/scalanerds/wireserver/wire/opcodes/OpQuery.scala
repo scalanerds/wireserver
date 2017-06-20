@@ -1,10 +1,10 @@
 package com.scalanerds.wireserver.wire.opcodes
 
-import akka.util.ByteString
+
 import com.scalanerds.wireserver.utils.Utils._
+import com.scalanerds.wireserver.wire._
 import com.scalanerds.wireserver.wire.conversions._
-import com.scalanerds.wireserver.wire.{Message, MsgHeader, OPCODES, Request}
-import org.bson.{BsonDocument, BsonString, BsonValue}
+import org.bson.{BsonDocument, BsonString}
 
 object OpQuery {
   def apply(msgHeader: MsgHeader, content: Array[Byte]): OpQuery = {
@@ -26,19 +26,20 @@ class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opQuery)
               val numberToSkip: Int = 0,
               val numberToReturn: Int = 1,
               val query: BsonDocument = new BsonDocument(),
-              val returnFieldsSelector: Option[BsonDocument] = None) extends Message with Request {
+              val returnFieldsSelector: Option[BsonDocument] = None)
+  extends Message with Request {
 
-  def reply(content: Array[Byte]) : OpReply = {
+  override def reply(content: Array[Byte]): OpReply = {
     OpReply(msgHeader.requestId, content = content)
   }
 
-  def reply(docs: Array[BsonDocument]): OpReply = {
+  override def reply(docs: Array[BsonDocument]): OpReply = {
     OpReply(msgHeader.requestId, documents = docs)
   }
 
-  def reply(doc: BsonDocument): OpReply = reply(Array(doc))
+  override def reply(doc: BsonDocument): OpReply = reply(Array(doc))
 
-  def reply(json: String) : OpReply = reply(BsonDocument.parse(json))
+  override def reply(json: String): OpReply = reply(BsonDocument.parse(json))
 
   override def contentSerialize: Array[Byte] = {
     var content =

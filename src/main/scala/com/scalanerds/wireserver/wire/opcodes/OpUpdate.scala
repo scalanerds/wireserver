@@ -24,7 +24,7 @@ class OpUpdate(val msgHeader: MsgHeader,
                val flags: OpUpdateFlags,
                val selector: BsonDocument,
                val update: BsonDocument,
-               val reserved: Int = 0) extends Message with Request {
+               val reserved: Int = 0) extends Message {
 
   override def contentSerialize: Array[Byte] = {
     reserved.toByteArray ++
@@ -62,9 +62,6 @@ class OpUpdate(val msgHeader: MsgHeader,
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 
-  override def realm: String = fullCollectionName
-
-  override def command: String = "update"
 }
 
 object OpUpdateFlags {
