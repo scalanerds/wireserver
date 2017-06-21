@@ -107,7 +107,7 @@ class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opQuery)
     if (keys.nonEmpty)
       keys.head.asInstanceOf[String]
     else
-      null
+      "find"
   }
 }
 
