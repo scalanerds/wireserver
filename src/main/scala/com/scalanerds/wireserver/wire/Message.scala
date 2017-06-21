@@ -55,6 +55,12 @@ trait Request extends Message {
   def reply(docs: Array[BsonDocument]): Response
   def reply(doc: BsonDocument): Response
   def reply(json: String): Response
+
+  override def hashCode(): Int = this match {
+    case op: OpCommand => op.hashCode()
+    case op: OpQuery => op.hashCode()
+    case _ => super.hashCode()
+  }
 }
 
 trait Response extends Message {

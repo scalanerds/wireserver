@@ -74,7 +74,8 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opComm
   }
 
   override def hashCode(): Int = {
-    val state = Seq(msgHeader.opCode, database, commandName, metadata, commandArgs, inputDocs)
+    val state = Seq(msgHeader.opCode, database, commandName,
+                    metadata.toJson, commandArgs.toJson, inputDocs.map(_.toJson).mkString)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 

@@ -24,7 +24,7 @@ object OpCommandReply {
 
   def apply(replyTo: Int,
             content: Array[Byte]): OpCommandReply = {
-    val msgHeader = new MsgHeader(replyTo, opCode = OPCODES.opCommandReply)
+    val msgHeader = new MsgHeader(responseTo = replyTo, opCode = OPCODES.opCommandReply)
     OpCommandReply(msgHeader, content)
   }
 }

@@ -79,7 +79,8 @@ class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opQuery)
   }
 
   override def hashCode(): Int = {
-    val state = Seq(msgHeader.opCode, flags, fullCollectionName, numberToSkip, numberToReturn, query, returnFieldsSelector)
+    val state = Seq(msgHeader.opCode, flags, fullCollectionName, numberToSkip, numberToReturn,
+                    query.toJson, returnFieldsSelector.get)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 

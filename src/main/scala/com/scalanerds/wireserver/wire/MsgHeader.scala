@@ -11,6 +11,10 @@ class MsgHeader(val requestId: Int = MsgHeader.issueRequestId(),
                 // This total includes the 4 bytes that holds the message length.
                 var messageLength: Option[Int] = None) {
 
+  def copy: MsgHeader = {
+    new MsgHeader(requestId, responseTo, opCode)
+  }
+
   def serialize: Array[Byte] = {
     Array(requestId, responseTo, opCode).toByteArray
   }
