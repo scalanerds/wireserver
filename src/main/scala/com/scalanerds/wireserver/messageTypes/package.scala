@@ -29,7 +29,7 @@ package messageTypes {
   case class BytesFromClient(bytes: ByteString) extends WirePacket
   case class RequestFromClient(request: Request)
   case class RequestToEnforcer(request: Request)
-  case class RequestAwaitForResponse(request: Request, promise: Promise[Response])
+  case class RequestAwaitForResponse(request: Request, promise: Promise[Response] = Promise[Response]())
   case class RequestToServer(request: Request)
   case class BytesToServer(bytes: ByteString) extends WirePacket
 
