@@ -51,6 +51,11 @@ trait Request extends Message {
     shifted
   }
 
+  def payload: BsonDocument = this match {
+    case op: OpQuery => op.query
+    case op: OpCommand => op.metadata
+  }
+
   def reply(content: Array[Byte]): Response
   def reply(docs: Array[BsonDocument]): Response
   def reply(doc: BsonDocument): Response
