@@ -1,6 +1,5 @@
 package com.scalanerds.wireserver.wire.opcodes
 
-import akka.util.ByteString
 import com.scalanerds.wireserver.utils.Utils._
 import com.scalanerds.wireserver.wire._
 import org.bson._
@@ -23,14 +22,14 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opComm
                 val metadata: BsonDocument = new BsonDocument(),
                 val commandArgs: BsonDocument = new BsonDocument(),
                 val inputDocs: Array[BsonDocument] = Array[BsonDocument]())
-  extends Message with Request {
+  extends Request with WithReply {
 
   override def contentSerialize: Array[Byte] = {
     database.toByteArray ++
-    commandName.toByteArray ++
-    metadata.toByteArray ++
-    commandArgs.toByteArray ++
-    inputDocs.toByteArray
+      commandName.toByteArray ++
+      metadata.toByteArray ++
+      commandArgs.toByteArray ++
+      inputDocs.toByteArray
   }
 
   override def reply(doc: BsonDocument): OpCommandReply = {
@@ -41,9 +40,9 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opComm
     OpCommandReply(msgHeader.requestId, docs.head)
   }
 
-  override def reply(json: String) : OpCommandReply = reply(BsonDocument.parse(json))
+  override def reply(json: String): OpCommandReply = reply(BsonDocument.parse(json))
 
-  override def reply(content: Array[Byte]) : OpCommandReply = {
+  override def reply(content: Array[Byte]): OpCommandReply = {
     OpCommandReply(msgHeader.requestId, content)
   }
 
@@ -75,7 +74,7 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opComm
 
   override def hashCode(): Int = {
     val state = Seq(msgHeader.opCode, database, commandName,
-                    metadata.toJson, commandArgs.toJson, inputDocs.map(_.toJson).mkString)
+      metadata.toJson, commandArgs.toJson, inputDocs.map(_.toJson).mkString)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 
@@ -83,7 +82,7 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opComm
     val commandValue = metadata.get(commandName)
     commandValue match {
       case s: BsonString => Some(s.asString().getValue)
-      case _          => None
+      case _ => None
     }
   }
 

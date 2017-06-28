@@ -3,7 +3,7 @@ package com.scalanerds.wireserver.wire.opcodes
 import akka.util.ByteString
 import com.scalanerds.wireserver.utils.Utils._
 import com.scalanerds.wireserver.wire.conversions._
-import com.scalanerds.wireserver.wire.{Message, MsgHeader, Request}
+import com.scalanerds.wireserver.wire.{Message, MsgHeader, Request, Response}
 import org.bson.BsonDocument
 
 object OpDelete {
@@ -21,7 +21,7 @@ class OpDelete(val msgHeader: MsgHeader,
                val fullCollectionName: String,
                val flags: OpDeleteFlags,
                val selector: BsonDocument,
-               val reserved: Int = 0) extends Message {
+               val reserved: Int = 0) extends Request {
 
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++ contentSerialize
@@ -59,6 +59,10 @@ class OpDelete(val msgHeader: MsgHeader,
     val state = Seq(msgHeader.opCode, fullCollectionName, flags, selector)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
+
+  override def realm: String = fullCollectionName
+
+  override def command: String = "delete"
 
 }
 

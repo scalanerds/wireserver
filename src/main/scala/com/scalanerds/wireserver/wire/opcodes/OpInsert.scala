@@ -3,8 +3,8 @@ package com.scalanerds.wireserver.wire.opcodes
 import akka.util.ByteString
 import com.scalanerds.wireserver.utils.Utils._
 import com.scalanerds.wireserver.wire.conversions._
-import com.scalanerds.wireserver.wire.{Message, MsgHeader, Request}
-import org.bson.BsonDocument
+import com.scalanerds.wireserver.wire.{Message, MsgHeader, Request, Response}
+import org.bson.{BsonDocument, BsonString}
 
 
 object OpInsert {
@@ -20,7 +20,7 @@ object OpInsert {
 class OpInsert(val msgHeader: MsgHeader,
                val flags: OpInsertFlags,
                val fullCollectionName: String,
-               val documents: Array[BsonDocument]) extends Message {
+               val documents: Array[BsonDocument]) extends Request {
 
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++ contentSerialize
@@ -58,6 +58,11 @@ class OpInsert(val msgHeader: MsgHeader,
     val state = Seq(msgHeader.opCode, flags, fullCollectionName, documents)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
+
+  override def  realm: String = fullCollectionName
+
+  override def command: String = "insert"
+
 }
 
 object OpInsertFlags {

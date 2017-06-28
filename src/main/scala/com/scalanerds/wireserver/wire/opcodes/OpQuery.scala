@@ -27,7 +27,7 @@ class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opQuery)
               val numberToReturn: Int = 1,
               val query: BsonDocument = new BsonDocument(),
               val returnFieldsSelector: Option[BsonDocument] = None)
-  extends Message with Request {
+  extends Request with WithReply {
 
   override def reply(content: Array[Byte]): OpReply = {
     OpReply(msgHeader.requestId, content = content)
