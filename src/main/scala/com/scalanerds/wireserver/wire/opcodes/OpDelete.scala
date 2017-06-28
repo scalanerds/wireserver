@@ -3,7 +3,7 @@ package com.scalanerds.wireserver.wire.opcodes
 import akka.util.ByteString
 import com.scalanerds.wireserver.utils.Utils._
 import com.scalanerds.wireserver.wire.conversions._
-import com.scalanerds.wireserver.wire.{Message, MsgHeader, Request, Response}
+import com.scalanerds.wireserver.wire.{MsgHeader, Request}
 import org.bson.BsonDocument
 
 object OpDelete {
@@ -30,9 +30,9 @@ class OpDelete(val msgHeader: MsgHeader,
 
   override def contentSerialize: Array[Byte] = {
     reserved.toByteArray ++
-    fullCollectionName.toByteArray ++
-    flags.serialize ++
-    selector.toByteArray
+      fullCollectionName.toByteArray ++
+      flags.serialize ++
+      selector.toByteArray
   }
 
   override def toString: String = {
