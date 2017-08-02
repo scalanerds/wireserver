@@ -12,7 +12,7 @@ import akka.{Done, NotUsed}
 import scala.concurrent.Future
 
 object DualTcpServer {
-  def props(props: (InetSocketAddress, InetSocketAddress) => Props, address: String = "localhost", port: Int = 3001):
+  def props(props: (InetSocketAddress, InetSocketAddress) => Props, address: String = "localhost", port: Int = 3301):
   Props =
     Props(classOf[DualTcpServer], props, address, port)
 }

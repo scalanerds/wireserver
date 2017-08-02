@@ -12,7 +12,7 @@ import scala.util.{Failure, Success}
 
 object TcpServer {
   def props(address: String = "localhost",
-            port: Int = 3000): Props =
+            port: Int = 3400): Props =
     Props(classOf[TcpServer], address, port)
 }
 

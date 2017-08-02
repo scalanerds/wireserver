@@ -13,7 +13,7 @@ import akka.{Done, NotUsed}
 import scala.concurrent.Future
 
 object SSLTcpServer {
-  def props(props: (InetSocketAddress, InetSocketAddress) => Props, address: String = "localhost", port: Int = 6000):
+  def props(props: (InetSocketAddress, InetSocketAddress) => Props, address: String = "localhost", port: Int = 6600):
   Props =
     Props(classOf[SSLTcpServer], props, address, port)
 

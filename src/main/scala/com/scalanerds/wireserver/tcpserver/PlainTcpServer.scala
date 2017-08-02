@@ -13,7 +13,7 @@ import akka.{Done, NotUsed}
 import scala.concurrent.Future
 
 object PlainTcpServer {
-  def props(props: (InetSocketAddress, InetSocketAddress) => Props, address: String = "localhost", port: Int = 3000):
+  def props(props: (InetSocketAddress, InetSocketAddress) => Props, address: String = "localhost", port: Int = 3300):
   Props =
     Props(classOf[PlainTcpServer], props, address, port)
 }
