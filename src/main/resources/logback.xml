@@ -4,7 +4,7 @@
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} |- %highlight(%-5level) %magenta(%-25.25logger{15}) [%cyan(%M -> %L)] - %msg %red(%ex{full}) %boldYellow(%throwable) %green(%xException{10}) %n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %white(λ) %highlight(%-5level) %magenta(%logger) [%cyan(%M -> %L)] - %msg%n</pattern>
         </encoder>
     </appender>
 
