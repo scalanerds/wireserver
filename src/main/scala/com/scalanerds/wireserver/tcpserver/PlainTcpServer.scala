@@ -3,12 +3,12 @@ package com.scalanerds.wireserver.tcpserver
 
 import java.net.InetSocketAddress
 
-import akka.actor.SupervisorStrategy.Stop
-import akka.actor.{ActorRef, PoisonPill, Props}
+import akka.actor.{ActorRef, Props}
 import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source, Tcp}
 import akka.util.ByteString
 import akka.{Done, NotUsed}
+import com.scalanerds.wireserver.handlers.GracefulKill
 
 import scala.concurrent.Future
 
@@ -18,20 +18,20 @@ object PlainTcpServer {
     Props(classOf[PlainTcpServer], props, address, port)
 }
 
-/***
+/** *
   * Tcp server
-  * @param props  the props of the actor that will process the ByteStreams
+  *
+  * @param props   the props of the actor that will process the ByteStreams
   * @param address the server binding address
-  * @param port the server binding port
+  * @param port    the server binding port
   */
 class PlainTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, address: String, port: Int)
   extends TcpServer(address, port) with TcpFraming {
 
-
   def handler: Sink[Tcp.IncomingConnection, Future[Done]] = Sink.foreach[Tcp.IncomingConnection] { conn =>
     val actor: ActorRef = context.actorOf(props(conn.remoteAddress, conn.localAddress))
 
-    val in: Sink[ByteString, NotUsed] = Flow[ByteString].to(Sink.actorRef(actor, PoisonPill))
+    val in: Sink[ByteString, NotUsed] = Flow[ByteString].to(Sink.actorRef(actor, GracefulKill))
 
 
     val out: Source[ByteString, Unit] = Source.actorRef[ByteString](100, OverflowStrategy.fail)

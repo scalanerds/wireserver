@@ -7,6 +7,7 @@ import com.scalanerds.wireserver.messageTypes._
 import com.scalanerds.wireserver.wire.Message
 import com.scalanerds.wireserver.wire.opcodes._
 
+object GracefulKill
 
 abstract class MsgHandler extends Actor with Stash {
   var connection: ActorRef = _
@@ -24,6 +25,7 @@ abstract class MsgHandler extends Actor with Stash {
   def receive: Receive = uninitialized
 
   def uninitialized: Receive = {
+    case GracefulKill => stop()
     case ref: ActorRef =>
       connection = ref
       context.become(initialized)
@@ -39,6 +41,8 @@ abstract class MsgHandler extends Actor with Stash {
       */
     case BytesToClient(bytes) =>
       connection ! beforeWrite(bytes)
+
+    case GracefulKill => stop()
 
     case segment: ByteString =>
       onReceived(BytesFromClient(segment))
@@ -106,6 +110,7 @@ abstract class MsgHandler extends Actor with Stash {
 
   /**
     * Stop this actor
+    *
     */
   def stop() {
     log.debug("MsgHandler stop " + connection.path)

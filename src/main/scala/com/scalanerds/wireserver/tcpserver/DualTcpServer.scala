@@ -8,6 +8,7 @@ import akka.stream._
 import akka.stream.scaladsl.{Broadcast, Flow, GraphDSL, Keep, Merge, Sink, Source, TLS, Tcp}
 import akka.util.ByteString
 import akka.{Done, NotUsed}
+import com.scalanerds.wireserver.handlers.GracefulKill
 
 import scala.concurrent.Future
 
@@ -36,10 +37,10 @@ class DualTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, addr
     val streamHandler: ActorRef = context.actorOf(props(conn.remoteAddress, conn.localAddress))
 
     val getFlow = (name: String) => {
-      val actor: ActorRef = context.actorOf(Props(new ForwarderActor(streamHandler)), name + Math.random())
-      val in: Sink[ByteString, NotUsed] = Flow[ByteString].to(Sink.actorRef(actor, PoisonPill))
+      val forwarderActor: ActorRef = context.actorOf(Props(new ForwarderActor(streamHandler)), name + Math.random())
+      val in: Sink[ByteString, NotUsed] = Flow[ByteString].to(Sink.actorRef(forwarderActor,GracefulKill))
       val out = Source.actorRef[ByteString](100, OverflowStrategy.fail)
-        .mapMaterializedValue(actor ! _)
+        .mapMaterializedValue(forwarderActor ! _)
 
       Flow.fromSinkAndSourceMat(framing.to(in), out)(Keep.none)
     }
@@ -54,7 +55,7 @@ class DualTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, addr
     // handle ssl connections
     val sslFlow: Flow[ByteString, ByteString, NotUsed] = serverSSL.reversed.join(ssl).alsoTo(Sink.onComplete(_ => {
       println("Client disconnected")
-      streamHandler ! PoisonPill
+      streamHandler ! GracefulKill
     }))
 
     // redirects the stream to sslFlow or plainFlow
@@ -100,6 +101,9 @@ class ForwarderActor(streamHandler: ActorRef) extends Actor with Stash {
   override def receive: Receive = uninitialized
 
   def uninitialized: Receive = {
+    case GracefulKill =>
+      streamHandler ! GracefulKill
+      self ! PoisonPill
     case ref: ActorRef if gotBytes =>
       streamHandler ! ref
       context.become(initialized)

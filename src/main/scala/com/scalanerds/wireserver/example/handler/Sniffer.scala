@@ -69,4 +69,11 @@ class Sniffer(remote: InetSocketAddress, local: InetSocketAddress) extends MsgHa
     context stop self
     log.debug(s"Unknown message\n$msg\n")
   }
+
+  override def stop() {
+    println("sending poisonPill to tcpCLient")
+    // stop the tcp client
+    tcpClient ! PoisonPill
+    super.stop()
+  }
 }

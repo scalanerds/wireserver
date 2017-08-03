@@ -9,6 +9,7 @@ import akka.stream.scaladsl.{Flow, Keep, Sink, Source, TLS, Tcp}
 import akka.stream.{OverflowStrategy, TLSProtocol, TLSRole}
 import akka.util.ByteString
 import akka.{Done, NotUsed}
+import com.scalanerds.wireserver.handlers.GracefulKill
 
 import scala.concurrent.Future
 
@@ -34,7 +35,7 @@ class SSLTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, addre
     println("Client connected from: " + conn.remoteAddress)
 
     val actor: ActorRef = context.actorOf(props(conn.remoteAddress, conn.localAddress))
-    val in: Sink[ByteString, NotUsed] = Flow[ByteString].to(Sink.actorRef(actor, PoisonPill))
+    val in: Sink[ByteString, NotUsed] = Flow[ByteString].to(Sink.actorRef(actor, GracefulKill))
 
     val out: Source[ByteString, Unit] = Source.actorRef[ByteString](100, OverflowStrategy.fail)
       .mapMaterializedValue(actor ! _)

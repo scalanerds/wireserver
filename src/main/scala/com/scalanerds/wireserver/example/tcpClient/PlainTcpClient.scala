@@ -16,5 +16,6 @@ class PlainTcpClient(listener: ActorRef, address: String, port: Int)
     //TODO update parent supervisor strategy to restart the actor
     self ! Kill
   }))
-  val connection: ActorRef = Source.actorRef(1, OverflowStrategy.fail).via(tcpFlow).via(framing).to(sink).run()
+  val connection: ActorRef = Source.actorRef(1, OverflowStrategy.fail).via(killSwitch.flow).via(tcpFlow).via(framing).to(sink).run()
+
 }
