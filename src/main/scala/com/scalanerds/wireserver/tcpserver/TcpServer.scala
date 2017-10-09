@@ -4,7 +4,6 @@ import akka.Done
 import akka.actor.{Actor, ActorSystem, Props}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Tcp}
-import com.scalanerds.wireserver.messageTypes.{GetInfo, Info}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
