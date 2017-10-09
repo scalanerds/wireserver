@@ -3,11 +3,12 @@ package com.scalanerds.wireserver.handlers
 import akka.actor.{Actor, ActorRef, Stash}
 import akka.event.Logging
 import akka.util.ByteString
-import com.scalanerds.wireserver.messageTypes._
-import com.scalanerds.wireserver.wire.Message
+import com.scalanerds.wireserver.messages._
+import com.scalanerds.wireserver.messages.request.BytesFromClient
+import com.scalanerds.wireserver.messages.response.BytesToClient
+import com.scalanerds.wireserver.wire.message.traits.Message
 import com.scalanerds.wireserver.wire.opcodes._
 
-object GracefulKill
 
 abstract class MsgHandler extends Actor with Stash {
   var connection: ActorRef = _

@@ -5,7 +5,9 @@ import java.net.InetSocketAddress
 import akka.actor.{ActorRef, PoisonPill, Props}
 import com.scalanerds.wireserver.example.tcpClient.PlainTcpClient
 import com.scalanerds.wireserver.handlers.MsgHandler
-import com.scalanerds.wireserver.messageTypes._
+import com.scalanerds.wireserver.messages._
+import com.scalanerds.wireserver.messages.request.{BytesFromClient, BytesToServer}
+import com.scalanerds.wireserver.messages.response.{BytesFromServer, BytesToClient}
 import com.scalanerds.wireserver.wire.opcodes._
 
 

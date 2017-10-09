@@ -1,9 +1,10 @@
 package com.scalanerds.wireserver.wire.opcodes
 
 import akka.util.ByteString
-import com.scalanerds.wireserver.utils.Utils._
-import com.scalanerds.wireserver.wire.conversions._
-import com.scalanerds.wireserver.wire.{MsgHeader, Request}
+import com.scalanerds.wireserver.utils.Conversions._
+import com.scalanerds.wireserver.wire.message.MsgHeader
+import com.scalanerds.wireserver.wire.message.traits.Request
+import com.scalanerds.wireserver.wire.opcodes.flags.OpDeleteFlags
 import org.bson.BsonDocument
 
 object OpDelete {
@@ -18,10 +19,10 @@ object OpDelete {
 }
 
 class OpDelete(val msgHeader: MsgHeader,
-               val fullCollectionName: String,
-               val flags: OpDeleteFlags,
-               val selector: BsonDocument,
-               val reserved: Int = 0) extends Request {
+    val fullCollectionName: String,
+    val flags: OpDeleteFlags,
+    val selector: BsonDocument,
+    val reserved: Int = 0) extends Request {
 
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++ contentSerialize
@@ -67,23 +68,5 @@ class OpDelete(val msgHeader: MsgHeader,
 }
 
 
-object OpDeleteFlags {
-  def apply(raw: Int): OpDeleteFlags = {
-    val bytes = raw.toBooleanArray
-    new OpDeleteFlags(
-      bytes(0)
-    )
-  }
-}
 
-class OpDeleteFlags(val singleRemove: Boolean = false) {
-  def serialize: Array[Byte] = {
-    Array[Byte](singleRemove).binaryToInt.toByteArray
-  }
 
-  override def toString: String = {
-    s"""
-       |singleRemove: $singleRemove
-     """.stripMargin
-  }
-}

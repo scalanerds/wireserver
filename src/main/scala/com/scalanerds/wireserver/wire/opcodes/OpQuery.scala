@@ -1,9 +1,12 @@
 package com.scalanerds.wireserver.wire.opcodes
 
 
-import com.scalanerds.wireserver.utils.Utils._
+import com.scalanerds.wireserver.utils.Conversions._
 import com.scalanerds.wireserver.wire._
-import com.scalanerds.wireserver.wire.conversions._
+import com.scalanerds.wireserver.wire.message.traits.{Request, WithReply}
+import com.scalanerds.wireserver.wire.message.MsgHeader
+import com.scalanerds.wireserver.wire.opcodes.constants.OPCODES
+import com.scalanerds.wireserver.wire.opcodes.flags.OpQueryFlags
 import org.bson.{BsonDocument, BsonString}
 
 object OpQuery {
@@ -111,41 +114,8 @@ class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opQuery)
   }
 }
 
-object OpQueryFlags {
-  def apply(raw: Int): OpQueryFlags = {
-    val bytes = raw.toBooleanArray
-    new OpQueryFlags(bytes(1),bytes(2),bytes(3),bytes(4),bytes(5),bytes(6),bytes(7))
-  }
-}
 
-class OpQueryFlags(val tailableCursor: Boolean = false,
-                   val slaveOk: Boolean = false,
-                   val opLogReply: Boolean = false,
-                   val noCursorTimeOut: Boolean = false,
-                   val awaitData: Boolean = false,
-                   val exhaust: Boolean = false,
-                   val partial: Boolean = false) {
-  def serialize: Array[Byte] = {
-    Array[Byte](0, tailableCursor, slaveOk, opLogReply, noCursorTimeOut, awaitData, exhaust, partial)
-      .binaryToInt.toByteArray
-  }
 
-  override def hashCode(): Int = {
-    val state = Seq(0, tailableCursor, slaveOk, opLogReply, noCursorTimeOut, awaitData, exhaust, partial)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-  }
 
-  override def toString: String = {
-    s"""
-       |tailableCursor: $tailableCursor
-       |slaveOk: $slaveOk
-       |opLogReply: $opLogReply
-       |noCursorTimeOut: $noCursorTimeOut
-       |awaitData: $awaitData
-       |exhaust: $exhaust
-       |partial: $partial
-     """.stripMargin
-  }
-}
 
 

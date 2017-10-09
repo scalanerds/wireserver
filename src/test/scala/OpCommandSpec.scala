@@ -1,6 +1,7 @@
 import akka.util.ByteString
 import com.scalanerds.wireserver.wire.opcodes.OpCommand
-import com.scalanerds.wireserver.wire.{Message, OPCODES}
+import com.scalanerds.wireserver.wire.message.traits.Message
+import com.scalanerds.wireserver.wire.opcodes.constants.OPCODES
 import org.bson.BsonDocument
 import org.scalatest.{FlatSpec, Matchers}
 

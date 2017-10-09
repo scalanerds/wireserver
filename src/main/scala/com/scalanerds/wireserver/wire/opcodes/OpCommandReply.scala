@@ -1,8 +1,9 @@
 package com.scalanerds.wireserver.wire.opcodes
 
-import akka.util.ByteString
-import com.scalanerds.wireserver.utils.Utils._
-import com.scalanerds.wireserver.wire.{Message, MsgHeader, OPCODES, Response}
+import com.scalanerds.wireserver.utils.Conversions._
+import com.scalanerds.wireserver.wire.message.traits.{Message, Response}
+import com.scalanerds.wireserver.wire.message.MsgHeader
+import com.scalanerds.wireserver.wire.opcodes.constants.OPCODES
 import org.bson.BsonDocument
 
 object OpCommandReply {
@@ -14,31 +15,31 @@ object OpCommandReply {
     new OpCommandReply(msgHeader, metadata, commandReply, outputDocs)
   }
 
-  def apply(replyTo : Int,
-            metadata: BsonDocument = new BsonDocument()): OpCommandReply = {
+  def apply(replyTo: Int,
+      metadata: BsonDocument = new BsonDocument()): OpCommandReply = {
     new OpCommandReply(new MsgHeader(
       responseTo = replyTo,
-      opCode=OPCODES.opCommandReply
-    ), metadata=metadata)
+      opCode = OPCODES.opCommandReply
+    ), metadata = metadata)
   }
 
   def apply(replyTo: Int,
-            content: Array[Byte]): OpCommandReply = {
+      content: Array[Byte]): OpCommandReply = {
     val msgHeader = new MsgHeader(responseTo = replyTo, opCode = OPCODES.opCommandReply)
     OpCommandReply(msgHeader, content)
   }
 }
 
 class OpCommandReply(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opCommandReply),
-                     var metadata: BsonDocument = new BsonDocument(),
-                     var commandReply: BsonDocument = new BsonDocument(),
-                     var outputDocs: Array[BsonDocument] = Array()
-                    ) extends Message with Response {
+    var metadata: BsonDocument = new BsonDocument(),
+    var commandReply: BsonDocument = new BsonDocument(),
+    var outputDocs: Array[BsonDocument] = Array()
+) extends Message with Response {
 
   override def contentSerialize: Array[Byte] = {
     metadata.toByteArray ++
-    commandReply.toByteArray ++
-    outputDocs.toByteArray
+      commandReply.toByteArray ++
+      outputDocs.toByteArray
   }
 
   override def toString: String = {

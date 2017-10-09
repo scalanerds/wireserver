@@ -1,8 +1,8 @@
-import com.scalanerds.wireserver.utils.Utils._
+import com.scalanerds.wireserver.utils.Conversions._
 import org.bson.BsonDocument
 import org.scalatest.{FlatSpec, Matchers}
 
-class UtilsSpec extends FlatSpec with Matchers {
+class ConversionsSpec extends FlatSpec with Matchers {
   "Iterator" should "getIntArray" in {
     val arr = Array[Byte](7, 0, 0, 0, 8, 0, 0, 0, 9, 0, 0, 0)
     val res = arr.iterator.getIntArray(3)

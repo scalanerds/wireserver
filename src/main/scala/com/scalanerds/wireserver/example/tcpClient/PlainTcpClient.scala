@@ -1,7 +1,7 @@
 package com.scalanerds.wireserver.example.tcpClient
 
-import akka.stream.OverflowStrategy
 import akka.actor.{ActorRef, Kill, PoisonPill}
+import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.{Flow, Sink, Source, Tcp}
 import akka.util.ByteString
 import com.scalanerds.wireserver.tcpserver.TcpFraming

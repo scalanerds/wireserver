@@ -3,8 +3,9 @@ package com.scalanerds.wireserver.example.tcpClient
 import akka.actor.{Actor, ActorRef, ActorSystem}
 import akka.stream.{ActorMaterializer, KillSwitches, SharedKillSwitch}
 import akka.util.ByteString
-import com.scalanerds.wireserver.handlers.GracefulKill
-import com.scalanerds.wireserver.messageTypes.{BytesFromServer, BytesToServer, WirePacket}
+import com.scalanerds.wireserver.messages.request.BytesToServer
+import com.scalanerds.wireserver.messages.response.BytesFromServer
+import com.scalanerds.wireserver.messages.{GracefulKill, WirePacket}
 
 
 abstract class TcpClient(listener: ActorRef, address: String, port: Int)

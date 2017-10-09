@@ -1,10 +1,11 @@
 package com.scalanerds.wireserver.wire.opcodes
 
 
-import akka.util.ByteString
-import com.scalanerds.wireserver.utils.Utils._
-import com.scalanerds.wireserver.wire.conversions._
-import com.scalanerds.wireserver.wire.{Message, MsgHeader, OPCODES, Response}
+import com.scalanerds.wireserver.utils.Conversions._
+import com.scalanerds.wireserver.wire.message.traits.{Message, Response}
+import com.scalanerds.wireserver.wire.message.MsgHeader
+import com.scalanerds.wireserver.wire.opcodes.constants.OPCODES
+import com.scalanerds.wireserver.wire.opcodes.flags.OpReplyFlags
 import org.bson.BsonDocument
 
 object OpReply {
@@ -25,33 +26,33 @@ object OpReply {
   }
 
   def apply(replyTo: Int,
-            content: Array[Byte]): OpReply = {
+      content: Array[Byte]): OpReply = {
     val msgHeader = new MsgHeader(responseTo = replyTo, opCode = OPCODES.opReply)
     OpReply(msgHeader, content)
   }
 
   def apply(replyTo: Int,
-            documents:  Array[BsonDocument] = Array[BsonDocument]()): OpReply = {
+      documents: Array[BsonDocument] = Array[BsonDocument]()): OpReply = {
     val msgHeader = new MsgHeader(responseTo = replyTo, opCode = OPCODES.opReply)
-    new OpReply(msgHeader, documents=documents)
+    new OpReply(msgHeader, documents = documents)
   }
 }
 
 class OpReply(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opReply),
-              val responseFlags: OpReplyFlags = new OpReplyFlags(),
-              val cursorId: Long = 0L,
-              val startingFrom: Int = 0,
-              var numberReturned: Int = 0,
-              var documents: Array[BsonDocument]) extends Message with Response {
+    val responseFlags: OpReplyFlags = new OpReplyFlags(),
+    val cursorId: Long = 0L,
+    val startingFrom: Int = 0,
+    var numberReturned: Int = 0,
+    var documents: Array[BsonDocument]) extends Message with Response {
 
   numberReturned = documents.length
 
   def contentSerialize: Array[Byte] = {
     responseFlags.serialize ++
-    cursorId.toByteArray ++
-    startingFrom.toByteArray ++
-    numberReturned.toByteArray ++
-    documents.toByteArray
+      cursorId.toByteArray ++
+      startingFrom.toByteArray ++
+      numberReturned.toByteArray ++
+      documents.toByteArray
   }
 
   override def toString: String = {
@@ -86,28 +87,6 @@ class OpReply(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opReply)
 }
 
 
-object OpReplyFlags {
-  def apply(raw: Int): OpReplyFlags = {
-    val bytes = raw.toBooleanArray
-    new OpReplyFlags(bytes(0), bytes(1), bytes(2), bytes(3))
-  }
-}
 
-class OpReplyFlags(val cursorNotFound: Boolean = false,
-                   val queryFailure: Boolean = false,
-                   val shardConfigStale: Boolean = false,
-                   val awaitCapable: Boolean = false) {
-  def serialize: Array[Byte] = {
-    Array[Byte](cursorNotFound, queryFailure, shardConfigStale, awaitCapable)
-      .binaryToInt.toByteArray
-  }
 
-  override def toString: String = {
-    s"""
-       |cursorNotFound: $cursorNotFound
-       |queryFailure: $queryFailure
-       |shardConfigStale: $shardConfigStale
-       |awaitCapable: $awaitCapable
-     """.stripMargin
-  }
-}
+

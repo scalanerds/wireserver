@@ -8,7 +8,10 @@ import org.bson.{BsonDocument, RawBsonDocument, codecs}
 import scala.language.implicitConversions
 
 
-object Utils {
+object Conversions {
+
+  implicit def byte2bool(b: Byte): Boolean = b.toInt != 0
+  implicit def bool2byte(b: Boolean): Byte = (if (b) 1 else 0).toByte
 
   implicit class consumable[T](i: Iterator[T]) {
     def cTake(n: Int): Iterator[T] = {

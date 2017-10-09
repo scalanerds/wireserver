@@ -2,13 +2,13 @@ package com.scalanerds.wireserver.tcpserver
 
 import java.net.InetSocketAddress
 
-import akka.actor.{Actor, ActorRef, PoisonPill, Props, Stash}
+import akka.actor.{ActorRef, Props}
 import akka.stream.TLSProtocol._
 import akka.stream._
 import akka.stream.scaladsl.{Broadcast, Flow, GraphDSL, Keep, Merge, Sink, Source, TLS, Tcp}
 import akka.util.ByteString
 import akka.{Done, NotUsed}
-import com.scalanerds.wireserver.handlers.GracefulKill
+import com.scalanerds.wireserver.messages.GracefulKill
 
 import scala.concurrent.Future
 
@@ -38,7 +38,7 @@ class DualTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, addr
 
     val getFlow = (name: String) => {
       val forwarderActor: ActorRef = context.actorOf(Props(new ForwarderActor(streamHandler)), name + Math.random())
-      val in: Sink[ByteString, NotUsed] = Flow[ByteString].to(Sink.actorRef(forwarderActor,GracefulKill))
+      val in: Sink[ByteString, NotUsed] = Flow[ByteString].to(Sink.actorRef(forwarderActor, GracefulKill))
       val out = Source.actorRef[ByteString](100, OverflowStrategy.fail)
         .mapMaterializedValue(forwarderActor ! _)
 
@@ -77,7 +77,7 @@ class DualTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, addr
       val sslFilter = Flow[ByteString].filter(_ => isSSL.get)
 
       src ~> bcast ~> plainFilter ~> plainFlow ~> merge ~> outbound
-             bcast ~> sslFilter   ~> sslFlow   ~> merge
+             bcast ~> sslFilter ~> sslFlow ~> merge
 
       FlowShape(src.in, outbound.out)
     })
@@ -86,47 +86,6 @@ class DualTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, addr
   }
 }
 
-/** *
-  * Actor that forwards the bytestrings after everything has been initialized
-  *
-  * this actor is required to avoid creating two actors that process the ByteStream, as one can't be shared
-  * between the sink and the source of the connection because the flow in the router would fail in the merge
-  *
-  * @param streamHandler actor that will process the ByteStream
-  */
-class ForwarderActor(streamHandler: ActorRef) extends Actor with Stash {
-  var src: Option[ActorRef] = None
-  var gotBytes = false
 
-  override def receive: Receive = uninitialized
-
-  def uninitialized: Receive = {
-    case GracefulKill =>
-      streamHandler ! GracefulKill
-      self ! PoisonPill
-    case ref: ActorRef if gotBytes =>
-      streamHandler ! ref
-      context.become(initialized)
-      unstashAll()
-    case ref: ActorRef =>
-      src = Some(ref)
-    case _: ByteString if src.nonEmpty =>
-      stash()
-      context.become(initialized)
-      streamHandler ! src.get
-      unstashAll()
-    case _: ByteString =>
-      stash()
-      gotBytes = true
-    case m => println(s"forwarder uninitialized got unknown message $m")
-  }
-
-  def initialized: Receive = {
-
-    case bytes: ByteString =>
-      streamHandler forward bytes
-    case m => s"forwarder got unknown message $m"
-  }
-}
 
 

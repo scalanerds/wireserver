@@ -1,8 +1,9 @@
 package com.scalanerds.wireserver.wire.opcodes
 
 import akka.util.ByteString
-import com.scalanerds.wireserver.wire.{Message, MsgHeader}
-import com.scalanerds.wireserver.utils.Utils._
+import com.scalanerds.wireserver.utils.Conversions._
+import com.scalanerds.wireserver.wire.message.MsgHeader
+import com.scalanerds.wireserver.wire.message.traits.Message
 
 object OpMsg {
   def apply(msgHeader: MsgHeader, content: Array[Byte]): OpMsg = {
@@ -11,7 +12,7 @@ object OpMsg {
 }
 
 class OpMsg(val msgHeader: MsgHeader,
-            val message: String) extends Message {
+    val message: String) extends Message {
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++ contentSerialize
     ByteString((content.length + 4).toByteArray ++ content)

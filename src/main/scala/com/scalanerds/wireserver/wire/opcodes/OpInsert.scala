@@ -1,10 +1,11 @@
 package com.scalanerds.wireserver.wire.opcodes
 
 import akka.util.ByteString
-import com.scalanerds.wireserver.utils.Utils._
-import com.scalanerds.wireserver.wire.conversions._
-import com.scalanerds.wireserver.wire.{Message, MsgHeader, Request, Response}
-import org.bson.{BsonDocument, BsonString}
+import com.scalanerds.wireserver.utils.Conversions._
+import com.scalanerds.wireserver.wire.message.MsgHeader
+import com.scalanerds.wireserver.wire.message.traits.Request
+import com.scalanerds.wireserver.wire.opcodes.flags.OpInsertFlags
+import org.bson.BsonDocument
 
 
 object OpInsert {
@@ -18,9 +19,9 @@ object OpInsert {
 }
 
 class OpInsert(val msgHeader: MsgHeader,
-               val flags: OpInsertFlags,
-               val fullCollectionName: String,
-               val documents: Array[BsonDocument]) extends Request {
+    val flags: OpInsertFlags,
+    val fullCollectionName: String,
+    val documents: Array[BsonDocument]) extends Request {
 
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++ contentSerialize
@@ -29,8 +30,8 @@ class OpInsert(val msgHeader: MsgHeader,
 
   override def contentSerialize: Array[Byte] = {
     flags.serialize ++
-    fullCollectionName.toByteArray ++
-    documents.toByteArray
+      fullCollectionName.toByteArray ++
+      documents.toByteArray
   }
 
   override def toString: String = {
@@ -59,29 +60,11 @@ class OpInsert(val msgHeader: MsgHeader,
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 
-  override def  realm: String = fullCollectionName
+  override def realm: String = fullCollectionName
 
   override def command: String = "insert"
 
 }
 
-object OpInsertFlags {
-  def apply(raw: Int): OpInsertFlags = {
-    val bytes = raw.toBooleanArray
-    new OpInsertFlags(
-      bytes(0)
-    )
-  }
-}
 
-class OpInsertFlags(val continueOnError: Boolean = false) {
-  def serialize: Array[Byte] = {
-    Array[Byte](continueOnError).binaryToInt.toByteArray
-  }
 
-  override def toString: String = {
-    s"""
-       |continueOnError: $continueOnError
-     """.stripMargin
-  }
-}

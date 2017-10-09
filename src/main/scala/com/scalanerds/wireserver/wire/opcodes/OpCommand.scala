@@ -1,7 +1,10 @@
 package com.scalanerds.wireserver.wire.opcodes
 
-import com.scalanerds.wireserver.utils.Utils._
+import com.scalanerds.wireserver.utils.Conversions._
 import com.scalanerds.wireserver.wire._
+import com.scalanerds.wireserver.wire.message.traits.{Request, WithReply}
+import com.scalanerds.wireserver.wire.message.MsgHeader
+import com.scalanerds.wireserver.wire.opcodes.constants.OPCODES
 import org.bson._
 
 object OpCommand {

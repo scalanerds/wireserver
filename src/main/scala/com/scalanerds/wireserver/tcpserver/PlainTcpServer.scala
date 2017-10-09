@@ -8,7 +8,7 @@ import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source, Tcp}
 import akka.util.ByteString
 import akka.{Done, NotUsed}
-import com.scalanerds.wireserver.handlers.GracefulKill
+import com.scalanerds.wireserver.messages.GracefulKill
 
 import scala.concurrent.Future
 

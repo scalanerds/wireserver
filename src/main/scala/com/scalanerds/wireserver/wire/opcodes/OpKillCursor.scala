@@ -1,8 +1,9 @@
 package com.scalanerds.wireserver.wire.opcodes
 
 import akka.util.ByteString
-import com.scalanerds.wireserver.utils.Utils._
-import com.scalanerds.wireserver.wire.{Message, MsgHeader}
+import com.scalanerds.wireserver.utils.Conversions._
+import com.scalanerds.wireserver.wire.message.MsgHeader
+import com.scalanerds.wireserver.wire.message.traits.Message
 
 
 object OpKillCursor {
@@ -16,9 +17,9 @@ object OpKillCursor {
 }
 
 class OpKillCursor(val msgHeader: MsgHeader,
-                   val numberOfCursorIDs: Int,
-                   val cursorIDs: Array[Long],
-                   val reserved: Int = 0) extends Message {
+    val numberOfCursorIDs: Int,
+    val cursorIDs: Array[Long],
+    val reserved: Int = 0) extends Message {
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++ contentSerialize
     ByteString((content.length + 4).toByteArray ++ content)
@@ -26,8 +27,8 @@ class OpKillCursor(val msgHeader: MsgHeader,
 
   override def contentSerialize: Array[Byte] = {
     reserved.toByteArray ++
-    numberOfCursorIDs.toByteArray ++
-    cursorIDs.map(_.toByteArray).reduce(_ ++ _)
+      numberOfCursorIDs.toByteArray ++
+      cursorIDs.map(_.toByteArray).reduce(_ ++ _)
   }
 
   override def toString: String = {

@@ -1,11 +1,4 @@
-package com.scalanerds.wireserver.wire
-
-import scala.language.implicitConversions
-
-package object conversions {
-  implicit def byte2bool(b: Byte): Boolean = b.toInt != 0
-  implicit def bool2byte(b: Boolean): Byte = (if (b) 1 else 0).toByte
-}
+package com.scalanerds.wireserver.wire.opcodes.constants
 
 object OPCODES {
   val opReply         = 1
@@ -22,4 +15,3 @@ object OPCODES {
   val clientCodes = Vector(opUpdate, opInsert, opQuery, opGetMore, opDelete, opKillCursor, opCommand)
   val serverCodes = Vector(opReply, opMsg, opCommandReply)
 }
-

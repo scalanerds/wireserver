@@ -3,13 +3,13 @@ package com.scalanerds.wireserver.tcpserver
 
 import java.net.InetSocketAddress
 
-import akka.actor.{ActorRef, PoisonPill, Props}
+import akka.actor.{ActorRef, Props}
 import akka.stream.TLSProtocol._
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source, TLS, Tcp}
 import akka.stream.{OverflowStrategy, TLSProtocol, TLSRole}
 import akka.util.ByteString
 import akka.{Done, NotUsed}
-import com.scalanerds.wireserver.handlers.GracefulKill
+import com.scalanerds.wireserver.messages.GracefulKill
 
 import scala.concurrent.Future
 

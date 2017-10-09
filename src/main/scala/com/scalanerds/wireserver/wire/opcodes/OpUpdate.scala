@@ -1,9 +1,9 @@
 package com.scalanerds.wireserver.wire.opcodes
 
-import akka.util.ByteString
-import com.scalanerds.wireserver.utils.Utils._
-import com.scalanerds.wireserver.wire.conversions._
-import com.scalanerds.wireserver.wire.{Message, MsgHeader, Request, Response}
+import com.scalanerds.wireserver.utils.Conversions._
+import com.scalanerds.wireserver.wire.message.MsgHeader
+import com.scalanerds.wireserver.wire.message.traits.Request
+import com.scalanerds.wireserver.wire.opcodes.flags.OpUpdateFlags
 import org.bson.BsonDocument
 
 object OpUpdate {
@@ -20,18 +20,18 @@ object OpUpdate {
 }
 
 class OpUpdate(val msgHeader: MsgHeader,
-               val fullCollectionName: String,
-               val flags: OpUpdateFlags,
-               val selector: BsonDocument,
-               val update: BsonDocument,
-               val reserved: Int = 0) extends Request {
+    val fullCollectionName: String,
+    val flags: OpUpdateFlags,
+    val selector: BsonDocument,
+    val update: BsonDocument,
+    val reserved: Int = 0) extends Request {
 
   override def contentSerialize: Array[Byte] = {
     reserved.toByteArray ++
-    fullCollectionName.toByteArray ++
-    flags.serialize ++
-    selector.toByteArray ++
-    update.toByteArray
+      fullCollectionName.toByteArray ++
+      flags.serialize ++
+      selector.toByteArray ++
+      update.toByteArray
   }
 
   override def toString: String = {
@@ -68,26 +68,5 @@ class OpUpdate(val msgHeader: MsgHeader,
 
 }
 
-object OpUpdateFlags {
-  def apply(raw: Int): OpUpdateFlags = {
-    val bytes = raw.toBooleanArray
-    new OpUpdateFlags(
-      upsert = bytes(0),
-      multiUpdate = bytes(1)
-    )
-  }
-}
 
-class OpUpdateFlags(val upsert: Boolean = false,
-                    val multiUpdate: Boolean = false) {
-  def serialize: Array[Byte] = {
-    Array[Byte](upsert, multiUpdate).binaryToInt.toByteArray
-  }
 
-  override def toString: String = {
-    s"""
-       |upsert: $upsert
-       |multiUpdate: $multiUpdate
-     """.stripMargin
-  }
-}

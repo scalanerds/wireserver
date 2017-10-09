@@ -2,8 +2,9 @@ package com.scalanerds.wireserver.wire.opcodes
 
 
 import akka.util.ByteString
-import com.scalanerds.wireserver.utils.Utils._
-import com.scalanerds.wireserver.wire.{Message, MsgHeader, Request}
+import com.scalanerds.wireserver.utils.Conversions._
+import com.scalanerds.wireserver.wire.message.MsgHeader
+import com.scalanerds.wireserver.wire.message.traits.Message
 
 object OpGetMore {
   def apply(msgHeader: MsgHeader, content: Array[Byte]): OpGetMore = {
@@ -17,10 +18,10 @@ object OpGetMore {
 }
 
 class OpGetMore(val msgHeader: MsgHeader,
-                val fullCollectionName: String,
-                val numberToReturn: Int,
-                val cursorID: Long,
-                val reserved: Int = 0) extends Message {
+    val fullCollectionName: String,
+    val numberToReturn: Int,
+    val cursorID: Long,
+    val reserved: Int = 0) extends Message {
 
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++ contentSerialize
@@ -29,9 +30,9 @@ class OpGetMore(val msgHeader: MsgHeader,
 
   override def contentSerialize: Array[Byte] = {
     reserved.toByteArray ++
-    fullCollectionName.toByteArray ++
-    numberToReturn.toByteArray ++
-    cursorID.toByteArray
+      fullCollectionName.toByteArray ++
+      numberToReturn.toByteArray ++
+      cursorID.toByteArray
   }
 
   override def toString: String = {
