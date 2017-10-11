@@ -18,10 +18,10 @@ object Sniffer {
 class Sniffer(remote: InetSocketAddress, local: InetSocketAddress) extends MsgHandler {
   log.debug(s"\nsniffer remote address: $remote\nsniffer local address $local")
 
-  var tcpClient: ActorRef = _
+  var tcpClient: Option[ActorRef] = None
 
   override def preStart(): Unit = {
-    tcpClient = context.actorOf(Props(new PlainTcpClient(self, "localhost", 27017)), "sniffer")
+    tcpClient = Some(context.actorOf(Props(new PlainTcpClient(self, "localhost", 27017)), "sniffer"))
     super.preStart()
   }
 
@@ -34,11 +34,18 @@ class Sniffer(remote: InetSocketAddress, local: InetSocketAddress) extends MsgHa
 
   override def onReceived(msg: WirePacket): Unit = msg match {
     case BytesFromClient(bytes) =>
-      log.warning("alice says: " + connection.path + "\n" + bytes.mkString("ByteString(",", ", ")"))
+      // log
+      connection.foreach { conn =>
+        log.warning("alice says: " + conn.path + "\n" + bytes.mkString("ByteString(", ", ", ")"))
+      }
+
       parse(bytes)
-      tcpClient ! BytesToServer(bytes)
+      // send bytes to tcpClient
+      tcpClient.foreach(_ ! BytesToServer(bytes))
     case BytesFromServer(bytes) =>
-      log.error("bob replies: " + connection.path + "\n" + bytes.mkString("ByteString(",", ", ")"))
+      connection.foreach { conn =>
+        log.error("bob replies: " + conn.path + "\n" + bytes.mkString("ByteString(", ", ", ")"))
+      }
       parse(bytes)
       self ! BytesToClient(bytes)
   }
@@ -67,7 +74,8 @@ class Sniffer(remote: InetSocketAddress, local: InetSocketAddress) extends MsgHa
 
   override def onError(msg: Any): Unit = {
     log.debug("sniffer error")
-    tcpClient ! PoisonPill
+    // on error kill the tcpClient actor
+    tcpClient.foreach(_ ! PoisonPill)
     context stop self
     log.debug(s"Unknown message\n$msg\n")
   }
@@ -75,7 +83,7 @@ class Sniffer(remote: InetSocketAddress, local: InetSocketAddress) extends MsgHa
   override def stop() {
     println("sending poisonPill to tcpCLient")
     // stop the tcp client
-    tcpClient ! PoisonPill
+    tcpClient.foreach(_ ! PoisonPill)
     super.stop()
   }
 }

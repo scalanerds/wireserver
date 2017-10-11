@@ -9,7 +9,7 @@ case class OpError(msgHeader: MsgHeader = MsgHeader(),
     error: String = "Error",
     raw: Option[ByteString] = None) extends Message {
 
-  def realm = null
+  def realm: Option[String] = None
 
   override def contentSerialize: Array[Byte] = Array[Byte]()
 

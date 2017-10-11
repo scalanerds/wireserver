@@ -2,9 +2,8 @@ package com.scalanerds.wireserver.wire.opcodes
 
 
 import com.scalanerds.wireserver.utils.Conversions._
-import com.scalanerds.wireserver.wire._
-import com.scalanerds.wireserver.wire.message.traits.{Request, WithReply}
 import com.scalanerds.wireserver.wire.message.MsgHeader
+import com.scalanerds.wireserver.wire.message.traits.{Request, WithReply}
 import com.scalanerds.wireserver.wire.opcodes.constants.OPCODES
 import com.scalanerds.wireserver.wire.opcodes.flags.OpQueryFlags
 import org.bson.{BsonDocument, BsonString}
@@ -24,12 +23,12 @@ object OpQuery {
 }
 
 class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opQuery),
-              val flags: OpQueryFlags = new OpQueryFlags(),
-              val fullCollectionName: String,
-              val numberToSkip: Int = 0,
-              val numberToReturn: Int = 1,
-              val query: BsonDocument = new BsonDocument(),
-              val returnFieldsSelector: Option[BsonDocument] = None)
+    val flags: OpQueryFlags = new OpQueryFlags(),
+    val fullCollectionName: String,
+    val numberToSkip: Int = 0,
+    val numberToReturn: Int = 1,
+    val query: BsonDocument = new BsonDocument(),
+    val returnFieldsSelector: Option[BsonDocument] = None)
   extends Request with WithReply {
 
   override def reply(content: Array[Byte]): OpReply = {
@@ -45,14 +44,11 @@ class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opQuery)
   override def reply(json: String): OpReply = reply(BsonDocument.parse(json))
 
   override def contentSerialize: Array[Byte] = {
-    var content =
-      flags.serialize ++
+    flags.serialize ++
       fullCollectionName.toByteArray ++
       Array(numberToSkip, numberToReturn).toByteArray ++
-      query.toByteArray
-    if (returnFieldsSelector.nonEmpty)
-      content ++= returnFieldsSelector.get.toByteArray
-    content
+      query.toByteArray ++
+      returnFieldsSelector.map(_.toByteArray).getOrElse(Array[Byte]())
   }
 
   override def toString: String = {
@@ -81,36 +77,53 @@ class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opQuery)
     case _ => false
   }
 
+  /** OpQuery hashcode
+    *
+    * @return hashcode
+    */
   override def hashCode(): Int = {
-    var state = Seq(msgHeader.opCode, flags, fullCollectionName, numberToSkip, numberToReturn, query.toJson)
-    if (returnFieldsSelector.nonEmpty) state += returnFieldsSelector.get.toJson()
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+    // gather in a list all the data required to calculate the hashcode
+    val state =
+      Seq(msgHeader.opCode, flags, fullCollectionName, numberToSkip, numberToReturn,
+        query.toJson, returnFieldsSelector.map(_.toJson).getOrElse(""))
+
+    state.map(_.hashCode()).foldLeft(0)(31 * _ + _)
   }
 
-  def collection = {
-    val chunks = fullCollectionName.split("\\.")
-    if (chunks.last == "$cmd") {
-      val cmd = command
-      if (cmd != null){
-        chunks(0) +
-          (query.get(cmd) match {
-          case s: BsonString  => "." + s.asString().getValue
-          case _              => ""
-        })
-      }
+  /** generate the collection name
+    *
+    * @return
+    */
+  def collection: String = {
+    val chunks: Array[String] = fullCollectionName.split("\\.")
 
-      else fullCollectionName
-    } else fullCollectionName
+    val collectionName = for {
+      head <- chunks.lastOption if head == "$cmd"
+    } yield {
+      val dbName = chunks(0)
+      val collectionName =
+        query.get(command) match {
+          case s: BsonString => "." + s.asString().getValue
+          case _ => ""
+        }
+
+      dbName + collectionName
+    }
+    collectionName.getOrElse(fullCollectionName)
   }
+
 
   override def realm: String = collection
 
-  override def command: String = {
-    val keys = query.keySet.toArray
-    if (keys.nonEmpty)
-      keys.head.asInstanceOf[String]
-    else
-      "find"
+  override def command:String = {
+    query
+      .keySet
+      .toArray
+      .headOption
+      .flatMap {
+        _.asInstanceOfOption[String]
+      }
+      .getOrElse("find")
   }
 }
 

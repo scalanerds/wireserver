@@ -11,15 +11,17 @@ import com.scalanerds.wireserver.wire.opcodes._
 
 
 abstract class MsgHandler extends Actor with Stash {
-  var connection: ActorRef = _
+  var connection: Option[ActorRef] = None
   val log = Logging(context.system, this)
 
 
   override def postStop(): Unit = {
-    if (connection == null)
-      log.debug("Walter died without processing valid messages")
-    else
-      log.debug("Walter died " + connection.path)
+    connection match {
+      case Some(conn) =>
+        log.debug("Walter died " + conn.path)
+      case None =>
+        log.debug("Walter died without processing valid messages")
+    }
     super.postStop()
   }
 
@@ -28,7 +30,7 @@ abstract class MsgHandler extends Actor with Stash {
   def uninitialized: Receive = {
     case GracefulKill => stop()
     case ref: ActorRef =>
-      connection = ref
+      connection = Some(ref)
       context.become(initialized)
       unstashAll()
 
@@ -41,7 +43,8 @@ abstract class MsgHandler extends Actor with Stash {
       * WirePacket receivers
       */
     case BytesToClient(bytes) =>
-      connection ! beforeWrite(bytes)
+      // send message to actor
+      connection.foreach(_ ! beforeWrite(bytes))
 
     case GracefulKill => stop()
 
@@ -114,7 +117,9 @@ abstract class MsgHandler extends Actor with Stash {
     *
     */
   def stop() {
-    log.debug("MsgHandler stop " + connection.path)
+    connection.foreach { conn =>
+      log.debug("MsgHandler stop " + conn.path)
+    }
     context stop self
   }
 }

@@ -6,13 +6,22 @@ import akka.util.ByteString
 import org.bson.{BsonDocument, RawBsonDocument, codecs}
 
 import scala.language.implicitConversions
+import scala.reflect.ClassTag
 
 
 object Conversions {
 
   implicit def byte2bool(b: Byte): Boolean = b.toInt != 0
+
   implicit def bool2byte(b: Boolean): Byte = (if (b) 1 else 0).toByte
 
+  /** implicit conversions for Any */
+  implicit class AnyUtils(a: Any) {
+    def asInstanceOfOption[T: ClassTag]: Option[T] =
+      Some(a) collect { case m: T => m }
+  }
+
+  /** implicit conversions for iterators */
   implicit class consumable[T](i: Iterator[T]) {
     def cTake(n: Int): Iterator[T] = {
       (1 to n).map(_ => i.next()).iterator

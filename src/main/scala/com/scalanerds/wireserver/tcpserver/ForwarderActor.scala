@@ -31,7 +31,7 @@ class ForwarderActor(streamHandler: ActorRef) extends Actor with Stash {
     case _: ByteString if src.nonEmpty =>
       stash()
       context.become(initialized)
-      streamHandler ! src.get
+      src.foreach(streamHandler ! _)
       unstashAll()
     case _: ByteString =>
       stash()

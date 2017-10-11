@@ -81,7 +81,7 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opComm
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 
-  def getCollection: Option[String] = {
+  def collection: Option[String] = {
     val commandValue = metadata.get(commandName)
     commandValue match {
       case s: BsonString => Some(s.asString().getValue)
@@ -90,11 +90,7 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opComm
   }
 
   override def realm: String = {
-    val collection = getCollection
-    if (collection.isDefined)
-      database + '.' + collection.get
-    else
-      database
+    collection.map(database + '.' + _).getOrElse(database)
   }
 
   override def command: String = commandName

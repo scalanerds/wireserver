@@ -10,69 +10,71 @@ import akka.util.ByteString
 
 trait TcpFraming {
   val framing: Flow[ByteString, ByteString, NotUsed] = Flow.fromGraph(GraphDSL.create() { b =>
-    implicit val order = ByteOrder.LITTLE_ENDIAN
+    implicit val order: ByteOrder = ByteOrder.LITTLE_ENDIAN
 
     class FrameParser extends GraphStage[FlowShape[ByteString, ByteString]] {
 
-      val in = Inlet[ByteString]("FrameParser.in")
-      val out = Outlet[ByteString]("FrameParser.out")
-      override val shape = FlowShape.of(in, out)
+      val in: Inlet[ByteString] = Inlet[ByteString]("FrameParser.in")
+      val out: Outlet[ByteString] = Outlet[ByteString]("FrameParser.out")
+      override val shape: FlowShape[ByteString, ByteString] = FlowShape.of(in, out)
 
       override def createLogic(inheritedAttributes: Attributes): GraphStageLogic = new GraphStageLogic(shape) {
 
-        // this holds the received but not yet parsed bytes
-        var stash = ByteString.empty
-        // this holds the current message length or -1 if at a boundary
-        var needed = -1
+        /** this holds the received but not yet parsed bytes */
+        var stash: ByteString = ByteString.empty
+        /** this holds the current message length or -1 if at a boundary */
+        var needed: Int = -1
 
         setHandler(out, new OutHandler {
           override def onPull(): Unit = {
-            if (isClosed(in)) run()
-            else pull(in)
+            if (isClosed(in))
+              run()
+            else
+              pull(in)
           }
         })
         setHandler(in, new InHandler {
           override def onPush(): Unit = {
             val bytes = grab(in)
-            //            println(s"stashing ${bytes.mkString("ByteString(", ", ", ")")}")
             stash = stash ++ bytes
             run()
           }
 
           override def onUpstreamFinish(): Unit = {
             // either we are done
-            if (stash.isEmpty) completeStage()
+            if (stash.isEmpty)
+              completeStage()
             // or we still have bytes to emit
             // wait with completion and let run() complete when the
             // rest of the stash has been sent downstream
-            else if (isAvailable(out)) run()
+            else if (isAvailable(out))
+              run()
           }
         })
 
         private def run(): Unit = {
-          if (needed == -1) {
+          needed match {
             // are we at a boundary? then figure out next length
-            if (stash.length < 4) {
-              if (isClosed(in)) completeStage()
-              else pull(in)
-            } else {
-              //              needed = stash.take(4).toArray.toInt
+            case -1 if stash.length < 4 =>
+              if (isClosed(in))
+                completeStage()
+              else
+                pull(in)
+            case -1 =>
               needed = stash.iterator.getInt
-              //              stash = stash.drop(4)
               run() // cycle back to possibly already emit the next chunk
-            }
-          } else if (stash.length < needed) {
-            // we are in the middle of a message, need more bytes,
-            // or have to stop if input closed
-            if (isClosed(in)) completeStage()
-            else pull(in)
-          } else {
-            // we have enough to emit at least one message, so do it
-            val emit = stash.take(needed)
-            stash = stash.drop(needed)
-            needed = -1
-            //            println(s"emit ${emit.mkString("ByteString(", ", ", ")")}")
-            push(out, emit)
+            case x if stash.length < x =>
+              // we are in the middle of a message, need more bytes,
+              // or have to stop if input closed
+              if (isClosed(in))
+                completeStage()
+              else
+                pull(in)
+            case _ =>
+              val emit = stash.take(needed)
+              stash = stash.drop(needed)
+              needed = -1
+              push(out, emit)
           }
         }
       }
