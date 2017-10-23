@@ -5,7 +5,7 @@ import java.net.InetSocketAddress
 import akka.actor.{ActorRef, Props}
 import akka.stream.TLSProtocol._
 import akka.stream._
-import akka.stream.scaladsl.{Broadcast, Flow, GraphDSL, Keep, Merge, Sink, Source, TLS, Tcp}
+import akka.stream.scaladsl._
 import akka.util.ByteString
 import akka.{Done, NotUsed}
 import com.scalanerds.wireserver.messages.GracefulKill
@@ -73,8 +73,8 @@ class DualTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, addr
       val bcast = b.add(Broadcast[ByteString](2))
       val merge = b.add(Merge[ByteString](2))
 
-      val plainFilter = Flow[ByteString].filter(_ => !isSSL.get)
-      val sslFilter = Flow[ByteString].filter(_ => isSSL.get)
+      val plainFilter = Flow[ByteString].filter(_ => !isSSL.getOrElse(false))
+      val sslFilter = Flow[ByteString].filter(_ => isSSL.getOrElse(false))
 
       src ~> bcast ~> plainFilter ~> plainFlow ~> merge ~> outbound
              bcast ~> sslFilter ~> sslFlow ~> merge
