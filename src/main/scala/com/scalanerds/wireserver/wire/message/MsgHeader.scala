@@ -15,8 +15,8 @@ class MsgHeader(val requestId: Int = MsgHeader.issueRequestId(),
     new MsgHeader(requestId, responseTo, opCode)
   }
 
-  def serialize: Array[Byte] = {
-    Array(requestId, responseTo, opCode).toByteArray
+  def serialize: Seq[Byte] = {
+    List(requestId, responseTo, opCode).toByteList
   }
 
   override def toString: String = {
@@ -33,7 +33,7 @@ object MsgHeader {
   private var lastRequestId = 0
   private def issueRequestId(): Int = { lastRequestId += 1; lastRequestId }
 
-  def apply(header: Array[Byte], raw: ByteString): MsgHeader = {
+  def apply(header: Seq[Byte], raw: ByteString): MsgHeader = {
     val it = header.iterator
     val length = it.getInt
     val requestId = it.getInt

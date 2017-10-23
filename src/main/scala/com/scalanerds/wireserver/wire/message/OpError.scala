@@ -5,13 +5,13 @@ import com.scalanerds.wireserver.wire.message.traits.Message
 
 
 case class OpError(msgHeader: MsgHeader = MsgHeader(),
-    content: Array[Byte] = Array[Byte](),
+    content: Seq[Byte] = Seq[Byte](),
     error: String = "Error",
     raw: Option[ByteString] = None) extends Message {
 
   def realm: Option[String] = None
 
-  override def contentSerialize: Array[Byte] = Array[Byte]()
+  override def contentSerialize: Seq[Byte] = Seq[Byte]()
 
   override def toString: String =
     s"""

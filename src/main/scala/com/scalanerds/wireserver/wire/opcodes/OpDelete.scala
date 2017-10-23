@@ -8,7 +8,7 @@ import com.scalanerds.wireserver.wire.opcodes.flags.OpDeleteFlags
 import org.bson.BsonDocument
 
 object OpDelete {
-  def apply(msgHeader: MsgHeader, content: Array[Byte]): OpDelete = {
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpDelete = {
     val it = content.iterator
     val reserved = it.getInt
     val fullCollectionName = it.getString
@@ -25,15 +25,15 @@ class OpDelete(val msgHeader: MsgHeader,
     val reserved: Int = 0) extends Request {
 
   override def serialize: ByteString = {
-    val content = msgHeader.serialize ++ contentSerialize
+    val content: Seq[Byte] = msgHeader.serialize ++ contentSerialize
     ByteString((content.length + 4).toByteArray ++ content)
   }
 
-  override def contentSerialize: Array[Byte] = {
-    reserved.toByteArray ++
-      fullCollectionName.toByteArray ++
+  override def contentSerialize: Seq[Byte] = {
+    reserved.toByteList ++
+      fullCollectionName.toByteList ++
       flags.serialize ++
-      selector.toByteArray
+      selector.toByteList
   }
 
   override def toString: String = {

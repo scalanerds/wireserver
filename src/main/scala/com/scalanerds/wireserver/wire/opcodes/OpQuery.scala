@@ -9,13 +9,13 @@ import com.scalanerds.wireserver.wire.opcodes.flags.OpQueryFlags
 import org.bson.{BsonDocument, BsonString}
 
 object OpQuery {
-  def apply(msgHeader: MsgHeader, content: Array[Byte]): OpQuery = {
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpQuery = {
     val it = content.iterator
     val flags = OpQueryFlags(it.getInt)
     val fullCollectionName = it.getString
     val numberToSkip = it.getInt
     val numberToReturn = it.getInt
-    val bson = it.getBsonArray
+    val bson = it.getBsonList
     val query = bson(0)
     val returnFieldSelector = if (bson.length == 2) Some(bson(1)) else None
     new OpQuery(msgHeader, flags, fullCollectionName, numberToSkip, numberToReturn, query, returnFieldSelector)
@@ -31,24 +31,24 @@ class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opQuery)
     val returnFieldsSelector: Option[BsonDocument] = None)
   extends Request with WithReply {
 
-  override def reply(content: Array[Byte]): OpReply = {
+  override def reply(content: Seq[Byte]): OpReply = {
     OpReply(msgHeader.requestId, content = content)
   }
 
-  override def reply(docs: Array[BsonDocument]): OpReply = {
+  override def reply(docs: List[BsonDocument]): OpReply = {
     OpReply(msgHeader.requestId, documents = docs)
   }
 
-  override def reply(doc: BsonDocument): OpReply = reply(Array(doc))
+  override def reply(doc: BsonDocument): OpReply = reply( List(doc))
 
   override def reply(json: String): OpReply = reply(BsonDocument.parse(json))
 
-  override def contentSerialize: Array[Byte] = {
+  override def contentSerialize: Seq[Byte] = {
     flags.serialize ++
-      fullCollectionName.toByteArray ++
-      Array(numberToSkip, numberToReturn).toByteArray ++
-      query.toByteArray ++
-      returnFieldsSelector.map(_.toByteArray).getOrElse(Array[Byte]())
+      fullCollectionName.toByteList ++
+       List(numberToSkip, numberToReturn).toByteList ++
+      query.toByteList ++
+      returnFieldsSelector.map(_.toByteList).getOrElse( Seq[Byte]())
   }
 
   override def toString: String = {

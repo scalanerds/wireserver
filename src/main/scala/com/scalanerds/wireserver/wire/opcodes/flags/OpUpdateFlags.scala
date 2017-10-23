@@ -4,8 +4,8 @@ import com.scalanerds.wireserver.utils.Conversions._
 
 class OpUpdateFlags(val upsert: Boolean = false,
     val multiUpdate: Boolean = false) {
-  def serialize: Array[Byte] = {
-    Array[Byte](upsert, multiUpdate).binaryToInt.toByteArray
+  def serialize: Seq[Byte] = {
+     Seq[Byte](upsert, multiUpdate).binaryToInt.toByteList
   }
 
   override def toString: String = {
@@ -18,7 +18,7 @@ class OpUpdateFlags(val upsert: Boolean = false,
 
 object OpUpdateFlags {
   def apply(raw: Int): OpUpdateFlags = {
-    val bytes = raw.toBooleanArray
+    val bytes = raw.toBooleanList
     new OpUpdateFlags(
       upsert = bytes(0),
       multiUpdate = bytes(1)

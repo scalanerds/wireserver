@@ -7,7 +7,7 @@ import com.scalanerds.wireserver.wire.message.MsgHeader
 import com.scalanerds.wireserver.wire.message.traits.Message
 
 object OpGetMore {
-  def apply(msgHeader: MsgHeader, content: Array[Byte]): OpGetMore = {
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpGetMore = {
     val it = content.iterator
     val reserved = it.getInt
     val fullCollectionName = it.getString
@@ -28,11 +28,11 @@ class OpGetMore(val msgHeader: MsgHeader,
     ByteString((content.length + 4).toByteArray ++ content)
   }
 
-  override def contentSerialize: Array[Byte] = {
-    reserved.toByteArray ++
-      fullCollectionName.toByteArray ++
-      numberToReturn.toByteArray ++
-      cursorID.toByteArray
+  override def contentSerialize: Seq[Byte] = {
+    reserved.toByteList ++
+      fullCollectionName.toByteList ++
+      numberToReturn.toByteList ++
+      cursorID.toByteList
   }
 
   override def toString: String = {

@@ -9,11 +9,11 @@ import org.bson.BsonDocument
 
 
 object OpInsert {
-  def apply(msgHeader: MsgHeader, content: Array[Byte]): OpInsert = {
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpInsert = {
     val it = content.iterator
     val flags = OpInsertFlags(it.getInt)
     val fullCollectionName = it.getString
-    val documents = it.getBsonArray
+    val documents = it.getBsonList
     new OpInsert(msgHeader, flags, fullCollectionName, documents)
   }
 }
@@ -21,17 +21,17 @@ object OpInsert {
 class OpInsert(val msgHeader: MsgHeader,
     val flags: OpInsertFlags,
     val fullCollectionName: String,
-    val documents: Array[BsonDocument]) extends Request {
+    val documents: List[BsonDocument]) extends Request {
 
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++ contentSerialize
     ByteString((content.length + 4).toByteArray ++ content)
   }
 
-  override def contentSerialize: Array[Byte] = {
+  override def contentSerialize: Seq[Byte] = {
     flags.serialize ++
-      fullCollectionName.toByteArray ++
-      documents.toByteArray
+      fullCollectionName.toByteList ++
+      documents.toByteList
   }
 
   override def toString: String = {

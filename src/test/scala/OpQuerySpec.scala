@@ -27,7 +27,7 @@ class OpQuerySpec extends FlatSpec with Matchers {
   }
 
   "msgQuery" should "parse content" in {
-    msgQuery.flags.serialize should equal(0.toByteArray)
+    msgQuery.flags.serialize should equal(0.toByteList)
     msgQuery.fullCollectionName should equal("admin.$cmd")
     msgQuery.numberToSkip should be(0)
     msgQuery.numberToReturn should be(1)

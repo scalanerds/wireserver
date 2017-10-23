@@ -6,9 +6,9 @@ class OpReplyFlags(val cursorNotFound: Boolean = false,
                    val queryFailure: Boolean = false,
                    val shardConfigStale: Boolean = false,
                    val awaitCapable: Boolean = false) {
-  def serialize: Array[Byte] = {
-    Array[Byte](cursorNotFound, queryFailure, shardConfigStale, awaitCapable)
-      .binaryToInt.toByteArray
+  def serialize: Seq[Byte] = {
+     Seq[Byte](cursorNotFound, queryFailure, shardConfigStale, awaitCapable)
+      .binaryToInt.toByteList
   }
 
   override def toString: String = {
@@ -23,7 +23,7 @@ class OpReplyFlags(val cursorNotFound: Boolean = false,
 
 object OpReplyFlags {
   def apply(raw: Int): OpReplyFlags = {
-    val bytes = raw.toBooleanArray
+    val bytes = raw.toBooleanList
     new OpReplyFlags(bytes(0), bytes(1), bytes(2), bytes(3))
   }
 }

@@ -9,9 +9,9 @@ class OpQueryFlags(val tailableCursor: Boolean = false,
     val awaitData: Boolean = false,
     val exhaust: Boolean = false,
     val partial: Boolean = false) {
-  def serialize: Array[Byte] = {
-    Array[Byte](0, tailableCursor, slaveOk, opLogReply, noCursorTimeOut, awaitData, exhaust, partial)
-      .binaryToInt.toByteArray
+  def serialize: Seq[Byte] = {
+     Seq[Byte](0, tailableCursor, slaveOk, opLogReply, noCursorTimeOut, awaitData, exhaust, partial)
+      .binaryToInt.toByteList
   }
 
   override def hashCode(): Int = {
@@ -34,7 +34,7 @@ class OpQueryFlags(val tailableCursor: Boolean = false,
 
 object OpQueryFlags {
   def apply(raw: Int): OpQueryFlags = {
-    val bytes = raw.toBooleanArray
+    val bytes = raw.toBooleanList
     new OpQueryFlags(bytes(1), bytes(2), bytes(3), bytes(4), bytes(5), bytes(6), bytes(7))
   }
 }

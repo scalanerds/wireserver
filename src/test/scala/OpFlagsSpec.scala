@@ -6,7 +6,7 @@ class OpFlagsSpec extends FlatSpec with Matchers {
   val queryFlags = OpQueryFlags(166)
 
   "queryFlags" should "serialize" in {
-    queryFlags.serialize should equal(166.toByteArray)
+    queryFlags.serialize should equal(166.toByteList)
   }
   "queryFlags" should "match" in {
     queryFlags.tailableCursor should be(true)

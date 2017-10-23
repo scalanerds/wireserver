@@ -21,109 +21,106 @@ object Conversions {
       Some(a) collect { case m: T => m }
   }
 
-  /** implicit conversions for iterators */
-  implicit class consumable[T](i: Iterator[T]) {
-    def cTake(n: Int): Iterator[T] = {
-      (1 to n).map(_ => i.next()).iterator
-    }
-
-    def cDrop(n: Int) {
-      (1 to n).foreach(_ => i.next())
-    }
-  }
-
   implicit class IntToArray(value: Int) {
     def toByteArray: Array[Byte] = {
       // LITTLE_ENDIAN
       ByteBuffer.allocate(4).putInt(value).array.reverse
     }
-
-    def toBooleanArray: Array[Boolean] = {
-      // get the first 8 bits which are required for the flags
-      (0 until 8).map(i => ((value >> i) & 1) != 0).toArray
-    }
   }
 
-  implicit class LongToByteArray(value: Long) {
-    def toByteArray: Array[Byte] = {
+  implicit class IntToList(value: Int) {
+    def toByteList: Seq[Byte] = {
       // LITTLE_ENDIAN
-      ByteBuffer.allocate(8).putLong(value).array.reverse
+      ByteBuffer.allocate(4).putInt(value).array.toSeq.reverse
+    }
+
+    def toBooleanList: List[Boolean] = {
+      // get the first 8 bits which are required for the flags
+      (0 until 8).map(i => ((value >> i) & 1) != 0).toList
     }
   }
 
-  implicit class IntToByte(arr: Array[Int]) {
-    def toByteArray: Array[Byte] = {
-      arr.map(_.toByteArray).reduce(_ ++ _)
+  implicit class LongToByteList(value: Long) {
+    def toByteList: Seq[Byte] = {
+      // LITTLE_ENDIAN
+      ByteBuffer.allocate(8).putLong(value).array.toSeq.reverse
     }
   }
 
-  implicit class ByteArray(arr: Array[Byte]) {
+  implicit class IntToByte(list: List[Int]) {
+    def toByteList: Seq[Byte] = {
+      list.map(_.toByteList).reduce(_ ++ _)
+    }
+  }
+
+  implicit class ByteList(list: Seq[Byte]) {
     def toInt: Int = {
-      BigInt(arr.reverse).toInt
+      BigInt(list.reverse.toArray).toInt
     }
 
     def toLong: Long = {
-      BigInt(arr.reverse).toLong
+      BigInt(list.reverse.toArray).toLong
     }
 
     def toUTFString: String = {
-      new String(arr, "UTF-8")
+      new String(list.toArray, "UTF-8")
     }
 
     def toBson: BsonDocument = {
-      new RawBsonDocument(arr).asDocument()
+      new RawBsonDocument(list.toArray).asDocument()
     }
 
-    def toBSONArray: Array[BsonDocument] = {
-      arr.iterator.getBsonArray
+    def toBSONList: List[BsonDocument] = {
+      list.iterator.getBsonList
     }
 
     def binaryToInt: Int = {
-      arr.zipWithIndex.map(p => p._1 << p._2).sum
+      list.zipWithIndex.map(p => p._1 << p._2).sum
     }
   }
 
-  implicit class BSONToByteArray(bson: BsonDocument) {
-    def toByteArray: Array[Byte] = {
+  implicit class BSONToByteList(bson: BsonDocument) {
+    def toByteList: Seq[Byte] = {
       val buf = new RawBsonDocument(bson, new codecs.BsonDocumentCodec)
         .getByteBuffer
       val arr = new Array[Byte](buf.getInt)
       buf.clear().get(arr)
-      arr
+      arr.toSeq
     }
   }
 
-  implicit class BSONArrayToByteArray(arr: Array[BsonDocument]) {
-    def toByteArray: Array[Byte] = {
-      arr.foldLeft(Array[Byte]())(_ ++ _.toByteArray)
+  implicit class BSONListToByteList(arr: List[BsonDocument]) {
+    def toByteList: Seq[Byte] = {
+      arr.foldLeft(Seq[Byte]())(_ ++ _.toByteList)
     }
   }
 
 
-  implicit class StringToArray(s: String) {
-    def toByteArray: Array[Byte] = {
-      ByteString.fromString(s).toArray ++ Array[Byte](0)
+  implicit class StringToList(s: String) {
+    def toByteList: Seq[Byte] = {
+      ByteString.fromString(s) ++ Seq[Byte](0)
     }
   }
 
   implicit class ByteIterator(i: Iterator[Byte]) {
     def getString: String = {
-      i.takeWhile(_ != 0).toArray.toUTFString
+      i.takeWhile(_ != 0).toSeq.toUTFString
     }
 
     def getInt: Int = {
-      i.cTake(4).toArray.toInt
+      i.take(4).toSeq.toInt
     }
 
     def getLong: Long = {
-      i.cTake(8).toArray.toLong
+      i.take(8).toSeq.toLong
     }
 
     def getBson: BsonDocument = {
-      i.cTake(i.take(4).toArray.toInt).toArray.toBson
+      val length = i.take(4).toSeq
+      (length ++ i.take(length.toInt - 4)).toBson
     }
 
-    def getBsonArray: Array[BsonDocument] = {
+    def getBsonList: List[BsonDocument] = {
       def aux(it: Iterator[Byte], acc: List[BsonDocument]): List[BsonDocument] = {
         if (it.isEmpty) acc
         else {
@@ -132,15 +129,15 @@ object Conversions {
         }
       }
 
-      aux(i, Nil).toArray.reverse
+      aux(i, Nil).reverse
     }
 
-    def getLongArray(n: Int): Array[Long] = {
-      (1 to n).map(_ => i.getLong).toArray
+    def getLongList(n: Int): List[Long] = {
+      (1 to n).map(_ => i.getLong).toList
     }
 
-    def getIntArray(n: Int): Array[Int] = {
-      (1 to n).map(_ => i.getInt).toArray
+    def getIntList(n: Int): List[Int] = {
+      (1 to n).map(_ => i.getInt).toList
     }
   }
 

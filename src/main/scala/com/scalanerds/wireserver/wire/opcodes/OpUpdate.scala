@@ -7,12 +7,12 @@ import com.scalanerds.wireserver.wire.opcodes.flags.OpUpdateFlags
 import org.bson.BsonDocument
 
 object OpUpdate {
-  def apply(msgHeader: MsgHeader, content: Array[Byte]): OpUpdate = {
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpUpdate = {
     val it = content.iterator
     val reserved = it.getInt
     val fullCollectionName = it.getString
     val flags = OpUpdateFlags(it.getInt)
-    val bson = it.getBsonArray
+    val bson = it.getBsonList
     val selector = bson(0)
     val update = bson(1)
     new OpUpdate(msgHeader, fullCollectionName, flags, selector, update, reserved)
@@ -26,12 +26,12 @@ class OpUpdate(val msgHeader: MsgHeader,
     val update: BsonDocument,
     val reserved: Int = 0) extends Request {
 
-  override def contentSerialize: Array[Byte] = {
-    reserved.toByteArray ++
-      fullCollectionName.toByteArray ++
+  override def contentSerialize: Seq[Byte] = {
+    reserved.toByteList ++
+      fullCollectionName.toByteList ++
       flags.serialize ++
-      selector.toByteArray ++
-      update.toByteArray
+      selector.toByteList ++
+      update.toByteList
   }
 
   override def toString: String = {

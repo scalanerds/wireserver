@@ -25,7 +25,7 @@ class OpReplySpec extends FlatSpec with Matchers {
   }
 
   "msgQuery" should "parse content" in {
-    msgReply.responseFlags.serialize should equal(8.toByteArray)
+    msgReply.responseFlags.serialize should equal(8.toByteList)
     msgReply.cursorId should be(0)
     msgReply.startingFrom should be(0)
     msgReply.numberReturned should be(1)
@@ -43,7 +43,7 @@ class OpReplySpec extends FlatSpec with Matchers {
       0, 0, 0, 16, 109, 97, 120, 87, 114, 105, 116, 101, 66, 97, 116, 99, 104, 83, 105, 122, 101, 0, -24, 3, 0, 0,
       16, 109, 105, 110, 87, 105, 114, 101, 86, 101, 114, 115, 105, 111, 110, 0, 0, 0, 0, 0, 2, 109, 115, 103, 0, 9,
       0, 0, 0, 105, 115, 100, 98, 103, 114, 105, 100, 0, 16, 111, 107, 0, 1, 0, 0, 0, 0)
-    msgReply.documents.toByteArray should equal(document)
+    msgReply.documents.toByteList should equal(document)
   }
 
   "msgQuery" should "serialize" in {

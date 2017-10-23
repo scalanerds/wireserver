@@ -6,7 +6,7 @@ import com.scalanerds.wireserver.wire.message.MsgHeader
 import com.scalanerds.wireserver.wire.message.traits.Message
 
 object OpMsg {
-  def apply(msgHeader: MsgHeader, content: Array[Byte]): OpMsg = {
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpMsg = {
     new OpMsg(msgHeader, content.toUTFString)
   }
 }
@@ -18,8 +18,8 @@ class OpMsg(val msgHeader: MsgHeader,
     ByteString((content.length + 4).toByteArray ++ content)
   }
 
-  override def contentSerialize: Array[Byte] = {
-    message.toByteArray
+  override def contentSerialize: Seq[Byte] = {
+    message.toByteList
   }
 
   override def toString: String = {

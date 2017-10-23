@@ -3,8 +3,8 @@ package com.scalanerds.wireserver.wire.opcodes.flags
 import com.scalanerds.wireserver.utils.Conversions._
 
 class OpInsertFlags(val continueOnError: Boolean = false) {
-  def serialize: Array[Byte] = {
-    Array[Byte](continueOnError).binaryToInt.toByteArray
+  def serialize: Seq[Byte] = {
+     Seq[Byte](continueOnError).binaryToInt.toByteList
   }
 
   override def toString: String = {
@@ -16,7 +16,7 @@ class OpInsertFlags(val continueOnError: Boolean = false) {
 
 object OpInsertFlags {
   def apply(raw: Int): OpInsertFlags = {
-    val bytes = raw.toBooleanArray
+    val bytes = raw.toBooleanList
     new OpInsertFlags(
       bytes(0)
     )

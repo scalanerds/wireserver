@@ -7,11 +7,11 @@ import com.scalanerds.wireserver.wire.opcodes.constants.OPCODES
 import org.bson.BsonDocument
 
 object OpCommandReply {
-  def apply(msgHeader: MsgHeader, content: Array[Byte]): OpCommandReply = {
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpCommandReply = {
     val it = content.iterator
     val metadata = it.getBson
     val commandReply = it.getBson
-    val outputDocs = it.getBsonArray
+    val outputDocs = it.getBsonList
     new OpCommandReply(msgHeader, metadata, commandReply, outputDocs)
   }
 
@@ -24,7 +24,7 @@ object OpCommandReply {
   }
 
   def apply(replyTo: Int,
-      content: Array[Byte]): OpCommandReply = {
+      content: Seq[Byte]): OpCommandReply = {
     val msgHeader = new MsgHeader(responseTo = replyTo, opCode = OPCODES.opCommandReply)
     OpCommandReply(msgHeader, content)
   }
@@ -33,13 +33,13 @@ object OpCommandReply {
 class OpCommandReply(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opCommandReply),
     var metadata: BsonDocument = new BsonDocument(),
     var commandReply: BsonDocument = new BsonDocument(),
-    var outputDocs: Array[BsonDocument] = Array()
+    var outputDocs: List[BsonDocument] = List()
 ) extends Message with Response {
 
-  override def contentSerialize: Array[Byte] = {
-    metadata.toByteArray ++
-      commandReply.toByteArray ++
-      outputDocs.toByteArray
+  override def contentSerialize: Seq[Byte] = {
+    metadata.toByteList ++
+      commandReply.toByteList ++
+      outputDocs.toByteList
   }
 
   override def toString: String = {

@@ -7,28 +7,28 @@ import com.scalanerds.wireserver.wire.message.traits.Message
 
 
 object OpKillCursor {
-  def apply(msgHeader: MsgHeader, content: Array[Byte]): OpKillCursor = {
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpKillCursor = {
     val it = content.iterator
     val reserved = it.getInt
     val numberOfCursors = it.getInt
-    val cursorIDs = it.getLongArray(numberOfCursors)
+    val cursorIDs = it.getLongList(numberOfCursors)
     new OpKillCursor(msgHeader, numberOfCursors, cursorIDs, reserved)
   }
 }
 
 class OpKillCursor(val msgHeader: MsgHeader,
     val numberOfCursorIDs: Int,
-    val cursorIDs: Array[Long],
+    val cursorIDs: List[Long],
     val reserved: Int = 0) extends Message {
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++ contentSerialize
     ByteString((content.length + 4).toByteArray ++ content)
   }
 
-  override def contentSerialize: Array[Byte] = {
-    reserved.toByteArray ++
-      numberOfCursorIDs.toByteArray ++
-      cursorIDs.map(_.toByteArray).reduce(_ ++ _)
+  override def contentSerialize: Seq[Byte] = {
+    reserved.toByteList ++
+      numberOfCursorIDs.toByteList ++
+      cursorIDs.map(_.toByteList).reduce(_ ++ _)
   }
 
   override def toString: String = {
