@@ -7,17 +7,34 @@ import com.scalanerds.wireserver.wire.message.traits.Request
 import com.scalanerds.wireserver.wire.opcodes.flags.OpDeleteFlags
 import org.bson.BsonDocument
 
-object OpDelete {
-  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpDelete = {
-    val it = content.iterator
-    val reserved = it.getInt
-    val fullCollectionName = it.getString
-    val flags = OpDeleteFlags(it.getInt)
-    val selector = it.getBson
-    new OpDelete(msgHeader, fullCollectionName, flags, selector, reserved)
-  }
-}
 
+/**
+  * Mongo client request
+  *
+  * Code 2006
+  *
+  * The OpDelete message is used to remove one or more documents from a collection.
+  *
+  * [[https://docs.mongodb.com/manual/reference/mongodb-wire-protocol/ wire-protocol]]
+  *
+  * The OpDelete message is used to remove one or more documents from a collection.
+  *
+  * Flags
+  *   - 0 corresponds to SingleRemove. If set, the database will remove only the first matching
+  *     document in the collection. Otherwise all matching documents will be removed.
+  *   - 1-31 are reserved. Must be set to 0.
+  *
+  * @param msgHeader          Message header.
+  * @param fullCollectionName The full collection name; i.e. namespace. The full collection name
+  *                           is the concatenation of the database name with the collection name,
+  *                           using a . for the concatenation. For example, for the database foo
+  *                           and the collection bar, the full collection name is foo.bar.
+  * @param flags              Bit vector to specify flags for the operation.
+  * @param selector           BSON document that represent the query used to select the documents to be removed.
+  *                           The selector will contain one or more elements, all of which must match for a
+  *                           document to be removed from the collection.
+  * @param reserved           Integer value of 0. Reserved for future use.
+  */
 class OpDelete(val msgHeader: MsgHeader,
     val fullCollectionName: String,
     val flags: OpDeleteFlags,
@@ -68,5 +85,20 @@ class OpDelete(val msgHeader: MsgHeader,
 }
 
 
-
-
+object OpDelete {
+  /**
+    * Construct OpDelete
+    *
+    * @param msgHeader Message header.
+    * @param content   Message bytes.
+    * @return OpDelete
+    */
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpDelete = {
+    val it = content.iterator
+    val reserved = it.getInt
+    val fullCollectionName = it.getString
+    val flags = OpDeleteFlags(it.getInt)
+    val selector = it.getBson
+    new OpDelete(msgHeader, fullCollectionName, flags, selector, reserved)
+  }
+}

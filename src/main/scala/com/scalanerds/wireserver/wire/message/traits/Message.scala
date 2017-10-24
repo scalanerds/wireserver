@@ -35,18 +35,19 @@ trait Message {
   *
   * when instantiated the ByteString is parsed in the appropiate type of message
   * Message types:
-  *   - OpReply
-  *   - OpMsg
-  *   - OpUpdate
-  *   - OpInsert
-  *   - OpQuery
-  *   - OpGetMore
-  *   - OpDelete
-  *   - OpKillCursor
-  *   - OpCommand
-  *   - OpCommandReply
+  *   OpCode name        value
+  *   - OpReply          1
+  *   - OpMsg            1000
+  *   - OpUpdate         2001
+  *   - OpInsert         2002
+  *   - OpQuery          2004
+  *   - OpGetMore        2005
+  *   - OpDelete         2006
+  *   - OpKillCursor     2007
+  *   - OpCommand        2010
+  *   - OpCommandReply   2011
   *
-  *   - OpError used when
+  *   - OpError used for unknown codes
   */
 object Message {
   def apply(raw: ByteString): Message = {
@@ -62,7 +63,7 @@ object Message {
           case OPCODES.opQuery => OpQuery(header, content)
           case OPCODES.opGetMore => OpGetMore(header, content)
           case OPCODES.opDelete => OpDelete(header, content)
-          case OPCODES.opKillCursor => OpKillCursor(header, content)
+          case OPCODES.opKillCursor => OpKillCursors(header, content)
           case OPCODES.opCommand => OpCommand(header, content)
           case OPCODES.opCommandReply => OpCommandReply(header, content)
           case _ => OpError(header, content)

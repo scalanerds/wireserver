@@ -8,16 +8,31 @@ import com.scalanerds.wireserver.wire.opcodes.flags.OpInsertFlags
 import org.bson.BsonDocument
 
 
-object OpInsert {
-  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpInsert = {
-    val it = content.iterator
-    val flags = OpInsertFlags(it.getInt)
-    val fullCollectionName = it.getString
-    val documents = it.getBsonList
-    new OpInsert(msgHeader, flags, fullCollectionName, documents)
-  }
-}
-
+/**
+  * Mongo client request
+  *
+  * Code 2002
+  *
+  * [[https://docs.mongodb.com/manual/reference/mongodb-wire-protocol/ wire-protocol]]
+  *
+  * The OpInsert message is used to insert one or more documents into a collection.
+  *
+  * Flags
+  *   - 0 corresponds to ContinueOnError. If set, the database will not stop processing a bulk insert
+  *     if one fails (eg due to duplicate IDs). This makes bulk insert behave similarly to a series of
+  *     single inserts, except lastError will be set if any insert fails, not just the last one. If
+  *     multiple errors occur, only the most recent will be reported by getLastError.
+  *   - 1-31 are reserved. Must be set to 0.
+  *
+  * @param msgHeader          Message header.
+  * @param flags              Bit vector to specify flags for the operation.
+  * @param fullCollectionName The full collection name; i.e. namespace. The full collection name
+  *                           is the concatenation of the database name with the collection name,
+  *                           using a . for the concatenation. For example, for the database foo
+  *                           and the collection bar, the full collection name is foo.bar.
+  * @param documents          One or more documents to insert into the collection. If there are more than one,
+  *                           they are written to the socket in sequence, one after another.
+  */
 class OpInsert(val msgHeader: MsgHeader,
     val flags: OpInsertFlags,
     val fullCollectionName: String,
@@ -28,6 +43,7 @@ class OpInsert(val msgHeader: MsgHeader,
     ByteString((content.length + 4).toByteArray ++ content)
   }
 
+  /** serialize message into bytes */
   override def contentSerialize: Seq[Byte] = {
     flags.serialize ++
       fullCollectionName.toByteList ++
@@ -67,4 +83,19 @@ class OpInsert(val msgHeader: MsgHeader,
 }
 
 
-
+object OpInsert {
+  /**
+    * Construct OpInsert
+    *
+    * @param msgHeader Message header.
+    * @param content   Message bytes.
+    * @return OpInsert
+    */
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpInsert = {
+    val it = content.iterator
+    val flags = OpInsertFlags(it.getInt)
+    val fullCollectionName = it.getString
+    val documents = it.getBsonList
+    new OpInsert(msgHeader, flags, fullCollectionName, documents)
+  }
+}

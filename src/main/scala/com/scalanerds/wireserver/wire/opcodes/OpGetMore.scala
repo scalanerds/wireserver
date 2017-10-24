@@ -6,17 +6,31 @@ import com.scalanerds.wireserver.utils.Conversions._
 import com.scalanerds.wireserver.wire.message.MsgHeader
 import com.scalanerds.wireserver.wire.message.traits.Message
 
-object OpGetMore {
-  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpGetMore = {
-    val it = content.iterator
-    val reserved = it.getInt
-    val fullCollectionName = it.getString
-    val numberToReturn = it.getInt
-    val cursorID = it.getLong
-    new OpGetMore(msgHeader, fullCollectionName, numberToReturn, cursorID, reserved)
-  }
-}
 
+/**
+  * Mongo client request
+  *
+  * Code 2005
+  *
+  * [[https://docs.mongodb.com/manual/reference/mongodb-wire-protocol/ wire-protocol]]
+  *
+  * The OpGetMore message is used to query the database for documents in a collection.
+  *
+  * @param msgHeader          Message header.
+  * @param fullCollectionName The full collection name; i.e. namespace. The full collection name
+  *                           is the concatenation of the database name with the collection name,
+  *                           using a . for the concatenation. For example, for the database foo
+  *                           and the collection bar, the full collection name is foo.bar.
+  * @param numberToReturn     Limits the number of documents in the first OpReply message to the query. However,
+  *                           the database will still establish a cursor and return the cursorID to the client if
+  *                           there are more results than numberToReturn. If the client driver offers ‘limit’
+  *                           functionality (like the SQL LIMIT keyword), then it is up to the client driver to
+  *                           ensure that no more than the specified number of document are returned to the
+  *                           calling application. If numberToReturn is 0, the db will used the default return size.
+  * @param cursorID           Cursor identifier that came in the OpReply. This must be the value that came from
+  *                           the database.
+  * @param reserved           Integer value of 0. Reserved for future use.
+  */
 class OpGetMore(val msgHeader: MsgHeader,
     val fullCollectionName: String,
     val numberToReturn: Int,
@@ -59,5 +73,23 @@ class OpGetMore(val msgHeader: MsgHeader,
   override def hashCode(): Int = {
     val state = Seq(msgHeader.opCode, fullCollectionName, numberToReturn, cursorID)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
+}
+
+object OpGetMore {
+  /**
+    * Construct OpGetMore
+    *
+    * @param msgHeader Message header.
+    * @param content   Message bytes.
+    * @return OpGetMore
+    */
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpGetMore = {
+    val it = content.iterator
+    val reserved = it.getInt
+    val fullCollectionName = it.getString
+    val numberToReturn = it.getInt
+    val cursorID = it.getLong
+    new OpGetMore(msgHeader, fullCollectionName, numberToReturn, cursorID, reserved)
   }
 }

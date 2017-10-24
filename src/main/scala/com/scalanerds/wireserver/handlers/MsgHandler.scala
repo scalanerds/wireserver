@@ -9,8 +9,11 @@ import com.scalanerds.wireserver.messages.response.BytesToClient
 import com.scalanerds.wireserver.wire.message.traits.Message
 import com.scalanerds.wireserver.wire.opcodes._
 
-
+/**
+  * Handle messages received from mongo client
+  */
 abstract class MsgHandler extends Actor with Stash {
+  /** connection to mongo client */
   var connection: Option[ActorRef] = None
   val log = Logging(context.system, this)
 
@@ -25,8 +28,10 @@ abstract class MsgHandler extends Actor with Stash {
     super.postStop()
   }
 
+  /** start the handler uninitialized */
   def receive: Receive = uninitialized
 
+  /** receive while waiting for a connection to mongo client */
   def uninitialized: Receive = {
     case GracefulKill => stop()
     case ref: ActorRef =>
@@ -34,6 +39,7 @@ abstract class MsgHandler extends Actor with Stash {
       context.become(initialized)
       unstashAll()
 
+    /** save received messages in stash */
     case _ => stash()
   }
 
@@ -56,7 +62,7 @@ abstract class MsgHandler extends Actor with Stash {
   }
 
   /**
-    * Override this method to intercept outcoming bytes
+    * Override this method to intercept outgoing bytes
     *
     * @param bytes
     * @return
@@ -68,12 +74,13 @@ abstract class MsgHandler extends Actor with Stash {
     * Override this method to handle incoming requests
     * By default, parse messages from received requests
     *
-    * @param request
+    * @param request mongo client request
     */
   def onReceived(request: WirePacket): Unit = {
     parse(request.bytes)
   }
 
+  /** parse the byte string received from mongo client */
   def parse(data: ByteString): Unit = {
     Message(data) match {
       case msg: OpReply => onOpReply(msg)
@@ -83,12 +90,17 @@ abstract class MsgHandler extends Actor with Stash {
       case msg: OpQuery => onOpQuery(msg)
       case msg: OpGetMore => onOpGetMore(msg)
       case msg: OpDelete => onOpDelete(msg)
-      case msg: OpKillCursor => onOpKillCursor(msg)
+      case msg: OpKillCursors => onOpKillCursor(msg)
       case msg: OpCommand => onOpCommand(msg)
       case msg: OpCommandReply => onOpCommandReply(msg)
       case msg => onError(msg)
     }
   }
+
+  /////////////////////////////////////////////
+  // unimplemented messages
+  /////////////////////////////////////////////
+
 
   def onOpReply(msg: OpReply): Unit = {}
 
@@ -104,7 +116,7 @@ abstract class MsgHandler extends Actor with Stash {
 
   def onOpDelete(msg: OpDelete): Unit = {}
 
-  def onOpKillCursor(msg: OpKillCursor): Unit = {}
+  def onOpKillCursor(msg: OpKillCursors): Unit = {}
 
   def onOpCommand(msg: OpCommand): Unit = {}
 

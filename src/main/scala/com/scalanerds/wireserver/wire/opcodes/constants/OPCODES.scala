@@ -1,5 +1,8 @@
 package com.scalanerds.wireserver.wire.opcodes.constants
 
+/**
+  * Mongo wire OpCodes
+  */
 object OPCODES {
   val opReply         = 1
   val opMsg           = 1000

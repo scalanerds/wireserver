@@ -66,7 +66,7 @@ class Sniffer(remote: InetSocketAddress, local: InetSocketAddress) extends MsgHa
 
   override def onOpDelete(msg: OpDelete): Unit = log.debug(s"OpDelete\n${msg.msgHeader}\n")
 
-  override def onOpKillCursor(msg: OpKillCursor): Unit = log.debug(s"OpKillCursor\n${msg.msgHeader}\n")
+  override def onOpKillCursor(msg: OpKillCursors): Unit = log.debug(s"OpKillCursor\n${msg.msgHeader}\n")
 
   override def onOpCommand(msg: OpCommand): Unit = log.debug(s"OpCommand\n${msg.msgHeader}\n")
 
