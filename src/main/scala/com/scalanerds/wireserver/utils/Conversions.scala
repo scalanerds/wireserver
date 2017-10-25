@@ -7,6 +7,7 @@ import org.bson.{BsonDocument, RawBsonDocument, codecs}
 
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
+import scala.util.Try
 
 
 object Conversions {
@@ -109,6 +110,10 @@ object Conversions {
 
     def getInt: Int = {
       i.take(4).toSeq.toInt
+    }
+
+    def getIntOption: Option[Int] = {
+      Try(i.getInt).toOption
     }
 
     def getLong: Long = {

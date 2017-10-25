@@ -2,9 +2,8 @@ package com.scalanerds.wireserver.wire.message.traits
 
 import akka.util.ByteString
 import com.scalanerds.wireserver.utils.Conversions._
-import com.scalanerds.wireserver.wire.message.{MsgHeader, OpError}
+import com.scalanerds.wireserver.wire.message.MsgHeader
 import com.scalanerds.wireserver.wire.opcodes._
-import com.scalanerds.wireserver.wire.opcodes.constants.OPCODES
 import org.bson.json.{JsonMode, JsonWriterSettings}
 
 import scala.util.Try
@@ -33,7 +32,7 @@ trait Message {
 /**
   * Mongo message
   *
-  * when instantiated the ByteString is parsed in the appropiate type of message
+  * when instantiated the ByteString is parsed into the appropriate type of message
   * Message types:
   *   OpCode name        value
   *   - OpReply          1
@@ -47,27 +46,24 @@ trait Message {
   *   - OpCommand        2010
   *   - OpCommandReply   2011
   *
-  *   - OpError used for unknown codes
   */
 object Message {
-  def apply(raw: ByteString): Message = {
-
+  def apply(raw: ByteString): Option[Message] = {
     Try(raw.toList.splitAt(16)).toOption.collect {
-      case ((head, content)) =>
-        val header = MsgHeader(head, raw)
-        header.opCode match {
-          case OPCODES.opReply => OpReply(header, content)
-          case OPCODES.opMsg => OpMsg(header, content)
-          case OPCODES.opUpdate => OpUpdate(header, content)
-          case OPCODES.opInsert => OpInsert(header, content)
-          case OPCODES.opQuery => OpQuery(header, content)
-          case OPCODES.opGetMore => OpGetMore(header, content)
-          case OPCODES.opDelete => OpDelete(header, content)
-          case OPCODES.opKillCursor => OpKillCursors(header, content)
-          case OPCODES.opCommand => OpCommand(header, content)
-          case OPCODES.opCommandReply => OpCommandReply(header, content)
-          case _ => OpError(header, content)
-        }
-    }.getOrElse(OpError(error = "Error parsing ByteString", raw = Some(raw)))
+      case ((head, content)) => (MsgHeader(head, raw), content)
+    } collect {
+      case (Some(header), content) => (header, content, header.opCode)
+    } collect {
+      case (header, content, OpReplyCode) => OpReply(header, content)
+      case (header, content, OpMsgCode) => OpMsg(header, content)
+      case (header, content, OpUpdateCode) => OpUpdate(header, content)
+      case (header, content, OpInsertCode) => OpInsert(header, content)
+      case (header, content, OpQueryCode) => OpQuery(header, content)
+      case (header, content, OpGetMoreCode) => OpGetMore(header, content)
+      case (header, content, OpDeleteCode) => OpDelete(header, content)
+      case (header, content, OpKillCursorsCode) => OpKillCursors(header, content)
+      case (header, content, OpCommandCode) => OpCommand(header, content)
+      case (header, content, OpCommandReplyCode) => OpCommandReply(header, content)
+    }
   }
 }

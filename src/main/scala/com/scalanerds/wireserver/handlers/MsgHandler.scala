@@ -82,7 +82,7 @@ abstract class MsgHandler extends Actor with Stash {
 
   /** parse the byte string received from mongo client */
   def parse(data: ByteString): Unit = {
-    Message(data) match {
+    Message(data).fold(onError(data)) {
       case msg: OpReply => onOpReply(msg)
       case msg: OpMsg => onOpMsg(msg)
       case msg: OpUpdate => onOpUpdate(msg)
@@ -93,7 +93,6 @@ abstract class MsgHandler extends Actor with Stash {
       case msg: OpKillCursors => onOpKillCursor(msg)
       case msg: OpCommand => onOpCommand(msg)
       case msg: OpCommandReply => onOpCommandReply(msg)
-      case msg => onError(msg)
     }
   }
 

@@ -3,7 +3,7 @@ package com.scalanerds.wireserver.wire.opcodes.constants
 /**
   * Mongo wire OpCodes
   */
-object OPCODES {
+/*object OPCODES {
   val opReply         = 1
   val opMsg           = 1000
   val opUpdate        = 2001
@@ -17,4 +17,7 @@ object OPCODES {
 
   val clientCodes = Vector(opUpdate, opInsert, opQuery, opGetMore, opDelete, opKillCursor, opCommand)
   val serverCodes = Vector(opReply, opMsg, opCommandReply)
-}
+}*/
+
+
+

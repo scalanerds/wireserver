@@ -1,8 +1,7 @@
 import akka.util.ByteString
 import com.scalanerds.wireserver.utils.Conversions._
-import com.scalanerds.wireserver.wire.opcodes.OpQuery
+import com.scalanerds.wireserver.wire.opcodes.{OpQuery, OpQueryCode}
 import com.scalanerds.wireserver.wire.message.traits.Message
-import com.scalanerds.wireserver.wire.opcodes.constants.OPCODES
 import org.bson.BsonDocument
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -17,11 +16,11 @@ class OpQuerySpec extends FlatSpec with Matchers {
     101, 0, 6, 0, 0, 0, 76, 105, 110, 117, 120, 0, 2, 110, 97, 109, 101, 0, 7, 0, 0, 0, 85, 98, 117, 110, 116, 117,
     0, 2, 97, 114, 99, 104, 105, 116, 101, 99, 116, 117, 114, 101, 0, 7, 0, 0, 0, 120, 56, 54, 95, 54, 52, 0, 2, 118,
     101, 114, 115, 105, 111, 110, 0, 6, 0, 0, 0, 49, 55, 46, 48, 52, 0, 0, 0, 0)
-  val msgQuery: OpQuery = Message(msgQueryByteString).asInstanceOf[OpQuery]
+  val msgQuery: OpQuery = Message(msgQueryByteString).get.asInstanceOf[OpQuery]
 
   "msgQuery" should "have header" in {
     val header = msgQuery.msgHeader
-    header.opCode should be(OPCODES.opQuery)
+    header.opCode should be(OpQueryCode)
     header.requestId should be(0)
     header.responseTo should be(0)
   }

@@ -1,8 +1,7 @@
 import akka.util.ByteString
 import com.scalanerds.wireserver.utils.Conversions._
-import com.scalanerds.wireserver.wire.opcodes.OpReply
+import com.scalanerds.wireserver.wire.opcodes.{OpReply, OpReplyCode}
 import com.scalanerds.wireserver.wire.message.traits.Message
-import com.scalanerds.wireserver.wire.opcodes.constants.OPCODES
 import org.bson.BsonDocument
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -15,11 +14,11 @@ class OpReplySpec extends FlatSpec with Matchers {
     97, 120, 87, 114, 105, 116, 101, 66, 97, 116, 99, 104, 83, 105, 122, 101, 0, -24, 3, 0, 0, 16, 109, 105, 110, 87,
     105, 114, 101, 86, 101, 114, 115, 105, 111, 110, 0, 0, 0, 0, 0, 2, 109, 115, 103, 0, 9, 0, 0, 0, 105, 115, 100,
     98, 103, 114, 105, 100, 0, 16, 111, 107, 0, 1, 0, 0, 0, 0)
-  val msgReply: OpReply = Message(opReplyBs).asInstanceOf[OpReply]
+  val msgReply: OpReply = Message(opReplyBs).get.asInstanceOf[OpReply]
 
   "msgQuery" should "have header" in {
     val header = msgReply.msgHeader
-    header.opCode should be(OPCODES.opReply)
+    header.opCode should be(OpReplyCode)
     header.requestId should be(0)
     header.responseTo should be(0)
   }
@@ -32,11 +31,11 @@ class OpReplySpec extends FlatSpec with Matchers {
   }
 
   "msgQuery" should "be BSONObject" in {
-    msgReply.documents(0) shouldBe a[BsonDocument]
+    msgReply.documents.head shouldBe a[BsonDocument]
   }
 
   "msgQuery" should "contain field" in {
-    val document = Array[Byte](-88, 0, 0, 0, 8, 105, 115, 109, 97, 115, 116, 101, 114, 0, 1, 16, 108, 111, 99, 97,
+    val document = Seq[Byte](-88, 0, 0, 0, 8, 105, 115, 109, 97, 115, 116, 101, 114, 0, 1, 16, 108, 111, 99, 97,
       108, 84, 105, 109, 101, 0, -96, 1, 13, 88, 16, 109, 97, 120, 66, 115, 111, 110, 79, 98, 106, 101, 99, 116, 83,
       105, 122, 101, 0, 0, 0, 0, 1, 16, 109, 97, 120, 77, 101, 115, 115, 97, 103, 101, 83, 105, 122, 101, 66, 121,
       116, 101, 115, 0, 0, 108, -36, 2, 16, 109, 97, 120, 87, 105, 114, 101, 86, 101, 114, 115, 105, 111, 110, 0, 3,

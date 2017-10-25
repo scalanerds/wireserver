@@ -3,7 +3,6 @@ package com.scalanerds.wireserver.wire.opcodes
 import com.scalanerds.wireserver.utils.Conversions._
 import com.scalanerds.wireserver.wire.message.MsgHeader
 import com.scalanerds.wireserver.wire.message.traits.{Request, WithReply}
-import com.scalanerds.wireserver.wire.opcodes.constants.OPCODES
 import org.bson._
 
 
@@ -27,7 +26,7 @@ import org.bson._
   * @param inputDocs   Zero or more documents acting as input to the command. Useful for commands that
   *                    can require a large amount of data sent from the client, such as a batch insert.
   */
-class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opCommand),
+class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OpCommandCode),
     val database: String,
     val commandName: String,
     val metadata: BsonDocument = new BsonDocument(),

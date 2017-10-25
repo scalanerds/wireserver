@@ -1,7 +1,6 @@
 import akka.util.ByteString
-import com.scalanerds.wireserver.wire.opcodes.OpCommandReply
 import com.scalanerds.wireserver.wire.message.traits.Message
-import com.scalanerds.wireserver.wire.opcodes.constants.OPCODES
+import com.scalanerds.wireserver.wire.opcodes.{OpCommandReply, OpCommandReplyCode}
 import org.bson.BsonDocument
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -14,11 +13,12 @@ class OpCommandReplySpec extends FlatSpec with Matchers {
     87, 105, 114, 101, 86, 101, 114, 115, 105, 111, 110, 0, 5, 0, 0, 0, 16, 109, 105, 110, 87, 105, 114, 101, 86,
     101, 114, 115, 105, 111, 110, 0, 0, 0, 0, 0, 8, 114, 101, 97, 100, 79, 110, 108, 121, 0, 0, 1, 111, 107, 0, 0, 0,
     0, 0, 0, 0, -16, 63, 0, 5, 0, 0, 0, 0)
-  val reply: OpCommandReply = Message(opCommandByteString).asInstanceOf[OpCommandReply]
+  val reply: OpCommandReply = Message(opCommandByteString).get.asInstanceOf[OpCommandReply]
+
 
   it should "have header" in {
     val header = reply.msgHeader
-    header.opCode should be(OPCODES.opCommandReply)
+    header.opCode should be(OpCommandReplyCode)
     header.requestId should be(97)
     header.responseTo should be(19)
   }

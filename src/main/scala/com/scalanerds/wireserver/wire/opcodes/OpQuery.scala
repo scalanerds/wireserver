@@ -4,7 +4,6 @@ package com.scalanerds.wireserver.wire.opcodes
 import com.scalanerds.wireserver.utils.Conversions._
 import com.scalanerds.wireserver.wire.message.MsgHeader
 import com.scalanerds.wireserver.wire.message.traits.{Request, WithReply}
-import com.scalanerds.wireserver.wire.opcodes.constants.OPCODES
 import com.scalanerds.wireserver.wire.opcodes.flags.OpQueryFlags
 import org.bson.{BsonDocument, BsonString}
 
@@ -57,7 +56,7 @@ import org.bson.{BsonDocument, BsonString}
   *                             In JSON notation, a returnFieldsSelector to limit to the fields a, b and c
   *                             would be:  { a : 1, b : 1, c : 1}
   */
-class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opQuery),
+class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OpQueryCode),
     val flags: OpQueryFlags = new OpQueryFlags(),
     val fullCollectionName: String,
     val numberToSkip: Int = 0,

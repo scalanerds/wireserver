@@ -4,7 +4,6 @@ package com.scalanerds.wireserver.wire.opcodes
 import com.scalanerds.wireserver.utils.Conversions._
 import com.scalanerds.wireserver.wire.message.MsgHeader
 import com.scalanerds.wireserver.wire.message.traits.{Message, Response}
-import com.scalanerds.wireserver.wire.opcodes.constants.OPCODES
 import com.scalanerds.wireserver.wire.opcodes.flags.OpReplyFlags
 import org.bson.BsonDocument
 
@@ -36,7 +35,7 @@ import org.bson.BsonDocument
   * @param numberReturned Number of documents in the reply.
   * @param documents      Returned documents.
   */
-class OpReply(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opReply),
+class OpReply(val msgHeader: MsgHeader = new MsgHeader(opCode = OpReplyCode),
     val responseFlags: OpReplyFlags = new OpReplyFlags(),
     val cursorId: Long = 0L,
     val startingFrom: Int = 0,
@@ -118,7 +117,7 @@ object OpReply {
     * @return OpReply
     */
   def apply(replyTo: Int, content: Seq[Byte]): OpReply = {
-    val msgHeader = new MsgHeader(responseTo = replyTo, opCode = OPCODES.opReply)
+    val msgHeader = new MsgHeader(responseTo = replyTo, opCode = OpReplyCode)
     OpReply(msgHeader, content)
   }
 
@@ -130,7 +129,7 @@ object OpReply {
     * @return OpReply
     */
   def apply(replyTo: Int, documents: List[BsonDocument] = List[BsonDocument]()): OpReply = {
-    val msgHeader = new MsgHeader(responseTo = replyTo, opCode = OPCODES.opReply)
+    val msgHeader = new MsgHeader(responseTo = replyTo, opCode = OpReplyCode)
     new OpReply(msgHeader, documents = documents)
   }
 }

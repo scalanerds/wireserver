@@ -3,7 +3,6 @@ package com.scalanerds.wireserver.wire.opcodes
 import com.scalanerds.wireserver.utils.Conversions._
 import com.scalanerds.wireserver.wire.message.MsgHeader
 import com.scalanerds.wireserver.wire.message.traits.{Message, Response}
-import com.scalanerds.wireserver.wire.opcodes.constants.OPCODES
 import org.bson.BsonDocument
 
 
@@ -23,7 +22,7 @@ import org.bson.BsonDocument
   * @param outputDocs   Useful for commands that can return a large amount of data, such as find
   *                     or aggregate. (This field is not currently in use.)
   */
-class OpCommandReply(val msgHeader: MsgHeader = new MsgHeader(opCode = OPCODES.opCommandReply),
+class OpCommandReply(val msgHeader: MsgHeader = new MsgHeader(opCode = OpCommandReplyCode),
     var metadata: BsonDocument = new BsonDocument(),
     var commandReply: BsonDocument = new BsonDocument(),
     var outputDocs: List[BsonDocument] = List()
@@ -90,7 +89,7 @@ object OpCommandReply {
   def apply(replyTo: Int, metadata: BsonDocument = new BsonDocument()): OpCommandReply = {
     new OpCommandReply(new MsgHeader(
       responseTo = replyTo,
-      opCode = OPCODES.opCommandReply
+      opCode = OpCommandReplyCode
     ), metadata = metadata)
   }
 
@@ -102,7 +101,7 @@ object OpCommandReply {
     * @return OpCommandReply
     */
   def apply(replyTo: Int, content: Seq[Byte]): OpCommandReply = {
-    val msgHeader = new MsgHeader(responseTo = replyTo, opCode = OPCODES.opCommandReply)
+    val msgHeader = new MsgHeader(responseTo = replyTo, opCode = OpCommandReplyCode)
     OpCommandReply(msgHeader, content)
   }
 }
