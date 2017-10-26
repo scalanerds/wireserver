@@ -5,23 +5,22 @@ package com.scalanerds.wireserver.wire.opcodes
   */
 sealed abstract class OpCode {
   def value: Int
-
   override def toString: String = value.toString
+  override def hashCode(): Int = value
 }
 
 object OpCode {
-  def apply(value:Int): Option[OpCode] = value match  {
-    case 1 => Some(OpReplyCode)
-    case 1000 => Some(OpMsgCode)
-    case 2001 => Some(OpUpdateCode)
-    case 2002 => Some(OpInsertCode)
-    case 2004 => Some(OpQueryCode)
-    case 2005 => Some(OpGetMoreCode)
-    case 2006 => Some(OpDeleteCode)
-    case 2007 => Some(OpKillCursorsCode)
-    case 2010 => Some(OpCommandCode)
-    case 2011 => Some(OpCommandReplyCode)
-    case _ => None
+  def apply(value:Int): Option[OpCode] = Option(value) collect  {
+    case 1 => OpReplyCode
+    case 1000 => OpMsgCode
+    case 2001 => OpUpdateCode
+    case 2002 => OpInsertCode
+    case 2004 => OpQueryCode
+    case 2005 => OpGetMoreCode
+    case 2006 => OpDeleteCode
+    case 2007 => OpKillCursorsCode
+    case 2010 => OpCommandCode
+    case 2011 => OpCommandReplyCode
   }
 }
 
