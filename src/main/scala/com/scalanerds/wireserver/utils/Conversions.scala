@@ -9,27 +9,25 @@ import scala.language.implicitConversions
 import scala.reflect.ClassTag
 import scala.util.Try
 
-
 object Conversions {
 
+  /** implicit conversions for Byte to Boolean */
   implicit def byte2bool(b: Byte): Boolean = b.toInt != 0
-
+  /** implicit conversions for Boolean to Byte */
   implicit def bool2byte(b: Boolean): Byte = (if (b) 1 else 0).toByte
 
   /** implicit conversions for Any */
-  implicit class AnyUtils(a: Any) {
+  implicit class RichAny(a: Any) {
     def asInstanceOfOption[T: ClassTag]: Option[T] =
       Some(a) collect { case m: T => m }
   }
 
-  implicit class IntToArray(value: Int) {
-    def toByteArray: Array[Byte] = {
-      // LITTLE_ENDIAN
-      ByteBuffer.allocate(4).putInt(value).array.reverse
-    }
+  implicit class RichBoolean(val b: Boolean) extends AnyVal {
+    def toOption[T](f: => T): Option[T] = if (b) Some(f) else None
   }
 
-  implicit class IntToList(value: Int) {
+  /** Implicit conversions for Int */
+  implicit class RichInt(value: Int) {
     def toByteList: Seq[Byte] = {
       // LITTLE_ENDIAN
       ByteBuffer.allocate(4).putInt(value).array.toSeq.reverse
@@ -39,22 +37,31 @@ object Conversions {
       // get the first 8 bits which are required for the flags
       (0 until 8).map(i => ((value >> i) & 1) != 0).toList
     }
+
+    def toByteArray: Array[Byte] = {
+      // LITTLE_ENDIAN
+      ByteBuffer.allocate(4).putInt(value).array.reverse
+    }
   }
 
-  implicit class LongToByteList(value: Long) {
+  /** Conversions for Long */
+  implicit class RichLong(value: Long) {
     def toByteList: Seq[Byte] = {
       // LITTLE_ENDIAN
       ByteBuffer.allocate(8).putLong(value).array.toSeq.reverse
     }
   }
 
-  implicit class IntToByte(list: List[Int]) {
+  /** Conversions for Int List */
+  implicit class RichIntList(list: List[Int]) {
     def toByteList: Seq[Byte] = {
       list.map(_.toByteList).reduce(_ ++ _)
     }
   }
 
-  implicit class ByteList(list: Seq[Byte]) {
+
+  /** Conversions for Byte Sequence */
+  implicit class RichByteList(list: Seq[Byte]) {
     def toInt: Int = {
       BigInt(list.reverse.toArray).toInt
     }
@@ -80,7 +87,8 @@ object Conversions {
     }
   }
 
-  implicit class BSONToByteList(bson: BsonDocument) {
+ /** Conversion for BsonDocument */
+  implicit class RichBson(bson: BsonDocument) {
     def toByteList: Seq[Byte] = {
       val buf = new RawBsonDocument(bson, new codecs.BsonDocumentCodec)
         .getByteBuffer
@@ -90,22 +98,29 @@ object Conversions {
     }
   }
 
-  implicit class BSONListToByteList(arr: List[BsonDocument]) {
+  /** Conversion for List of BsonDocument */
+  implicit class RichBsonList(arr: List[BsonDocument]) {
     def toByteList: Seq[Byte] = {
       arr.foldLeft(Seq[Byte]())(_ ++ _.toByteList)
     }
   }
 
 
-  implicit class StringToList(s: String) {
+  /** Conversion for String */
+  implicit class RichString(s: String) {
     def toByteList: Seq[Byte] = {
       ByteString.fromString(s) ++ Seq[Byte](0)
     }
   }
 
-  implicit class ByteIterator(i: Iterator[Byte]) {
+  /** Conversion for Byte Iterator */
+  implicit class RichByteIterator(i: Iterator[Byte]) {
     def getString: String = {
       i.takeWhile(_ != 0).toSeq.toUTFString
+    }
+
+    def getStringOption: Option[String] = {
+      Try(i.getString).toOption
     }
 
     def getInt: Int = {
@@ -120,9 +135,17 @@ object Conversions {
       i.take(8).toSeq.toLong
     }
 
+    def getLongOption: Option[Long] = {
+      Try(i.getLong).toOption
+    }
+
     def getBson: BsonDocument = {
       val length = i.take(4).toSeq
       (length ++ i.take(length.toInt - 4)).toBson
+    }
+
+    def getBsonOption: Option[BsonDocument] = {
+      Try(i.getBson).toOption
     }
 
     def getBsonList: List[BsonDocument] = {
@@ -137,14 +160,24 @@ object Conversions {
       aux(i, Nil).reverse
     }
 
+    def getBsonListOption: Option[List[BsonDocument]] = {
+      Try(i.getBsonList).toOption
+    }
+
     def getLongList(n: Int): List[Long] = {
       (1 to n).map(_ => i.getLong).toList
+    }
+
+    def getLongListOption(n: Int): Option[List[Long]] = {
+      Try(i.getLongList(n)).toOption
     }
 
     def getIntList(n: Int): List[Int] = {
       (1 to n).map(_ => i.getInt).toList
     }
+
+    def getIntListOption(n: Int): Option[List[Int]] = {
+      Try(i.getIntList(n)).toOption
+    }
   }
-
 }
-

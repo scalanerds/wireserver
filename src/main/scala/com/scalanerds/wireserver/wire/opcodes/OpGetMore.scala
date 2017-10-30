@@ -71,8 +71,9 @@ class OpGetMore(val msgHeader: MsgHeader,
   }
 
   override def hashCode(): Int = {
-    val state = Seq(msgHeader.opCode, fullCollectionName, numberToReturn, cursorID)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+    Seq(msgHeader.opCode, fullCollectionName, numberToReturn, cursorID)
+      .map(_.hashCode())
+      .foldLeft(0)((a, b) => 31 * a + b)
   }
 }
 

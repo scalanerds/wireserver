@@ -72,8 +72,9 @@ class OpInsert(val msgHeader: MsgHeader,
   }
 
   override def hashCode(): Int = {
-    val state = Seq(msgHeader.opCode, flags, fullCollectionName, documents)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+    Seq(msgHeader.opCode, flags, fullCollectionName, documents)
+      .map(_.hashCode())
+      .foldLeft(0)((a, b) => 31 * a + b)
   }
 
   override def realm: String = fullCollectionName

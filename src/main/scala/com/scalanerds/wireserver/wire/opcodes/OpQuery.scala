@@ -121,7 +121,9 @@ class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OpQueryCode),
       Seq(msgHeader.opCode, flags, fullCollectionName, numberToSkip, numberToReturn,
         query.toJson, returnFieldsSelector.map(_.toJson).getOrElse(""))
 
-    state.map(_.hashCode()).foldLeft(0)(31 * _ + _)
+    state
+      .map(_.hashCode())
+      .foldLeft(0)(31 * _ + _)
   }
 
   /** generate the collection name
@@ -176,7 +178,7 @@ object OpQuery {
     val numberToReturn = it.getInt
     val bson = it.getBsonList
     val query = bson.head
-    val returnFieldSelector = if (bson.length == 2) Some(bson(1)) else None
+    val returnFieldSelector = (bson.length == 2) toOption bson(1)
     new OpQuery(msgHeader, flags, fullCollectionName, numberToSkip, numberToReturn, query, returnFieldSelector)
   }
 }

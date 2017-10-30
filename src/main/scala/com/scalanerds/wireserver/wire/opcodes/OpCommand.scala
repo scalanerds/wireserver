@@ -85,19 +85,19 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OpCommandCode)
   override def hashCode(): Int = {
     val state = Seq(msgHeader.opCode, database, commandName,
       metadata.toJson, commandArgs.toJson, inputDocs.map(_.toJson).mkString)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+    state
+      .map(_.hashCode())
+      .foldLeft(0)((a, b) => 31 * a + b)
   }
 
   def collection: Option[String] = {
-    val commandValue = metadata.get(commandName)
-    commandValue match {
-      case s: BsonString => Some(s.asString().getValue)
-      case _ => None
+    Option(metadata.get(commandName)) collect {
+      case s: BsonString => s.asString().getValue
     }
   }
 
   override def realm: String = {
-    collection.map(database + '.' + _).getOrElse(database)
+    collection.fold(database)(database + '.' + _)
   }
 
   override def command: String = commandName

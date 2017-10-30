@@ -72,8 +72,9 @@ class OpUpdate(val msgHeader: MsgHeader,
   def canEqual(other: Any): Boolean = other.isInstanceOf[OpUpdate]
 
   override def hashCode(): Int = {
-    val state = Seq(msgHeader.opCode, fullCollectionName, flags, selector, update)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+    Seq(msgHeader.opCode, fullCollectionName, flags, selector, update)
+      .map(_.hashCode())
+      .foldLeft(0)((a, b) => 31 * a + b)
   }
 
   // collection name
@@ -93,7 +94,16 @@ object OpUpdate {
     */
   def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpUpdate = {
     val it = content.iterator
-    val reserved = it.getInt
+/*    for {
+      reserved <- it.getIntOption
+      fullCollectionName <- it.getString
+      flagsLen <-it.getIntOption
+      flags = OpUpdateFlags(flagsLen)
+      bson <- it.getBsonListOption
+      selector <- bson.headOption
+      update <- bson(1)
+    } yield*/
+     val reserved = it.getInt
     val fullCollectionName = it.getString
     val flags = OpUpdateFlags(it.getInt)
     val bson = it.getBsonList

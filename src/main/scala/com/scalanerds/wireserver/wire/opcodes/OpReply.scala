@@ -79,8 +79,9 @@ class OpReply(val msgHeader: MsgHeader = new MsgHeader(opCode = OpReplyCode),
   }
 
   override def hashCode(): Int = {
-    val state = Seq(msgHeader.opCode, responseFlags, cursorId, startingFrom, numberReturned, documents)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+    Seq(msgHeader.opCode, responseFlags, cursorId, startingFrom, numberReturned, documents)
+      .map(_.hashCode())
+      .foldLeft(0)((a, b) => 31 * a + b)
   }
 }
 

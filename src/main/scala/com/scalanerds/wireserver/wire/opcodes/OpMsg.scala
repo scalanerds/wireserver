@@ -45,8 +45,9 @@ class OpMsg(val msgHeader: MsgHeader, val message: String) extends Message {
   }
 
   override def hashCode(): Int = {
-    val state = Seq(msgHeader.opCode, message)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+    Seq(msgHeader.opCode, message)
+      .map(_.hashCode())
+      .foldLeft(0)((a, b) => 31 * a + b)
   }
 }
 

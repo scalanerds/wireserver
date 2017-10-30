@@ -1,7 +1,7 @@
 package com.scalanerds.wireserver.wire.message
 
 import akka.util.ByteString
-import com.scalanerds.wireserver.utils.Conversions.{IntToByte, _}
+import com.scalanerds.wireserver.utils.Conversions._
 import com.scalanerds.wireserver.wire.opcodes.OpCode
 
 class MsgHeader(val requestId: Int = MsgHeader.issueRequestId(),
