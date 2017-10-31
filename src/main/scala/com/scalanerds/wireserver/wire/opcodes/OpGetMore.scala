@@ -85,12 +85,13 @@ object OpGetMore {
     * @param content   Message bytes.
     * @return OpGetMore
     */
-  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpGetMore = {
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): Option[OpGetMore] = {
     val it = content.iterator
-    val reserved = it.getInt
-    val fullCollectionName = it.getString
-    val numberToReturn = it.getInt
-    val cursorID = it.getLong
-    new OpGetMore(msgHeader, fullCollectionName, numberToReturn, cursorID, reserved)
+    for {
+      reserved <- it.getIntOption
+      fullCollectionName <- it.getStringOption
+      numberToReturn <- it.getIntOption
+      cursorID <- it.getLongOption
+    } yield new OpGetMore(msgHeader, fullCollectionName, numberToReturn, cursorID, reserved)
   }
 }

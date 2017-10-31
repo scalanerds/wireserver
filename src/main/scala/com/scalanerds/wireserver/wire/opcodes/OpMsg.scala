@@ -59,7 +59,7 @@ object OpMsg {
     * @param content   Message bytes.
     * @return OpMsg
     */
-  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpMsg = {
-    new OpMsg(msgHeader, content.toUTFString)
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): Option[OpMsg] = {
+    Some(new OpMsg(msgHeader, content.toUTFString))
   }
 }

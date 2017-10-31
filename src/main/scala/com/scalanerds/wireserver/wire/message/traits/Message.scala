@@ -64,6 +64,6 @@ object Message {
       case (header, content, OpKillCursorsCode) => OpKillCursors(header, content)
       case (header, content, OpCommandCode) => OpCommand(header, content)
       case (header, content, OpCommandReplyCode) => OpCommandReply(header, content)
-    }
+    } flatten
   }
 }

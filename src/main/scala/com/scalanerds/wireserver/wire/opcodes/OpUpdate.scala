@@ -92,23 +92,16 @@ object OpUpdate {
     * @param content   Message bytes.
     * @return OpUpdate
     */
-  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpUpdate = {
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): Option[OpUpdate] = {
     val it = content.iterator
-/*    for {
+    for {
       reserved <- it.getIntOption
-      fullCollectionName <- it.getString
-      flagsLen <-it.getIntOption
-      flags = OpUpdateFlags(flagsLen)
+      fullCollectionName <- it.getStringOption
+      flagInt <-it.getIntOption
+      flags = OpUpdateFlags(flagInt)
       bson <- it.getBsonListOption
       selector <- bson.headOption
-      update <- bson(1)
-    } yield*/
-     val reserved = it.getInt
-    val fullCollectionName = it.getString
-    val flags = OpUpdateFlags(it.getInt)
-    val bson = it.getBsonList
-    val selector = bson.head
-    val update = bson(1)
-    new OpUpdate(msgHeader, fullCollectionName, flags, selector, update, reserved)
+      update = bson(1)
+    } yield new OpUpdate(msgHeader, fullCollectionName, flags, selector, update, reserved)
   }
 }

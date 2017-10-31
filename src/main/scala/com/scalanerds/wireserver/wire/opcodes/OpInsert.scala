@@ -92,11 +92,13 @@ object OpInsert {
     * @param content   Message bytes.
     * @return OpInsert
     */
-  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpInsert = {
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): Option[OpInsert] = {
     val it = content.iterator
-    val flags = OpInsertFlags(it.getInt)
-    val fullCollectionName = it.getString
-    val documents = it.getBsonList
-    new OpInsert(msgHeader, flags, fullCollectionName, documents)
+    for {
+      flagInt <- it.getIntOption
+      flags = OpInsertFlags(flagInt)
+      fullCollectionName <- it.getStringOption
+      documents <- it.getBsonListOption
+    } yield new OpInsert(msgHeader, flags, fullCollectionName, documents)
   }
 }

@@ -76,11 +76,12 @@ object OpKillCursors {
     * @param content   Message bytes.
     * @return OpKillCursors
     */
-  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpKillCursors = {
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): Option[OpKillCursors] = {
     val it = content.iterator
-    val reserved = it.getInt
-    val numberOfCursors = it.getInt
-    val cursorIDs = it.getLongList(numberOfCursors)
-    new OpKillCursors(msgHeader, numberOfCursors, cursorIDs, reserved)
+    for {
+      reserved <- it.getIntOption
+      numberOfCursors <- it.getIntOption
+      cursorIDs <- it.getLongListOption(numberOfCursors)
+    } yield new OpKillCursors(msgHeader, numberOfCursors, cursorIDs, reserved)
   }
 }

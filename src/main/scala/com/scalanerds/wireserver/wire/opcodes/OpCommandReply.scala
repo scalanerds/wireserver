@@ -71,12 +71,13 @@ object OpCommandReply {
     * @param content   Message bytes.
     * @return OpCommandReply
     */
-  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpCommandReply = {
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): Option[OpCommandReply] = {
     val it = content.iterator
-    val metadata = it.getBson
-    val commandReply = it.getBson
-    val outputDocs = it.getBsonList
-    new OpCommandReply(msgHeader, metadata, commandReply, outputDocs)
+    for {
+      metadata <- it.getBsonOption
+      commandReply <- it.getBsonOption
+      outputDocs <- it.getBsonListOption
+    } yield new OpCommandReply(msgHeader, metadata, commandReply, outputDocs)
   }
 
   /**
@@ -87,11 +88,9 @@ object OpCommandReply {
     *                 part of the command parameters proper, as supplied by the client driver
     * @return OpCommandReply
     */
-  def apply(replyTo: Int, metadata: BsonDocument = new BsonDocument()): OpCommandReply = {
-    new OpCommandReply(new MsgHeader(
-      responseTo = replyTo,
-      opCode = OpCommandReplyCode
-    ), metadata = metadata)
+  def apply(replyTo: Int, metadata: BsonDocument = new BsonDocument()): Option[OpCommandReply] = {
+    val msgHeader = new MsgHeader(responseTo = replyTo, opCode = OpCommandReplyCode)
+    Some(new OpCommandReply(msgHeader, metadata = metadata))
   }
 
   /**
@@ -101,7 +100,7 @@ object OpCommandReply {
     * @param content Message bytes.
     * @return OpCommandReply
     */
-  def apply(replyTo: Int, content: Seq[Byte]): OpCommandReply = {
+  def apply(replyTo: Int, content: Seq[Byte]): Option[OpCommandReply] = {
     val msgHeader = new MsgHeader(responseTo = replyTo, opCode = OpCommandReplyCode)
     OpCommandReply(msgHeader, content)
   }

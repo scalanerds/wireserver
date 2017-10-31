@@ -94,13 +94,16 @@ object OpReply {
     * @param content   Message bytes.
     * @return OpReply
     */
-  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpReply = {
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): Option[OpReply] = {
     val it = content.iterator
-    val responseFlags = OpReplyFlags(it.getInt)
-    val cursorId = it.getLong
-    val startingFrom = it.getInt
-    val numberReturned = it.getInt
-    val documents = it.getBsonList
+    for {
+      responseInt <- it.getIntOption
+      responseFlags = OpReplyFlags(responseInt)
+      cursorId <- it.getLongOption
+      startingFrom <- it.getIntOption
+      numberReturned <- it.getIntOption
+      documents <- it.getBsonListOption
+    } yield
     new OpReply(msgHeader,
       responseFlags,
       cursorId,
@@ -117,7 +120,7 @@ object OpReply {
     * @param content Message bytes.
     * @return OpReply
     */
-  def apply(replyTo: Int, content: Seq[Byte]): OpReply = {
+  def apply(replyTo: Int, content: Seq[Byte]): Option[OpReply] = {
     val msgHeader = new MsgHeader(responseTo = replyTo, opCode = OpReplyCode)
     OpReply(msgHeader, content)
   }
@@ -129,8 +132,8 @@ object OpReply {
     * @param documents BsonDocuments
     * @return OpReply
     */
-  def apply(replyTo: Int, documents: List[BsonDocument] = List[BsonDocument]()): OpReply = {
+  def apply(replyTo: Int, documents: List[BsonDocument] = List[BsonDocument]()): Option[OpReply] = {
     val msgHeader = new MsgHeader(responseTo = replyTo, opCode = OpReplyCode)
-    new OpReply(msgHeader, documents = documents)
+    Some(new OpReply(msgHeader, documents = documents))
   }
 }

@@ -94,12 +94,14 @@ object OpDelete {
     * @param content   Message bytes.
     * @return OpDelete
     */
-  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpDelete = {
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): Option[OpDelete] = {
     val it = content.iterator
-    val reserved = it.getInt
-    val fullCollectionName = it.getString
-    val flags = OpDeleteFlags(it.getInt)
-    val selector = it.getBson
-    new OpDelete(msgHeader, fullCollectionName, flags, selector, reserved)
+    for {
+      reserved <- it.getIntOption
+      fullCollectionName <- it.getStringOption
+      flagInt <- it.getIntOption
+      flags = OpDeleteFlags(flagInt)
+      selector <- it.getBsonOption
+    } yield new OpDelete(msgHeader, fullCollectionName, flags, selector, reserved)
   }
 }

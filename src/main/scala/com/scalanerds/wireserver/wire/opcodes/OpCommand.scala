@@ -42,17 +42,17 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OpCommandCode)
       inputDocs.toByteList
   }
 
-  override def reply(doc: BsonDocument): OpCommandReply = {
+  override def reply(doc: BsonDocument): Option[OpCommandReply] = {
     OpCommandReply(msgHeader.requestId, doc)
   }
 
-  override def reply(docs: List[BsonDocument]): OpCommandReply = {
+  override def reply(docs: List[BsonDocument]): Option[OpCommandReply] = {
     OpCommandReply(msgHeader.requestId, docs.head)
   }
 
-  override def reply(json: String): OpCommandReply = reply(BsonDocument.parse(json))
+  override def reply(json: String): Option[OpCommandReply] = reply(BsonDocument.parse(json))
 
-  override def reply(content: Seq[Byte]): OpCommandReply = {
+  override def reply(content: Seq[Byte]): Option[OpCommandReply] = {
     OpCommandReply(msgHeader.requestId, content)
   }
 
@@ -112,13 +112,14 @@ object OpCommand {
     * @param content   Message bytes.
     * @return OpCommand
     */
-  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpCommand = {
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): Option[OpCommand] = {
     val it = content.iterator
-    val database = it.getString
-    val commandName = it.getString
-    val metadata = it.getBson
-    val commandArgs = it.getBson
-    val inputDocs = it.getBsonList
-    new OpCommand(msgHeader, database, commandName, metadata, commandArgs, inputDocs)
+    for {
+      database <- it.getStringOption
+      commandName <- it.getStringOption
+      metadata <- it.getBsonOption
+      commandArgs <- it.getBsonOption
+      inputDocs <- it.getBsonListOption
+    } yield new OpCommand(msgHeader, database, commandName, metadata, commandArgs, inputDocs)
   }
 }

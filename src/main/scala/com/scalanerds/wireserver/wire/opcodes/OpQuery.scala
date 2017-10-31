@@ -65,17 +65,17 @@ class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OpQueryCode),
     val returnFieldsSelector: Option[BsonDocument] = None)
   extends Request with WithReply {
 
-  override def reply(content: Seq[Byte]): OpReply = {
+  override def reply(content: Seq[Byte]): Option[OpReply] = {
     OpReply(msgHeader.requestId, content = content)
   }
 
-  override def reply(docs: List[BsonDocument]): OpReply = {
+  override def reply(docs: List[BsonDocument]): Option[OpReply] = {
     OpReply(msgHeader.requestId, documents = docs)
   }
 
-  override def reply(doc: BsonDocument): OpReply = reply(List(doc))
+  override def reply(doc: BsonDocument): Option[OpReply] = reply(List(doc))
 
-  override def reply(json: String): OpReply = reply(BsonDocument.parse(json))
+  override def reply(json: String): Option[OpReply] = reply(BsonDocument.parse(json))
 
   override def contentSerialize: Seq[Byte] = {
     flags.serialize ++
@@ -170,15 +170,18 @@ object OpQuery {
     * @param content   Message bytes
     * @return OpQuery
     */
-  def apply(msgHeader: MsgHeader, content: Seq[Byte]): OpQuery = {
+  def apply(msgHeader: MsgHeader, content: Seq[Byte]): Option[OpQuery] = {
     val it = content.iterator
-    val flags = OpQueryFlags(it.getInt)
-    val fullCollectionName = it.getString
-    val numberToSkip = it.getInt
-    val numberToReturn = it.getInt
-    val bson = it.getBsonList
-    val query = bson.head
-    val returnFieldSelector = (bson.length == 2) toOption bson(1)
-    new OpQuery(msgHeader, flags, fullCollectionName, numberToSkip, numberToReturn, query, returnFieldSelector)
+    for {
+      flagInt <-  it.getIntOption
+      flags = OpQueryFlags(flagInt)
+      fullCollectionName <- it.getStringOption
+      numberToSkip <-it.getIntOption
+      numberToReturn <-it.getIntOption
+      bson <-it.getBsonListOption
+      query = bson.head
+      returnFieldSelector = (bson.length == 2) toOption bson(1)
+    } yield
+      new OpQuery(msgHeader, flags, fullCollectionName, numberToSkip, numberToReturn, query, returnFieldSelector)
   }
 }
