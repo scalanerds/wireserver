@@ -6,13 +6,14 @@ import akka.util.ByteString
 import com.scalanerds.wireserver.messages._
 import com.scalanerds.wireserver.messages.request.BytesFromClient
 import com.scalanerds.wireserver.messages.response.BytesToClient
+import com.scalanerds.wireserver.utils.Logger
 import com.scalanerds.wireserver.wire.message.traits.Message
 import com.scalanerds.wireserver.wire.opcodes._
 
 /**
   * Handle messages received from mongo client
   */
-abstract class MsgHandler extends Actor with Stash {
+abstract class MsgHandler extends Actor with Stash with Logger {
   /** connection to mongo client */
   var connection: Option[ActorRef] = None
   val log = Logging(context.system, this)
@@ -52,12 +53,16 @@ abstract class MsgHandler extends Actor with Stash {
       // send message to actor
       connection.foreach(_ ! beforeWrite(bytes))
 
-    case GracefulKill => stop()
+    case GracefulKill =>
+      logger.debug("GracefulKill")
+      stop()
 
     case segment: ByteString =>
       onReceived(BytesFromClient(segment))
 
-    case m => println(s"unknown message $m")
+    case m =>
+      logger.debug(s"unknown message $m")
+      fail(stop)
 
   }
 

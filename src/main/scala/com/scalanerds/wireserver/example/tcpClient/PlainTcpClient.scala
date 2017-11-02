@@ -12,7 +12,7 @@ class PlainTcpClient(listener: ActorRef, address: String, port: Int)
   private val sink = Flow[ByteString].to(Sink.actorRef(self, PoisonPill))
 
   private val tcpFlow = Flow[ByteString].via(Tcp().outgoingConnection(address, port)).alsoTo(Sink.onComplete(_ => {
-    println("Bob died")
+    logger.debug("Bob died")
     //TODO update parent supervisor strategy to restart the actor
     self ! Kill
   }))

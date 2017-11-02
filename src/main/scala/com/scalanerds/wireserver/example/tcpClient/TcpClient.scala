@@ -6,17 +6,18 @@ import akka.util.ByteString
 import com.scalanerds.wireserver.messages.request.BytesToServer
 import com.scalanerds.wireserver.messages.response.BytesFromServer
 import com.scalanerds.wireserver.messages.{GracefulKill, WirePacket}
+import com.scalanerds.wireserver.utils.Logger
 
 
 abstract class TcpClient(listener: ActorRef, address: String, port: Int)
-  extends Actor {
+  extends Actor with Logger {
 
 
   val killSwitch: SharedKillSwitch = KillSwitches.shared("switch")
 
 
   override def aroundPostStop(): Unit = {
-    println("killswitch")
+    logger.debug("killswitch")
     killSwitch.shutdown()
     super.aroundPostStop()
   }

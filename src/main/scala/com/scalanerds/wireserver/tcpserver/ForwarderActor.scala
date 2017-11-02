@@ -3,6 +3,7 @@ package com.scalanerds.wireserver.tcpserver
 import akka.actor.{Actor, ActorRef, PoisonPill, Stash}
 import akka.util.ByteString
 import com.scalanerds.wireserver.messages.GracefulKill
+import com.scalanerds.wireserver.utils.Logger
 
 /** *
   * Actor that forwards the bytestrings after everything has been initialized
@@ -12,7 +13,7 @@ import com.scalanerds.wireserver.messages.GracefulKill
   *
   * @param streamHandler actor that will process the ByteStream
   */
-class ForwarderActor(streamHandler: ActorRef) extends Actor with Stash {
+class ForwarderActor(streamHandler: ActorRef) extends Actor with Stash with Logger {
   var src: Option[ActorRef] = None
   var gotBytes = false
 
@@ -36,7 +37,7 @@ class ForwarderActor(streamHandler: ActorRef) extends Actor with Stash {
     case _: ByteString =>
       stash()
       gotBytes = true
-    case m => println(s"forwarder uninitialized got unknown message $m")
+    case m => logger.debug(s"forwarder uninitialized got unknown message $m")
   }
 
   def initialized: Receive = {

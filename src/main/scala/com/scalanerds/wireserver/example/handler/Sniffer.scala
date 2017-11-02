@@ -81,7 +81,7 @@ class Sniffer(remote: InetSocketAddress, local: InetSocketAddress) extends MsgHa
   }
 
   override def stop() {
-    println("sending poisonPill to tcpCLient")
+    logger.debug("sending poisonPill to tcpCLient")
     // stop the tcp client
     tcpClient.foreach(_ ! PoisonPill)
     super.stop()

@@ -32,7 +32,7 @@ class SSLTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, addre
     TLSProtocol.negotiateNewSession, TLSRole.server)
 
   override def handler: Sink[Tcp.IncomingConnection, Future[Done]] = Sink.foreach[Tcp.IncomingConnection] { conn =>
-    println("Client connected from: " + conn.remoteAddress)
+    logger.debug("Client connected from: " + conn.remoteAddress)
 
     val actor: ActorRef = context.actorOf(props(conn.remoteAddress, conn.localAddress))
     val in: Sink[ByteString, NotUsed] = Flow[ByteString].to(Sink.actorRef(actor, GracefulKill))
@@ -46,7 +46,7 @@ class SSLTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, addre
       .via(flow)
       .map[SslTlsOutbound](SendBytes)
 
-    conn handleWith serverSSL.reversed.join(ssl).alsoTo(Sink.onComplete(_ => println("Client disconnected")))
+    conn handleWith serverSSL.reversed.join(ssl).alsoTo(Sink.onComplete(_ => logger.debug("Client disconnected")))
   }
 }
 

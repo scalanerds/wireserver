@@ -32,7 +32,7 @@ class DualTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, addr
 
   override def handler: Sink[Tcp.IncomingConnection, Future[Done]] = Sink.foreach[Tcp.IncomingConnection] { conn =>
     var isSSL: Option[Boolean] = None
-    println("Client connected from: " + conn.remoteAddress + " dual")
+    logger.debug("Client connected from: " + conn.remoteAddress + " dual")
 
     val streamHandler: ActorRef = context.actorOf(props(conn.remoteAddress, conn.localAddress))
 
@@ -54,7 +54,7 @@ class DualTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, addr
 
     // handle ssl connections
     val sslFlow: Flow[ByteString, ByteString, NotUsed] = serverSSL.reversed.join(ssl).alsoTo(Sink.onComplete(_ => {
-      println("Client disconnected")
+      logger.debug("Client disconnected")
       streamHandler ! GracefulKill
     }))
 

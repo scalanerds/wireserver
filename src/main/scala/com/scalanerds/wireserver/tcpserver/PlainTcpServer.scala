@@ -38,7 +38,7 @@ class PlainTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, add
       .mapMaterializedValue(actor ! _)
 
     val flow: Flow[ByteString, ByteString, NotUsed] = Flow.fromSinkAndSourceMat(framing.to(in), out)(Keep.none)
-    println("Client connected from: " + conn.remoteAddress)
+    logger.debug("Client connected from: " + conn.remoteAddress)
 
     conn handleWith flow
   }

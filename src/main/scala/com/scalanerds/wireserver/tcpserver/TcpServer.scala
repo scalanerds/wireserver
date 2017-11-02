@@ -4,6 +4,7 @@ import akka.Done
 import akka.actor.{Actor, ActorSystem, Props}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Tcp}
+import com.scalanerds.wireserver.utils.Logger
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -15,7 +16,7 @@ object TcpServer {
     Props(classOf[TcpServer], address, port)
 }
 
-abstract class TcpServer(address: String, port: Int) extends Actor {
+abstract class TcpServer(address: String, port: Int) extends Actor with Logger {
   implicit val system      : ActorSystem       = context.system
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
@@ -26,13 +27,13 @@ abstract class TcpServer(address: String, port: Int) extends Actor {
 
   binding.onComplete {
     case Success(b) =>
-      println("Server started, listening on: " + b.localAddress)
+      logger.debug("Server started, listening on: " + b.localAddress)
     case Failure(e) =>
-      println(s"Server could not bind to $address:$port ${e.getMessage}")
+      logger.debug(s"Server could not bind to $address:$port ${e.getMessage}")
       context stop self
   }
 
   override def receive: Receive = {
-    case msg => println("Unhandled message:", msg)
+    case msg => logger.debug("Unhandled message:", msg)
   }
 }
