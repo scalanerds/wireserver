@@ -4,6 +4,15 @@ import akka.util.ByteString
 import com.scalanerds.wireserver.utils.Conversions._
 import com.scalanerds.wireserver.wire.opcodes.OpCode
 
+/** Mongo wire message header
+  *
+  *
+  * @param requestId request ID
+  * @param responseTo id of the message that is being replied
+  * @param opCode Mongo wire OpCode
+  * @param raw message bytestring
+  * @param messageLength message length
+  */
 class MsgHeader(val requestId: Int = MsgHeader.issueRequestId(),
                 var responseTo: Int = 0,
                 val opCode: OpCode,
@@ -31,7 +40,9 @@ class MsgHeader(val requestId: Int = MsgHeader.issueRequestId(),
 }
 
 object MsgHeader {
+  /** keep track of the request number */
   private var lastRequestId = 0
+  /** issue a request ID */
   private def issueRequestId(): Int = { lastRequestId += 1; lastRequestId }
 
   def apply(header: Seq[Byte], raw: ByteString): Option[MsgHeader] = {
