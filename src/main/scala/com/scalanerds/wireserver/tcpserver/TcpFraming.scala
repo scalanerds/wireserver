@@ -8,7 +8,13 @@ import akka.stream.scaladsl.{Flow, GraphDSL}
 import akka.stream.stage.{GraphStage, GraphStageLogic, InHandler, OutHandler}
 import akka.util.ByteString
 
+/**
+  * Tcp messages are split in frames, frames sometimes don't have the same length
+  * of the bytes received, the classes that mix this trait use framing to read from
+  * the socket messages
+  */
 trait TcpFraming {
+  /** framing used in the flow to get from the socket complete messages */
   val framing: Flow[ByteString, ByteString, NotUsed] = Flow.fromGraph(GraphDSL.create() { b =>
     implicit val order: ByteOrder = ByteOrder.LITTLE_ENDIAN
 

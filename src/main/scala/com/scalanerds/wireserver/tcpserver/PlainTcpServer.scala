@@ -12,12 +12,6 @@ import com.scalanerds.wireserver.messages.GracefulKill
 
 import scala.concurrent.Future
 
-object PlainTcpServer {
-  def props(props: (InetSocketAddress, InetSocketAddress) => Props, address: String = "localhost", port: Int = 3300):
-  Props =
-    Props(classOf[PlainTcpServer], props, address, port)
-}
-
 /** *
   * Tcp server
   *
@@ -42,4 +36,10 @@ class PlainTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, add
 
     conn handleWith flow
   }
+}
+
+object PlainTcpServer {
+  def props(props: (InetSocketAddress, InetSocketAddress) => Props, address: String = "localhost", port: Int = 3300):
+  Props =
+    Props(classOf[PlainTcpServer], props, address, port)
 }

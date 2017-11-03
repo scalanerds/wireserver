@@ -10,12 +10,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-object TcpServer {
-  def props(address: String = "localhost",
-            port: Int = 3400): Props =
-    Props(classOf[TcpServer], address, port)
-}
 
+/**
+  * Tcp Server
+  *
+  * @param address address used by the tcp server
+  * @param port port used by the tcp server
+  */
 abstract class TcpServer(address: String, port: Int) extends Actor with Logger {
   implicit val system      : ActorSystem       = context.system
   implicit val materializer: ActorMaterializer = ActorMaterializer()
@@ -36,4 +37,11 @@ abstract class TcpServer(address: String, port: Int) extends Actor with Logger {
   override def receive: Receive = {
     case msg => logger.debug("Unhandled message:", msg)
   }
+}
+
+object TcpServer {
+  /** tcp server props */
+  def props(address: String = "localhost",
+      port: Int = 3400): Props =
+    Props(classOf[TcpServer], address, port)
 }

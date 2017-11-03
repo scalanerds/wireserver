@@ -7,6 +7,13 @@ import akka.stream.scaladsl.{Flow, Sink, Source, TLS, Tcp}
 import akka.util.ByteString
 import com.scalanerds.wireserver.tcpserver.{TcpFraming, TcpSSL}
 
+/**
+  * SSL TCP client
+  *
+  * @param listener Actor that handles the messages received from the socket
+  * @param address  URL to connect to
+  * @param port connection port
+  */
 class SSLTcpClient(listener: ActorRef, address: String, port: Int)
   extends TcpClient(listener, address, port) with TcpSSL with TcpFraming {
 

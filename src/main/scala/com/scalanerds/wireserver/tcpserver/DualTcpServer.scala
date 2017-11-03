@@ -12,12 +12,6 @@ import com.scalanerds.wireserver.messages.GracefulKill
 
 import scala.concurrent.Future
 
-object DualTcpServer {
-  def props(props: (InetSocketAddress, InetSocketAddress) => Props, address: String = "localhost", port: Int = 3301):
-  Props =
-    Props(classOf[DualTcpServer], props, address, port)
-}
-
 /** *
   * Tcp server that works with plain and SSL connections
   *
@@ -77,7 +71,7 @@ class DualTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, addr
       val sslFilter = Flow[ByteString].filter(_ => isSSL.getOrElse(false))
 
       src ~> bcast ~> plainFilter ~> plainFlow ~> merge ~> outbound
-             bcast ~> sslFilter ~> sslFlow ~> merge
+      bcast ~> sslFilter ~> sslFlow ~> merge
 
       FlowShape(src.in, outbound.out)
     })
@@ -87,5 +81,9 @@ class DualTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, addr
 }
 
 
-
-
+object DualTcpServer {
+  /** dual tcp server props */
+  def props(props: (InetSocketAddress, InetSocketAddress) => Props, address: String = "localhost", port: Int = 3301):
+  Props =
+    Props(classOf[DualTcpServer], props, address, port)
+}

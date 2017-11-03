@@ -13,13 +13,6 @@ import com.scalanerds.wireserver.messages.GracefulKill
 
 import scala.concurrent.Future
 
-object SSLTcpServer {
-  def props(props: (InetSocketAddress, InetSocketAddress) => Props, address: String = "localhost", port: Int = 6600):
-  Props =
-    Props(classOf[SSLTcpServer], props, address, port)
-
-}
-
 /***
   * TLS - enabled tcp server
   * @param props  the props of the actor that will process the ByteStreams
@@ -50,3 +43,10 @@ class SSLTcpServer(props: (InetSocketAddress, InetSocketAddress) => Props, addre
   }
 }
 
+
+object SSLTcpServer {
+  /** SSL Tcp server props */
+  def props(props: (InetSocketAddress, InetSocketAddress) => Props, address: String = "localhost", port: Int = 6600):
+  Props =
+    Props(classOf[SSLTcpServer], props, address, port)
+}

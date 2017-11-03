@@ -8,7 +8,13 @@ import com.scalanerds.wireserver.messages.response.BytesFromServer
 import com.scalanerds.wireserver.messages.{GracefulKill, WirePacket}
 import com.scalanerds.wireserver.utils.Logger
 
-
+/**
+  * Tcp Client
+  *
+  * @param listener actor to handle received messages
+  * @param address URL to establish connection
+  * @param port port to establish connection
+  */
 abstract class TcpClient(listener: ActorRef, address: String, port: Int)
   extends Actor with Logger {
 
@@ -47,7 +53,7 @@ abstract class TcpClient(listener: ActorRef, address: String, port: Int)
   }
 
   /**
-    * Override this method to intercept outcoming bytes
+    * Override this method to intercept outgoing bytes
     *
     * @param bytes
     * @return
