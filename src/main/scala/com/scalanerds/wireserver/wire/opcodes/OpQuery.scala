@@ -180,7 +180,7 @@ object OpQuery {
       numberToReturn <-it.getIntOption
       bson <-it.getBsonListOption
       query = bson.head
-      returnFieldSelector = (bson.length == 2) toOption bson(1)
+      returnFieldSelector = (bson.length == 2) option bson(1)
     } yield
       new OpQuery(msgHeader, flags, fullCollectionName, numberToSkip, numberToReturn, query, returnFieldSelector)
   }

@@ -3,6 +3,9 @@ package com.scalanerds.wireserver.wire.message.traits
 import com.scalanerds.wireserver.wire.opcodes._
 import org.bson.BsonDocument
 
+/**
+  * Response from Mongo server to Mongo client
+  */
 trait Response extends Message {
   def JSON: String = {
     this match {
