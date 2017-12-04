@@ -5,7 +5,6 @@ import com.scalanerds.wireserver.utils.Conversions._
 import com.scalanerds.wireserver.wire.message.MsgHeader
 import com.scalanerds.wireserver.wire.message.traits.Message
 
-
 /**
   * Mongo client request
   *
@@ -26,9 +25,10 @@ import com.scalanerds.wireserver.wire.message.traits.Message
   * @param reserved          Integer value of 0. Reserved for future use.
   */
 class OpKillCursors(val msgHeader: MsgHeader,
-    val numberOfCursorIDs: Int,
-    val cursorIDs: List[Long],
-    val reserved: Int = 0) extends Message {
+                    val numberOfCursorIDs: Int,
+                    val cursorIDs: List[Long],
+                    val reserved: Int = 0)
+    extends Message {
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++ contentSerialize
     ByteString((content.length + 4).toByteArray ++ content)
@@ -67,8 +67,8 @@ class OpKillCursors(val msgHeader: MsgHeader,
   }
 }
 
-
 object OpKillCursors {
+
   /**
     * Construct OpKillCursors
     *

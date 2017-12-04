@@ -13,6 +13,7 @@ object Conversions {
 
   /** implicit conversions for Byte to Boolean */
   implicit def byte2bool(b: Byte): Boolean = b.toInt != 0
+
   /** implicit conversions for Boolean to Byte */
   implicit def bool2byte(b: Boolean): Byte = (if (b) 1 else 0).toByte
 
@@ -23,6 +24,7 @@ object Conversions {
   }
 
   implicit class RichBoolean(val b: Boolean) extends AnyVal {
+
     /**
       * turn a boolean in to an option that if true wraps the expression passed
       * as argument in Some else return None
@@ -81,6 +83,7 @@ object Conversions {
     def toInt: Int = {
       BigInt(list.reverse.toArray).toInt
     }
+
     /** convert a list of bytes to a long */
     def toLong: Long = {
       BigInt(list.reverse.toArray).toLong
@@ -107,11 +110,11 @@ object Conversions {
     }
   }
 
- /** Conversion for BsonDocument */
+  /** Conversion for BsonDocument */
   implicit class RichBson(bson: BsonDocument) {
     def toByteList: Seq[Byte] = {
-      val buf = new RawBsonDocument(bson, new codecs.BsonDocumentCodec)
-        .getByteBuffer
+      val buf =
+        new RawBsonDocument(bson, new codecs.BsonDocumentCodec).getByteBuffer
       val arr = new Array[Byte](buf.getInt)
       buf.clear().get(arr)
       arr.toSeq
@@ -124,7 +127,6 @@ object Conversions {
       arr.foldLeft(Seq[Byte]())(_ ++ _.toByteList)
     }
   }
-
 
   /** Conversion for String */
   implicit class RichString(s: String) {
@@ -143,6 +145,7 @@ object Conversions {
     def getStringOption: Option[String] = {
       Try(i.getString).toOption
     }
+
     /** read an int from a byte iterator */
     def getInt: Int = {
       i.take(4).toSeq.toInt
@@ -176,7 +179,8 @@ object Conversions {
 
     /** read a list of BsonDocument from a byte iterator */
     def getBsonList: List[BsonDocument] = {
-      def aux(it: Iterator[Byte], acc: List[BsonDocument]): List[BsonDocument] = {
+      def aux(it: Iterator[Byte],
+              acc: List[BsonDocument]): List[BsonDocument] = {
         if (it.isEmpty) acc
         else {
           val bson = it.getBson

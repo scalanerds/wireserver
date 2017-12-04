@@ -40,8 +40,10 @@ class MsgHeader(val requestId: Int = MsgHeader.issueRequestId(),
 }
 
 object MsgHeader {
+
   /** keep track of the request number */
   private var lastRequestId = 0
+
   /** issue a request ID */
   private def issueRequestId(): Int = { lastRequestId += 1; lastRequestId }
 

@@ -11,7 +11,7 @@ import com.scalanerds.wireserver.utils.Conversions._
   *                    the collection. Otherwise only updates first matching document.
   */
 class OpUpdateFlags(val upsert: Boolean = false,
-    val multiUpdate: Boolean = false) {
+                    val multiUpdate: Boolean = false) {
   def serialize: Seq[Byte] = {
     Seq[Byte](upsert, multiUpdate).binaryToInt.toByteList
   }
@@ -25,6 +25,7 @@ class OpUpdateFlags(val upsert: Boolean = false,
 }
 
 object OpUpdateFlags {
+
   /**
     * Construct OpUpdateFlags from an int
     *

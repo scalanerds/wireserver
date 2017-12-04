@@ -10,8 +10,8 @@ sealed abstract class OpCode {
 }
 
 object OpCode {
-  def apply(value:Int): Option[OpCode] = Option(value) collect  {
-    case 1 => OpReplyCode
+  def apply(value: Int): Option[OpCode] = Option(value) collect {
+    case 1    => OpReplyCode
     case 1000 => OpMsgCode
     case 2001 => OpUpdateCode
     case 2002 => OpInsertCode

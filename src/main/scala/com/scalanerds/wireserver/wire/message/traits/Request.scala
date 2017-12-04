@@ -19,15 +19,16 @@ trait Request extends Message {
         opQuery.query.toJson(jsonSettings)
       case opCommand: OpCommand =>
         opCommand.metadata.toJson(jsonSettings)
-      case opInsert: OpInsert => opInsert.documents.map(_.toJson(jsonSettings)).mkString("[", ",", "]")
+      case opInsert: OpInsert =>
+        opInsert.documents.map(_.toJson(jsonSettings)).mkString("[", ",", "]")
       case opDelete: OpDelete => opDelete.selector.toJson(jsonSettings)
       case opUpdate: OpUpdate => opUpdate.selector.toJson(jsonSettings)
     }
   }
 
   def payload: Option[BsonDocument] = this match {
-    case op: OpQuery => Some(op.query)
+    case op: OpQuery   => Some(op.query)
     case op: OpCommand => Some(op.metadata)
-    case _ => None
+    case _             => None
   }
 }

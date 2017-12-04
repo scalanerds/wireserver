@@ -2,7 +2,11 @@ package com.scalanerds.wireserver.example
 
 import akka.actor.ActorSystem
 import com.scalanerds.wireserver.example.handler.Sniffer
-import com.scalanerds.wireserver.tcpserver.{DualTcpServer, PlainTcpServer, SSLTcpServer}
+import com.scalanerds.wireserver.tcpserver.{
+  DualTcpServer,
+  PlainTcpServer,
+  SSLTcpServer
+}
 
 object Main extends App {
 

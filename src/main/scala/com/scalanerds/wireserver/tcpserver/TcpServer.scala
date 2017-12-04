@@ -10,7 +10,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-
 /**
   * Tcp Server
   *
@@ -18,13 +17,13 @@ import scala.util.{Failure, Success}
   * @param port port used by the tcp server
   */
 abstract class TcpServer(address: String, port: Int) extends Actor with Logger {
-  implicit val system      : ActorSystem       = context.system
+  implicit val system: ActorSystem = context.system
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
   def handler: Sink[Tcp.IncomingConnection, Future[Done]]
 
   private val connections = Tcp().bind(address, port)
-  private val binding     = connections.to(handler).run()
+  private val binding = connections.to(handler).run()
 
   binding.onComplete {
     case Success(b) =>
@@ -40,8 +39,8 @@ abstract class TcpServer(address: String, port: Int) extends Actor with Logger {
 }
 
 object TcpServer {
+
   /** tcp server props */
-  def props(address: String = "localhost",
-      port: Int = 3400): Props =
+  def props(address: String = "localhost", port: Int = 3400): Props =
     Props(classOf[TcpServer], address, port)
 }

@@ -16,12 +16,11 @@ import com.scalanerds.wireserver.utils.Conversions._
   *                         Mongod version 1.6 supports AwaitData and thus always sets AwaitCapable.
   */
 class OpReplyFlags(val cursorNotFound: Boolean = false,
-    val queryFailure: Boolean = false,
-    val shardConfigStale: Boolean = false,
-    val awaitCapable: Boolean = false) {
+                   val queryFailure: Boolean = false,
+                   val shardConfigStale: Boolean = false,
+                   val awaitCapable: Boolean = false) {
   def serialize: Seq[Byte] = {
-    Seq[Byte](cursorNotFound, queryFailure, shardConfigStale, awaitCapable)
-      .binaryToInt.toByteList
+    Seq[Byte](cursorNotFound, queryFailure, shardConfigStale, awaitCapable).binaryToInt.toByteList
   }
 
   override def toString: String = {
@@ -35,6 +34,7 @@ class OpReplyFlags(val cursorNotFound: Boolean = false,
 }
 
 object OpReplyFlags {
+
   /**
     * Construct OpReplyFlags from an int
     *

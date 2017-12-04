@@ -1,6 +1,5 @@
 package com.scalanerds.wireserver.wire.opcodes
 
-
 import com.scalanerds.wireserver.utils.Conversions._
 import com.scalanerds.wireserver.wire.message.MsgHeader
 import com.scalanerds.wireserver.wire.message.traits.{Request, WithReply}
@@ -57,13 +56,14 @@ import org.bson.{BsonDocument, BsonString}
   *                             would be:  { a : 1, b : 1, c : 1}
   */
 class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OpQueryCode),
-    val flags: OpQueryFlags = new OpQueryFlags(),
-    val fullCollectionName: String,
-    val numberToSkip: Int = 0,
-    val numberToReturn: Int = 1,
-    val query: BsonDocument = new BsonDocument(),
-    val returnFieldsSelector: Option[BsonDocument] = None)
-  extends Request with WithReply {
+              val flags: OpQueryFlags = new OpQueryFlags(),
+              val fullCollectionName: String,
+              val numberToSkip: Int = 0,
+              val numberToReturn: Int = 1,
+              val query: BsonDocument = new BsonDocument(),
+              val returnFieldsSelector: Option[BsonDocument] = None)
+    extends Request
+    with WithReply {
 
   override def reply(content: Seq[Byte]): Option[OpReply] = {
     OpReply(msgHeader.requestId, content = content)
@@ -75,7 +75,8 @@ class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OpQueryCode),
 
   override def reply(doc: BsonDocument): Option[OpReply] = reply(List(doc))
 
-  override def reply(json: String): Option[OpReply] = reply(BsonDocument.parse(json))
+  override def reply(json: String): Option[OpReply] =
+    reply(BsonDocument.parse(json))
 
   override def contentSerialize: Seq[Byte] = {
     flags.serialize ++
@@ -118,8 +119,13 @@ class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OpQueryCode),
   override def hashCode(): Int = {
     // gather in a list all the data required to calculate the hashcode
     val state =
-      Seq(msgHeader.opCode, flags, fullCollectionName, numberToSkip, numberToReturn,
-        query.toJson, returnFieldsSelector.map(_.toJson).getOrElse(""))
+      Seq(msgHeader.opCode,
+          flags,
+          fullCollectionName,
+          numberToSkip,
+          numberToReturn,
+          query.toJson,
+          returnFieldsSelector.map(_.toJson).getOrElse(""))
 
     state
       .map(_.hashCode())
@@ -140,7 +146,7 @@ class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OpQueryCode),
       val collectionName =
         query.get(command) match {
           case s: BsonString => "." + s.asString().getValue
-          case _ => ""
+          case _             => ""
         }
 
       dbName + collectionName
@@ -148,21 +154,17 @@ class OpQuery(val msgHeader: MsgHeader = new MsgHeader(opCode = OpQueryCode),
     collectionName.getOrElse(fullCollectionName)
   }
 
-
   override def realm: String = collection
 
   override def command: String = {
-    query
-      .keySet
-      .toArray
-      .headOption
+    query.keySet.toArray.headOption
       .flatMap(_.asInstanceOfOption[String])
       .getOrElse("find")
   }
 }
 
-
 object OpQuery {
+
   /**
     * Construct OpQuery from MsgHeader and bytes
     *
@@ -173,15 +175,21 @@ object OpQuery {
   def apply(msgHeader: MsgHeader, content: Seq[Byte]): Option[OpQuery] = {
     val it = content.iterator
     for {
-      flagInt <-  it.getIntOption
+      flagInt <- it.getIntOption
       flags = OpQueryFlags(flagInt)
       fullCollectionName <- it.getStringOption
-      numberToSkip <-it.getIntOption
-      numberToReturn <-it.getIntOption
-      bson <-it.getBsonListOption
+      numberToSkip <- it.getIntOption
+      numberToReturn <- it.getIntOption
+      bson <- it.getBsonListOption
       query = bson.head
       returnFieldSelector = (bson.length == 2) option bson(1)
     } yield
-      new OpQuery(msgHeader, flags, fullCollectionName, numberToSkip, numberToReturn, query, returnFieldSelector)
+      new OpQuery(msgHeader,
+                  flags,
+                  fullCollectionName,
+                  numberToSkip,
+                  numberToReturn,
+                  query,
+                  returnFieldSelector)
   }
 }

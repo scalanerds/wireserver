@@ -33,11 +33,12 @@ import org.bson.BsonDocument
   * @param reserved           Integer value of 0. Reserved for future use.
   */
 class OpUpdate(val msgHeader: MsgHeader,
-    val fullCollectionName: String,
-    val flags: OpUpdateFlags,
-    val selector: BsonDocument,
-    val update: BsonDocument,
-    val reserved: Int = 0) extends Request {
+               val fullCollectionName: String,
+               val flags: OpUpdateFlags,
+               val selector: BsonDocument,
+               val update: BsonDocument,
+               val reserved: Int = 0)
+    extends Request {
 
   /** serialize message into bytes */
   override def contentSerialize: Seq[Byte] = {
@@ -85,6 +86,7 @@ class OpUpdate(val msgHeader: MsgHeader,
 }
 
 object OpUpdate {
+
   /**
     * Construct OpUpdate
     *
@@ -97,11 +99,17 @@ object OpUpdate {
     for {
       reserved <- it.getIntOption
       fullCollectionName <- it.getStringOption
-      flagInt <-it.getIntOption
+      flagInt <- it.getIntOption
       flags = OpUpdateFlags(flagInt)
       bson <- it.getBsonListOption
       selector <- bson.headOption
       update = bson(1)
-    } yield new OpUpdate(msgHeader, fullCollectionName, flags, selector, update, reserved)
+    } yield
+      new OpUpdate(msgHeader,
+                   fullCollectionName,
+                   flags,
+                   selector,
+                   update,
+                   reserved)
   }
 }

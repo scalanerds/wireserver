@@ -7,7 +7,6 @@ import com.scalanerds.wireserver.wire.message.traits.Request
 import com.scalanerds.wireserver.wire.opcodes.flags.OpInsertFlags
 import org.bson.BsonDocument
 
-
 /**
   * Mongo client request
   *
@@ -34,9 +33,10 @@ import org.bson.BsonDocument
   *                           they are written to the socket in sequence, one after another.
   */
 class OpInsert(val msgHeader: MsgHeader,
-    val flags: OpInsertFlags,
-    val fullCollectionName: String,
-    val documents: List[BsonDocument]) extends Request {
+               val flags: OpInsertFlags,
+               val fullCollectionName: String,
+               val documents: List[BsonDocument])
+    extends Request {
 
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++ contentSerialize
@@ -83,8 +83,8 @@ class OpInsert(val msgHeader: MsgHeader,
 
 }
 
-
 object OpInsert {
+
   /**
     * Construct OpInsert
     *

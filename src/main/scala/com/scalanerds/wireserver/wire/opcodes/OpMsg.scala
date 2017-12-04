@@ -5,7 +5,6 @@ import com.scalanerds.wireserver.utils.Conversions._
 import com.scalanerds.wireserver.wire.message.MsgHeader
 import com.scalanerds.wireserver.wire.message.traits.Message
 
-
 /**
   * Generic OpMessage
   *
@@ -33,7 +32,6 @@ class OpMsg(val msgHeader: MsgHeader, val message: String) extends Message {
      """.stripMargin
   }
 
-
   def canEqual(other: Any): Boolean = other.isInstanceOf[OpMsg]
 
   override def equals(other: Any): Boolean = other match {
@@ -52,6 +50,7 @@ class OpMsg(val msgHeader: MsgHeader, val message: String) extends Message {
 }
 
 object OpMsg {
+
   /**
     * Construct OpMsg
     *

@@ -24,6 +24,7 @@ class OpInsertFlags(val continueOnError: Boolean = false) {
 }
 
 object OpInsertFlags {
+
   /**
     * Construct OpInsertFlags from an int
     *

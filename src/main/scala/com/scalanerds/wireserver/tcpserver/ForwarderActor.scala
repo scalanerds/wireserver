@@ -8,12 +8,16 @@ import com.scalanerds.wireserver.utils.Logger
 /** *
   * Actor that forwards the bytestrings after everything has been initialized
   *
-  * this actor is required to avoid creating two actors that process the ByteStream, as one can't be shared
-  * between the sink and the source of the connection because the flow in the router would fail in the merge
+  * this actor is required to avoid creating two actors that process the
+  * ByteStream, as one can't be shared between the sink and the source of
+  * the connection because the flow in the router would fail in the merge
   *
   * @param streamHandler actor that will process the ByteStream
   */
-class ForwarderActor(streamHandler: ActorRef) extends Actor with Stash with Logger {
+class ForwarderActor(streamHandler: ActorRef)
+    extends Actor
+    with Stash
+    with Logger {
   var src: Option[ActorRef] = None
   var gotBytes = false
 

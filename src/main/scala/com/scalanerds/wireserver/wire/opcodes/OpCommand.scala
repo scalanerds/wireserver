@@ -5,7 +5,6 @@ import com.scalanerds.wireserver.wire.message.MsgHeader
 import com.scalanerds.wireserver.wire.message.traits.{Request, WithReply}
 import org.bson._
 
-
 /**
   * Mongo intra-cluster message
   *
@@ -26,13 +25,15 @@ import org.bson._
   * @param inputDocs   Zero or more documents acting as input to the command. Useful for commands that
   *                    can require a large amount of data sent from the client, such as a batch insert.
   */
-class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OpCommandCode),
+class OpCommand(
+    val msgHeader: MsgHeader = new MsgHeader(opCode = OpCommandCode),
     val database: String,
     val commandName: String,
     val metadata: BsonDocument = new BsonDocument(),
     val commandArgs: BsonDocument = new BsonDocument(),
     val inputDocs: List[BsonDocument] = List[BsonDocument]())
-  extends Request with WithReply {
+    extends Request
+    with WithReply {
 
   override def contentSerialize: Seq[Byte] = {
     database.toByteList ++
@@ -50,7 +51,8 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OpCommandCode)
     OpCommandReply(msgHeader.requestId, docs.head)
   }
 
-  override def reply(json: String): Option[OpCommandReply] = reply(BsonDocument.parse(json))
+  override def reply(json: String): Option[OpCommandReply] =
+    reply(BsonDocument.parse(json))
 
   override def reply(content: Seq[Byte]): Option[OpCommandReply] = {
     OpCommandReply(msgHeader.requestId, content)
@@ -67,7 +69,6 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OpCommandCode)
        """.stripMargin
   }
 
-
   def canEqual(other: Any): Boolean = other.isInstanceOf[OpCommand]
 
   override def equals(other: Any): Boolean = other match {
@@ -83,8 +84,12 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OpCommandCode)
   }
 
   override def hashCode(): Int = {
-    val state = Seq(msgHeader.opCode, database, commandName,
-      metadata.toJson, commandArgs.toJson, inputDocs.map(_.toJson).mkString)
+    val state = Seq(msgHeader.opCode,
+                    database,
+                    commandName,
+                    metadata.toJson,
+                    commandArgs.toJson,
+                    inputDocs.map(_.toJson).mkString)
     state
       .map(_.hashCode())
       .foldLeft(0)((a, b) => 31 * a + b)
@@ -103,8 +108,8 @@ class OpCommand(val msgHeader: MsgHeader = new MsgHeader(opCode = OpCommandCode)
   override def command: String = commandName
 }
 
-
 object OpCommand {
+
   /**
     * Construct OpCommand
     *
@@ -120,6 +125,12 @@ object OpCommand {
       metadata <- it.getBsonOption
       commandArgs <- it.getBsonOption
       inputDocs <- it.getBsonListOption
-    } yield new OpCommand(msgHeader, database, commandName, metadata, commandArgs, inputDocs)
+    } yield
+      new OpCommand(msgHeader,
+                    database,
+                    commandName,
+                    metadata,
+                    commandArgs,
+                    inputDocs)
   }
 }

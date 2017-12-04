@@ -15,17 +15,25 @@ import com.scalanerds.wireserver.tcpserver.{TcpFraming, TcpSSL}
   * @param port connection port
   */
 class SSLTcpClient(listener: ActorRef, address: String, port: Int)
-  extends TcpClient(listener, address, port) with TcpSSL with TcpFraming {
+    extends TcpClient(listener, address, port)
+    with TcpSSL
+    with TcpFraming {
 
-  private val clientSSL = TLS(sslContext("/client.keystore", "/truststore"), TLSProtocol.negotiateNewSession, TLSRole
-    .client)
+  private val clientSSL = TLS(sslContext("/client.keystore", "/truststore"),
+                              TLSProtocol.negotiateNewSession,
+                              TLSRole.client)
 
-  private val sink = Flow[SslTlsInbound].collect[ByteString] { case SessionBytes(_, bytes) =>
-    bytes
-  }.via(framing).to(Sink.actorRef(self, PoisonPill))
+  private val sink = Flow[SslTlsInbound]
+    .collect[ByteString] {
+      case SessionBytes(_, bytes) =>
+        bytes
+    }
+    .via(framing)
+    .to(Sink.actorRef(self, PoisonPill))
 
   private val sslFlow = clientSSL.join(Tcp().outgoingConnection(address, port))
 
-  val connection: ActorRef = Source.actorRef(1, OverflowStrategy.fail).via(sslFlow).to(sink).run()
+  val connection: ActorRef =
+    Source.actorRef(1, OverflowStrategy.fail).via(sslFlow).to(sink).run()
 
 }

@@ -14,10 +14,10 @@ import com.scalanerds.wireserver.wire.opcodes._
   * Handle messages received from mongo client
   */
 abstract class MsgHandler extends Actor with Stash with Logger {
+
   /** connection to mongo client */
   var connection: Option[ActorRef] = None
   val log = Logging(context.system, this)
-
 
   override def postStop(): Unit = {
     connection match {
@@ -44,8 +44,8 @@ abstract class MsgHandler extends Actor with Stash with Logger {
     case _ => stash()
   }
 
-
   def initialized: Receive = {
+
     /**
       * WirePacket receivers
       */
@@ -74,7 +74,6 @@ abstract class MsgHandler extends Actor with Stash with Logger {
     */
   def beforeWrite(bytes: ByteString): ByteString = bytes
 
-
   /**
     * Override this method to handle incoming requests
     * By default, parse messages from received requests
@@ -88,15 +87,15 @@ abstract class MsgHandler extends Actor with Stash with Logger {
   /** parse the byte string received from mongo client */
   def parse(data: ByteString): Unit = {
     Message(data).fold(onError(data)) {
-      case msg: OpReply => onOpReply(msg)
-      case msg: OpMsg => onOpMsg(msg)
-      case msg: OpUpdate => onOpUpdate(msg)
-      case msg: OpInsert => onOpInsert(msg)
-      case msg: OpQuery => onOpQuery(msg)
-      case msg: OpGetMore => onOpGetMore(msg)
-      case msg: OpDelete => onOpDelete(msg)
-      case msg: OpKillCursors => onOpKillCursor(msg)
-      case msg: OpCommand => onOpCommand(msg)
+      case msg: OpReply        => onOpReply(msg)
+      case msg: OpMsg          => onOpMsg(msg)
+      case msg: OpUpdate       => onOpUpdate(msg)
+      case msg: OpInsert       => onOpInsert(msg)
+      case msg: OpQuery        => onOpQuery(msg)
+      case msg: OpGetMore      => onOpGetMore(msg)
+      case msg: OpDelete       => onOpDelete(msg)
+      case msg: OpKillCursors  => onOpKillCursor(msg)
+      case msg: OpCommand      => onOpCommand(msg)
       case msg: OpCommandReply => onOpCommandReply(msg)
     }
   }
@@ -104,7 +103,6 @@ abstract class MsgHandler extends Actor with Stash with Logger {
   /////////////////////////////////////////////
   // unimplemented messages
   /////////////////////////////////////////////
-
 
   def onOpReply(msg: OpReply): Unit = {}
 
@@ -139,5 +137,3 @@ abstract class MsgHandler extends Actor with Stash with Logger {
     context stop self
   }
 }
-
-

@@ -21,6 +21,7 @@ class OpDeleteFlags(val singleRemove: Boolean = false) {
 }
 
 object OpDeleteFlags {
+
   /**
     * Construct OpDeleteFlags from an int
     *

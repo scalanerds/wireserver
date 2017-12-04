@@ -5,4 +5,3 @@ import com.scalanerds.wireserver.messages.WirePacket
 
 /** bytes from wireserver to mongo client */
 case class BytesToClient(bytes: ByteString) extends WirePacket
-

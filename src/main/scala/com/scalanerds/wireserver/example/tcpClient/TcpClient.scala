@@ -16,11 +16,10 @@ import com.scalanerds.wireserver.utils.Logger
   * @param port port to establish connection
   */
 abstract class TcpClient(listener: ActorRef, address: String, port: Int)
-  extends Actor with Logger {
-
+    extends Actor
+    with Logger {
 
   val killSwitch: SharedKillSwitch = KillSwitches.shared("switch")
-
 
   override def aroundPostStop(): Unit = {
     logger.debug("killswitch")

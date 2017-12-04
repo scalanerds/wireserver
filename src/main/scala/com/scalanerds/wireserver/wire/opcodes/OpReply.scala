@@ -1,6 +1,5 @@
 package com.scalanerds.wireserver.wire.opcodes
 
-
 import com.scalanerds.wireserver.utils.Conversions._
 import com.scalanerds.wireserver.wire.message.MsgHeader
 import com.scalanerds.wireserver.wire.message.traits.{Message, Response}
@@ -36,11 +35,13 @@ import org.bson.BsonDocument
   * @param documents      Returned documents.
   */
 class OpReply(val msgHeader: MsgHeader = new MsgHeader(opCode = OpReplyCode),
-    val responseFlags: OpReplyFlags = new OpReplyFlags(),
-    val cursorId: Long = 0L,
-    val startingFrom: Int = 0,
-    var numberReturned: Int = 0,
-    var documents: List[BsonDocument]) extends Message with Response {
+              val responseFlags: OpReplyFlags = new OpReplyFlags(),
+              val cursorId: Long = 0L,
+              val startingFrom: Int = 0,
+              var numberReturned: Int = 0,
+              var documents: List[BsonDocument])
+    extends Message
+    with Response {
 
   numberReturned = documents.length
 
@@ -79,14 +80,19 @@ class OpReply(val msgHeader: MsgHeader = new MsgHeader(opCode = OpReplyCode),
   }
 
   override def hashCode(): Int = {
-    Seq(msgHeader.opCode, responseFlags, cursorId, startingFrom, numberReturned, documents)
+    Seq(msgHeader.opCode,
+        responseFlags,
+        cursorId,
+        startingFrom,
+        numberReturned,
+        documents)
       .map(_.hashCode())
       .foldLeft(0)((a, b) => 31 * a + b)
   }
 }
 
-
 object OpReply {
+
   /**
     * Construct OpReply
     *
@@ -104,13 +110,12 @@ object OpReply {
       numberReturned <- it.getIntOption
       documents <- it.getBsonListOption
     } yield
-    new OpReply(msgHeader,
-      responseFlags,
-      cursorId,
-      startingFrom,
-      numberReturned,
-      documents
-    )
+      new OpReply(msgHeader,
+                  responseFlags,
+                  cursorId,
+                  startingFrom,
+                  numberReturned,
+                  documents)
   }
 
   /**
@@ -132,7 +137,9 @@ object OpReply {
     * @param documents BsonDocuments
     * @return OpReply
     */
-  def apply(replyTo: Int, documents: List[BsonDocument] = List[BsonDocument]()): Option[OpReply] = {
+  def apply(
+      replyTo: Int,
+      documents: List[BsonDocument] = List[BsonDocument]()): Option[OpReply] = {
     val msgHeader = new MsgHeader(responseTo = replyTo, opCode = OpReplyCode)
     Some(new OpReply(msgHeader, documents = documents))
   }

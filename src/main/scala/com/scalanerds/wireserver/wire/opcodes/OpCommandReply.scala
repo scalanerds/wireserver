@@ -5,7 +5,6 @@ import com.scalanerds.wireserver.wire.message.MsgHeader
 import com.scalanerds.wireserver.wire.message.traits.{Message, Response}
 import org.bson.BsonDocument
 
-
 /** Mongo server reply
   *
   * Code 2011
@@ -22,11 +21,13 @@ import org.bson.BsonDocument
   * @param outputDocs   Useful for commands that can return a large amount of data, such as find
   *                     or aggregate. (This field is not currently in use.)
   */
-class OpCommandReply(val msgHeader: MsgHeader = new MsgHeader(opCode = OpCommandReplyCode),
-    var metadata: BsonDocument = new BsonDocument(),
-    var commandReply: BsonDocument = new BsonDocument(),
-    var outputDocs: List[BsonDocument] = List()
-) extends Message with Response {
+class OpCommandReply(val msgHeader: MsgHeader = new MsgHeader(
+                       opCode = OpCommandReplyCode),
+                     var metadata: BsonDocument = new BsonDocument(),
+                     var commandReply: BsonDocument = new BsonDocument(),
+                     var outputDocs: List[BsonDocument] = List())
+    extends Message
+    with Response {
 
   override def contentSerialize: Seq[Byte] = {
     metadata.toByteList ++
@@ -62,8 +63,8 @@ class OpCommandReply(val msgHeader: MsgHeader = new MsgHeader(opCode = OpCommand
   }
 }
 
-
 object OpCommandReply {
+
   /**
     * Construct OpCommandReply
     *
@@ -71,7 +72,8 @@ object OpCommandReply {
     * @param content   Message bytes.
     * @return OpCommandReply
     */
-  def apply(msgHeader: MsgHeader, content: Seq[Byte]): Option[OpCommandReply] = {
+  def apply(msgHeader: MsgHeader,
+            content: Seq[Byte]): Option[OpCommandReply] = {
     val it = content.iterator
     for {
       metadata <- it.getBsonOption
@@ -88,8 +90,11 @@ object OpCommandReply {
     *                 part of the command parameters proper, as supplied by the client driver
     * @return OpCommandReply
     */
-  def apply(replyTo: Int, metadata: BsonDocument = new BsonDocument()): Option[OpCommandReply] = {
-    val msgHeader = new MsgHeader(responseTo = replyTo, opCode = OpCommandReplyCode)
+  def apply(
+      replyTo: Int,
+      metadata: BsonDocument = new BsonDocument()): Option[OpCommandReply] = {
+    val msgHeader =
+      new MsgHeader(responseTo = replyTo, opCode = OpCommandReplyCode)
     Some(new OpCommandReply(msgHeader, metadata = metadata))
   }
 
@@ -101,7 +106,8 @@ object OpCommandReply {
     * @return OpCommandReply
     */
   def apply(replyTo: Int, content: Seq[Byte]): Option[OpCommandReply] = {
-    val msgHeader = new MsgHeader(responseTo = replyTo, opCode = OpCommandReplyCode)
+    val msgHeader =
+      new MsgHeader(responseTo = replyTo, opCode = OpCommandReplyCode)
     OpCommandReply(msgHeader, content)
   }
 }

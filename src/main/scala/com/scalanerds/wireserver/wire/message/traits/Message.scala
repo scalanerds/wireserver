@@ -22,7 +22,8 @@ trait Message {
   def serialize: ByteString = {
     msgHeader.raw.getOrElse {
       val content: Seq[Byte] = msgHeader.serialize ++ contentSerialize
-      val raw: ByteString = ByteString((content.length + 4).toByteArray ++ content)
+      val raw: ByteString =
+        ByteString((content.length + 4).toByteArray ++ content)
       msgHeader.raw = Some(raw)
       raw
     }
@@ -54,16 +55,18 @@ object Message {
     } collect {
       case (Some(header), content) => (header, content, header.opCode)
     } collect {
-      case (header, content, OpReplyCode) => OpReply(header, content)
-      case (header, content, OpMsgCode) => OpMsg(header, content)
-      case (header, content, OpUpdateCode) => OpUpdate(header, content)
-      case (header, content, OpInsertCode) => OpInsert(header, content)
-      case (header, content, OpQueryCode) => OpQuery(header, content)
+      case (header, content, OpReplyCode)   => OpReply(header, content)
+      case (header, content, OpMsgCode)     => OpMsg(header, content)
+      case (header, content, OpUpdateCode)  => OpUpdate(header, content)
+      case (header, content, OpInsertCode)  => OpInsert(header, content)
+      case (header, content, OpQueryCode)   => OpQuery(header, content)
       case (header, content, OpGetMoreCode) => OpGetMore(header, content)
-      case (header, content, OpDeleteCode) => OpDelete(header, content)
-      case (header, content, OpKillCursorsCode) => OpKillCursors(header, content)
+      case (header, content, OpDeleteCode)  => OpDelete(header, content)
+      case (header, content, OpKillCursorsCode) =>
+        OpKillCursors(header, content)
       case (header, content, OpCommandCode) => OpCommand(header, content)
-      case (header, content, OpCommandReplyCode) => OpCommandReply(header, content)
+      case (header, content, OpCommandReplyCode) =>
+        OpCommandReply(header, content)
     } flatten
   }
 }

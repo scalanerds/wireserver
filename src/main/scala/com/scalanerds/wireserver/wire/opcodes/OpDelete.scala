@@ -7,7 +7,6 @@ import com.scalanerds.wireserver.wire.message.traits.Request
 import com.scalanerds.wireserver.wire.opcodes.flags.OpDeleteFlags
 import org.bson.BsonDocument
 
-
 /**
   * Mongo client request
   *
@@ -36,10 +35,11 @@ import org.bson.BsonDocument
   * @param reserved           Integer value of 0. Reserved for future use.
   */
 class OpDelete(val msgHeader: MsgHeader,
-    val fullCollectionName: String,
-    val flags: OpDeleteFlags,
-    val selector: BsonDocument,
-    val reserved: Int = 0) extends Request {
+               val fullCollectionName: String,
+               val flags: OpDeleteFlags,
+               val selector: BsonDocument,
+               val reserved: Int = 0)
+    extends Request {
 
   override def serialize: ByteString = {
     val content: Seq[Byte] = msgHeader.serialize ++ contentSerialize
@@ -85,8 +85,8 @@ class OpDelete(val msgHeader: MsgHeader,
 
 }
 
-
 object OpDelete {
+
   /**
     * Construct OpDelete
     *
@@ -102,6 +102,7 @@ object OpDelete {
       flagInt <- it.getIntOption
       flags = OpDeleteFlags(flagInt)
       selector <- it.getBsonOption
-    } yield new OpDelete(msgHeader, fullCollectionName, flags, selector, reserved)
+    } yield
+      new OpDelete(msgHeader, fullCollectionName, flags, selector, reserved)
   }
 }

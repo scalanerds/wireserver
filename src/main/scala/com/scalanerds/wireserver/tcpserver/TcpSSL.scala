@@ -18,14 +18,18 @@ trait TcpSSL {
     val trustStore = KeyStore.getInstance(KeyStore.getDefaultType)
     trustStore.load(getClass.getResourceAsStream(truststore), password)
 
-    val keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm)
+    val keyManagerFactory =
+      KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm)
     keyManagerFactory.init(keyStore, password)
 
-    val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm)
+    val trustManagerFactory =
+      TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm)
     trustManagerFactory.init(trustStore)
 
     val context = SSLContext.getInstance("TLS")
-    context.init(keyManagerFactory.getKeyManagers, trustManagerFactory.getTrustManagers, new SecureRandom)
+    context.init(keyManagerFactory.getKeyManagers,
+                 trustManagerFactory.getTrustManagers,
+                 new SecureRandom)
     context
   }
 }

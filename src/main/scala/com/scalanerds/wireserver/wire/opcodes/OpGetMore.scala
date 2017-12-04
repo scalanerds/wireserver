@@ -1,11 +1,9 @@
 package com.scalanerds.wireserver.wire.opcodes
 
-
 import akka.util.ByteString
 import com.scalanerds.wireserver.utils.Conversions._
 import com.scalanerds.wireserver.wire.message.MsgHeader
 import com.scalanerds.wireserver.wire.message.traits.Message
-
 
 /**
   * Mongo client request
@@ -32,10 +30,11 @@ import com.scalanerds.wireserver.wire.message.traits.Message
   * @param reserved           Integer value of 0. Reserved for future use.
   */
 class OpGetMore(val msgHeader: MsgHeader,
-    val fullCollectionName: String,
-    val numberToReturn: Int,
-    val cursorID: Long,
-    val reserved: Int = 0) extends Message {
+                val fullCollectionName: String,
+                val numberToReturn: Int,
+                val cursorID: Long,
+                val reserved: Int = 0)
+    extends Message {
 
   override def serialize: ByteString = {
     val content = msgHeader.serialize ++ contentSerialize
@@ -78,6 +77,7 @@ class OpGetMore(val msgHeader: MsgHeader,
 }
 
 object OpGetMore {
+
   /**
     * Construct OpGetMore
     *
@@ -92,6 +92,11 @@ object OpGetMore {
       fullCollectionName <- it.getStringOption
       numberToReturn <- it.getIntOption
       cursorID <- it.getLongOption
-    } yield new OpGetMore(msgHeader, fullCollectionName, numberToReturn, cursorID, reserved)
+    } yield
+      new OpGetMore(msgHeader,
+                    fullCollectionName,
+                    numberToReturn,
+                    cursorID,
+                    reserved)
   }
 }
